@@ -1,0 +1,29 @@
+{
+  "name": "autophagous",
+  "private": true,
+  "version": "0.0.0",
+  "description": "autophagous — a field manual for cyclic prolonged fasting and autophagic signalling",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "elm-test",
+    "print": "typst compile typst/cycle-log.typ public/downloads/cycle-log.pdf"
+  },
+  "_comment_overrides": "vite-plugin-elm (3.0.1, latest) hard-pins node-elm-compiler@5.0.6, which hard-pins cross-spawn@6.0.5 — carrying the ReDoS advisory with no upstream release to move to. 6.0.6 is the patch for exactly that, same major, so force it here. (Same reasoning as cryovault.)",
+  "overrides": {
+    "node-elm-compiler": {
+      "cross-spawn": "^6.0.6"
+    }
+  },
+  "devDependencies": {
+    "elm": "0.19.1",
+    "elm-test": "0.19.1-revision17",
+    "vite": "^8.2.0",
+    "vite-plugin-elm": "^3.0.1"
+  },
+  "allowScripts": {
+    "elm@0.19.1": true
+  }
+}

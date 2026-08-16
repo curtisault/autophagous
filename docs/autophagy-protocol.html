@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autophagy Protocol — Cyclic Prolonged Fasting</title>
+<style>
+  :root{
+    --ink:#000;
+    --paper:#fff;
+    --rule:#000;
+    --tint:#e6e6e6;
+    --tint2:#f2f2f2;
+    --measure:44rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:#8a8a8a;
+    color:var(--ink);
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:16px;
+    line-height:1.5;
+  }
+  .sheet{
+    max-width:var(--measure);
+    margin:0 auto;
+    background:var(--paper);
+    padding:3.5rem 3rem 4rem;
+  }
+
+  /* ---------- type roles ---------- */
+  .u{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    font-stretch:condensed;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-weight:700;
+  }
+  .mono{
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-variant-numeric:tabular-nums;
+  }
+  sup.ref{
+    font-family:"SFMono-Regular",Consolas,monospace;
+    font-size:.62em;
+    font-weight:bold;
+    letter-spacing:.02em;
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead{border-bottom:3px solid var(--rule);padding-bottom:1rem;}
+  .masthead .kicker{
+    font-size:.62rem;
+    display:flex;
+    justify-content:space-between;
+    gap:1rem;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:.5rem;
+    margin-bottom:1.1rem;
+  }
+  .masthead h1{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    font-stretch:condensed;
+    text-transform:uppercase;
+    letter-spacing:-.015em;
+    font-weight:800;
+    font-size:2.9rem;
+    line-height:.92;
+    margin:0 0 .6rem;
+  }
+  .masthead .standfirst{
+    font-size:1rem;
+    font-style:italic;
+    margin:0;
+    max-width:32rem;
+  }
+
+  /* ---------- sections ---------- */
+  section{margin-top:2.6rem;}
+  .sec-head{
+    display:flex;
+    align-items:baseline;
+    gap:.85rem;
+    border-bottom:1.5px solid var(--rule);
+    padding-bottom:.35rem;
+    margin-bottom:1.1rem;
+  }
+  .sec-num{
+    font-size:.68rem;
+    border:1.5px solid var(--rule);
+    padding:.12rem .4rem;
+    flex:none;
+  }
+  .sec-head h2{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    font-stretch:condensed;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    font-weight:800;
+    font-size:1.3rem;
+    margin:0;
+    line-height:1.1;
+  }
+  p{margin:0 0 .85rem;}
+  .lede{font-size:1.05rem;}
+
+  /* ---------- slabs ---------- */
+  .slab{
+    border:3px solid var(--rule);
+    padding:1.2rem 1.3rem;
+    margin-bottom:1.2rem;
+  }
+  .slab-title{
+    font-size:.72rem;
+    background:var(--ink);
+    color:var(--paper);
+    display:inline-block;
+    padding:.25rem .6rem;
+    margin:-1.2rem -1.3rem 1rem;
+    position:relative;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .cols{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.4rem 2rem;
+  }
+  .cols h4{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:.66rem;
+    font-weight:700;
+    margin:0 0 .4rem;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:.2rem;
+  }
+  ul.tight{margin:0 0 .6rem;padding-left:1.1rem;}
+  ul.tight li{margin-bottom:.28rem;font-size:.9rem;line-height:1.35;}
+
+  /* ---------- tables ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:0 0 1rem;
+    font-size:.87rem;
+  }
+  th{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.09em;
+    font-size:.62rem;
+    font-weight:700;
+    text-align:left;
+    border-bottom:1.5px solid var(--rule);
+    padding:.4rem .5rem;
+    vertical-align:bottom;
+  }
+  td{
+    border-bottom:.5px solid var(--rule);
+    padding:.5rem .5rem;
+    vertical-align:top;
+    line-height:1.35;
+  }
+  tr.hero td{
+    background:var(--tint);
+    font-weight:bold;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .amt{white-space:nowrap;}
+
+  /* ---------- cycle bar ---------- */
+  .cycle{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    border:1.5px solid var(--rule);
+    margin:1.2rem 0 .4rem;
+  }
+  .cycle div{
+    border-right:1.5px solid var(--rule);
+    padding:.7rem .6rem;
+  }
+  .cycle div:last-child{border-right:none;}
+  .cycle .ph{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-size:.58rem;
+    font-weight:700;
+    display:block;
+    margin-bottom:.25rem;
+  }
+  .cycle .dy{
+    font-family:"SFMono-Regular",Consolas,monospace;
+    font-size:1.15rem;
+    font-weight:bold;
+    display:block;
+    line-height:1;
+  }
+  .cycle .ds{font-size:.72rem;display:block;margin-top:.3rem;line-height:1.25;}
+
+  /* ---------- ruler ---------- */
+  .ruler-wrap{margin:1.6rem 0 2rem;}
+  .flagrow{position:relative;height:1.35em;}
+  .flagrow span{
+    position:absolute;
+    transform:translateX(-50%);
+    white-space:nowrap;
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:.6rem;
+    font-weight:700;
+  }
+  .ruler{position:relative;height:40px;border:1.5px solid var(--rule);}
+  .zone{
+    position:absolute;top:0;bottom:0;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .zone.tint{background:var(--tint2);}
+  .zone.hatch{background-image:repeating-linear-gradient(45deg,#000 0 1px,transparent 1px 7px);}
+  .vdiv{position:absolute;top:0;bottom:0;width:1.5px;background:var(--ink);}
+  .rlbl{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center;}
+  .rlbl b{
+    font-family:"SFMono-Regular",Consolas,monospace;
+    font-size:.78rem;
+    background:var(--paper);
+    padding:1px 4px;
+  }
+  .target{
+    position:absolute;top:-6px;bottom:-6px;
+    width:3px;background:var(--ink);
+    transform:translateX(-1.5px);
+  }
+  .ticks{position:relative;height:1.4em;margin-top:4px;}
+  .tick{
+    position:absolute;top:0;
+    font-family:"SFMono-Regular",Consolas,monospace;
+    font-size:.62rem;
+    transform:translateX(-50%);
+  }
+  .tick::before{
+    content:"";position:absolute;left:50%;top:-4px;
+    width:1px;height:4px;background:var(--ink);
+  }
+  .tick.first{transform:none;}
+  .tick.first::before{left:0;}
+  .tick.last{transform:translateX(-100%);}
+  .tick.last::before{left:auto;right:0;}
+  .names{position:relative;height:2.6em;margin-top:.2rem;}
+  .nm{
+    position:absolute;top:0;text-align:center;
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    font-stretch:condensed;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    font-size:.58rem;
+    font-weight:700;
+    line-height:1.2;
+  }
+  .nm.low{top:1.35em;}
+  .legend{display:flex;gap:1.4rem;margin-top:.5rem;font-size:.62rem;flex-wrap:wrap;}
+  .legend span{display:flex;align-items:center;gap:.35rem;}
+  .swatch{
+    width:1.5rem;height:.75rem;
+    border:1px solid var(--rule);
+    flex:none;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .swatch.tint{background:var(--tint2);}
+  .swatch.hatched{background-image:repeating-linear-gradient(45deg,#000 0 1px,transparent 1px 7px);}
+  .swatch.mark{width:3px;background:var(--ink);border:none;height:1rem;}
+
+  /* ---------- stage cards ---------- */
+  .stage{
+    border-top:1.5px solid var(--rule);
+    padding:.9rem 0 .3rem;
+    display:grid;
+    grid-template-columns:5.5rem 1fr;
+    gap:1.4rem;
+  }
+  .stage-meta .no{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    font-size:1.9rem;font-weight:800;line-height:1;display:block;
+  }
+  .stage-meta .hrs{
+    font-family:"SFMono-Regular",Consolas,monospace;
+    font-size:.72rem;display:block;margin-top:.2rem;
+  }
+  .stage h3{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    font-stretch:condensed;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    font-size:1.02rem;
+    margin:0 0 .4rem;
+  }
+  .stage p{font-size:.9rem;margin-bottom:.5rem;}
+  .feel{
+    font-size:.78rem;
+    border-left:3px solid var(--rule);
+    padding-left:.6rem;
+    margin-bottom:.4rem;
+  }
+  .feel b{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-size:.62rem;
+  }
+
+  /* ---------- log ---------- */
+  .log td,.log th{border:1px solid var(--rule);height:2rem;}
+  .log th{font-size:.55rem;text-align:center;padding:.3rem .15rem;}
+  .log td{padding:.2rem;}
+  .box{
+    display:inline-block;
+    width:.8rem;height:.8rem;
+    border:1px solid var(--rule);
+    vertical-align:-2px;
+  }
+
+  .note{
+    font-size:.8rem;
+    background:var(--tint2);
+    border-left:4px solid var(--rule);
+    padding:.7rem .9rem;
+    margin:0 0 1rem;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .note b{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-size:.64rem;
+  }
+
+  /* ---------- references ---------- */
+  ol.refs{
+    font-size:.72rem;
+    line-height:1.4;
+    padding-left:2rem;
+    margin:0;
+  }
+  ol.refs li{margin-bottom:.45rem;}
+  .evidence{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    font-size:.54rem;
+    font-weight:700;
+    border:1px solid var(--rule);
+    padding:.05rem .3rem;
+    white-space:nowrap;
+  }
+
+  footer{
+    margin-top:2.5rem;
+    border-top:3px solid var(--rule);
+    padding-top:.8rem;
+    font-size:.72rem;
+  }
+
+  /* ---------- print ---------- */
+  @page{margin:14mm;}
+  @media print{
+    body{background:#fff;font-size:10.5pt;}
+    .sheet{max-width:none;padding:0;}
+    .page-break{page-break-before:always;}
+    section,.slab,table,.stage,.ruler-wrap,.cycle{page-break-inside:avoid;}
+    tr{page-break-inside:avoid;}
+    ol.refs li{page-break-inside:avoid;}
+    .masthead h1{font-size:30pt;}
+    a{text-decoration:none;color:#000;}
+  }
+
+  @media (max-width:640px){
+    .sheet{padding:2rem 1.25rem 3rem;}
+    .masthead h1{font-size:2rem;}
+    .cols{grid-template-columns:1fr;}
+    .stage{grid-template-columns:1fr;gap:.4rem;}
+    .stage-meta{display:flex;align-items:baseline;gap:.7rem;}
+    table{font-size:.78rem;}
+    .cycle{grid-template-columns:1fr 1fr;}
+    .cycle div:nth-child(2){border-right:none;}
+    .cycle div:nth-child(1),.cycle div:nth-child(2){border-bottom:1.5px solid var(--rule);}
+    .names{display:none;}
+    .legend{gap:.35rem .9rem;font-size:.58rem;}
+    .flagrow span{font-size:.55rem;}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<header class="masthead">
+  <div class="kicker u">
+    <span>Autophagy Protocol</span>
+    <span>Cyclic &middot; 72&ndash;96 h</span>
+    <span>Rev. 3</span>
+  </div>
+  <h1>Demolition<br>and rebuild</h1>
+  <p class="standfirst">A cycle-based protocol for maximising autophagic signalling: how to prime for it, what is mandatory during the fast, and why the refeed is half the intervention.</p>
+</header>
+
+<!-- SECTION 01 -->
+<section>
+  <div class="sec-head"><span class="sec-num u">01</span><h2>What you can and cannot know</h2></div>
+
+  <p class="lede">You cannot measure your own autophagy. Nobody can, easily.</p>
+
+  <p>Autophagy is measured by tissue biopsy and immunoblotting for markers like LC3B lipidation and p62 clearance &mdash; and even in laboratories, distinguishing genuine autophagic <em>flux</em> from a backed-up pipeline requires careful controls.<sup class="ref">[1]</sup> There is no blood test, no wearable, no home assay. Ketone meters measure ketosis, which is a correlated but separate process.</p>
+
+  <p>This matters for how you should read every number below. Most autophagy timing data comes from rodents, whose metabolic rate is several times faster than ours; a 24-hour mouse fast is not a 24-hour human fast. Claims that "autophagy peaks at hour 72" are extrapolation presented as fact. What follows optimises the <em>mechanisms known to switch autophagy on</em>, which is the honest version of the goal.</p>
+
+  <div class="note">
+    <b>The practical consequence.</b> Since you can't verify the output, choose the approach with the best risk-adjusted mechanistic case rather than the most extreme one. That single principle is why this protocol recommends repeated 3-to-4 day cycles instead of one seven-day fast.
+  </div>
+</section>
+
+<!-- SECTION 02 -->
+<section>
+  <div class="sec-head"><span class="sec-num u">02</span><h2>The two switches</h2></div>
+
+  <p>Every rule in this document derives from two nutrient sensors. Yoshinori Ohsumi's mapping of the autophagy machinery won the 2016 Nobel Prize in Physiology or Medicine;<sup class="ref">[2]</sup> what follows is the applied edge of it.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:20%">Sensor</th><th style="width:34%">Autophagy is ON when</th><th>What flips it the wrong way</th></tr>
+    </thead>
+    <tbody>
+      <tr class="hero">
+        <td>mTORC1</td>
+        <td>It is <b>inhibited</b> &mdash; no growth signal present</td>
+        <td>Amino acids, <b>especially leucine</b>. Sestrin2 binds leucine directly and releases its brake on mTORC1 at concentrations around 20&nbsp;&micro;M.<sup class="ref">[3]</sup> Also insulin and IGF-1.</td>
+      </tr>
+      <tr>
+        <td>AMPK</td>
+        <td>It is <b>activated</b> &mdash; cellular energy is low</td>
+        <td>Available calories of any kind. Fat included.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>The single most important consequence.</b> mTORC1 senses <em>amino acids directly</em>, not just calories. A small amount of protein suppresses autophagic signalling far more effectively than the same calories as fat. This is why bone broth, collagen, BCAAs and "fasting-safe" protein products are excluded below, and it is the biggest change from a general-purpose fasting protocol.
+  </div>
+</section>
+
+<!-- SECTION 03 -->
+<section>
+  <div class="sec-head"><span class="sec-num u">03</span><h2>Read this before anything else</h2></div>
+
+  <div class="slab">
+    <div class="slab-title u">Do not attempt without a doctor</div>
+    <div class="cols">
+      <div>
+        <h4>Hard contraindications</h4>
+        <ul class="tight">
+          <li>Type 1 diabetes, or Type 2 on insulin or sulfonylureas</li>
+          <li><b>SGLT2 inhibitors</b> &mdash; risk of euglycemic ketoacidosis</li>
+          <li>Pregnancy or breastfeeding</li>
+          <li>Any history of an eating disorder</li>
+          <li>BMI under 18.5, or currently underweight</li>
+          <li>Under 18, or frail / elderly</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Clear it first</h4>
+        <ul class="tight">
+          <li>Diuretics, ACE inhibitors, ARBs, spironolactone</li>
+          <li>Lithium &mdash; levels shift with sodium and fluid</li>
+          <li>Kidney disease of any stage</li>
+          <li>Arrhythmia or known heart condition</li>
+          <li>Gout &mdash; uric acid rises during a fast</li>
+          <li>Blood pressure medication &mdash; doses often need reducing<sup class="ref">[4]</sup></li>
+          <li><b>GLP-1 receptor agonists</b> &mdash; substantial changes required, see &sect;04</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="slab">
+    <div class="slab-title u">Break the fast immediately if</div>
+    <div class="cols">
+      <ul class="tight">
+        <li>Heart palpitations or irregular heartbeat</li>
+        <li>Chest pain</li>
+        <li>Fainting, or near-fainting that doesn't resolve on sitting</li>
+        <li>Confusion, slurred speech, or disorientation</li>
+      </ul>
+      <ul class="tight">
+        <li>Persistent vomiting, or you can't keep water down</li>
+        <li>Visual disturbance</li>
+        <li>Severe weakness &mdash; can't climb stairs</li>
+        <li>Numbness or tingling that spreads</li>
+      </ul>
+    </div>
+    <p style="font-size:.85rem;margin:.4rem 0 0;">None of these are "push through" symptoms. Eat something, salt it, and reassess. A cycle abandoned early costs you almost nothing; you have another one next month.</p>
+  </div>
+
+  <div class="note">
+    <b>On the safety literature.</b> The largest prolonged-fasting safety study &mdash; 1,422 people fasting 4 to 21 days, adverse events under 1% &mdash; is frequently cited as evidence that long fasts are safe.<sup class="ref">[5]</sup> Two caveats worth knowing: it was conducted at a specialist clinic with medical supervision, and the protocol was <em>not</em> water-only. Participants received roughly 200&ndash;250 kcal per day. Unsupervised water fasting is a different intervention with a different risk profile.
+  </div>
+</section>
+
+<!-- SECTION 04 -->
+<section class="page-break">
+  <div class="sec-head"><span class="sec-num u">04</span><h2>If you are on a GLP-1</h2></div>
+
+  <p class="lede">Semaglutide, tirzepatide, liraglutide and their relatives change this protocol enough that it stops being a self-managed proposition.</p>
+
+  <p>This is not a caution added out of an abundance of care. Four specific mechanisms interact badly with prolonged fasting, and two of them affect the refeed &mdash; already the most dangerous part of the cycle.</p>
+
+  <div class="slab">
+    <div class="slab-title u">Discuss with your prescriber before cycle 1</div>
+    <table style="margin-bottom:0;">
+      <thead>
+        <tr><th style="width:30%">Interaction</th><th>What it means for this protocol</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hero">
+          <td>Delayed gastric emptying</td>
+          <td>GLP-1s slow gastric emptying roughly two- to four-fold. The anesthesia literature records patients with substantial solid gastric contents despite correct fasting &mdash; in some cases after more than a day without food and weeks off the drug.<sup class="ref">[18]</sup> The refeed schedule in &sect;09 assumes food moves through on a normal clock. Yours may not.</td>
+        </tr>
+        <tr class="hero">
+          <td>You may already meet a refeeding risk criterion</td>
+          <td>Standard clinical criteria flag unintentional weight loss above 10&ndash;15% over 3&ndash;6 months as elevated refeeding-syndrome risk<sup class="ref">[13]</sup> &mdash; a threshold many GLP-1 users cross. Months of reduced intake can also leave phosphate, magnesium and thiamine stores low invisibly. The "3&ndash;4 days is safer than 7" reasoning assumed a well-nourished, weight-stable baseline.</td>
+        </tr>
+        <tr>
+          <td>Lean mass is already under pressure</td>
+          <td>In the SURMOUNT-1 DXA substudy roughly 25% of weight lost was lean mass; semaglutide substudies have reported higher fractions.<sup class="ref">[19]</sup> Stacking prolonged fasting compounds precisely what Phase 4 exists to counteract.</td>
+        </tr>
+        <tr>
+          <td>You cannot time around it</td>
+          <td>Semaglutide's half-life is about a week &mdash; roughly five weeks to clear. Skipping a single injection resets nothing. Whatever you decide, you are fasting on the drug.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-family:'Helvetica Neue',Arial,sans-serif;font-stretch:condensed;text-transform:uppercase;letter-spacing:.05em;font-size:1rem;margin:1.4rem 0 .6rem;">Modifications, if you get the green light</h3>
+
+  <table>
+    <thead>
+      <tr><th style="width:26%">Section</th><th style="width:30%">Standard</th><th>On a GLP-1</th></tr>
+    </thead>
+    <tbody>
+      <tr class="hero"><td>Fast length</td><td>72&ndash;96 h</td><td><b>Cap at 72 h.</b> Drop the optional fourth day entirely.</td></tr>
+      <tr><td>Cycle spacing</td><td>Monthly</td><td>Every 6&ndash;8 weeks. More recovery, fewer cumulative deficits.</td></tr>
+      <tr><td>Timing</td><td>Any time</td><td><b>Never during dose escalation</b> or in the weeks after a dose increase &mdash; GI effects and emptying delay are worst then.</td></tr>
+      <tr><td>Refeed (&sect;09)</td><td>2 days</td><td><b>3&ndash;4 days.</b> See modified sequence below.</td></tr>
+      <tr><td>Protein &amp; training (&sect;10)</td><td>Recommended</td><td><b>Mandatory.</b> Hit the protein target and lift. This is the only lever against compounded lean mass loss.</td></tr>
+      <tr><td>Hydration</td><td>2&ndash;3 L salted</td><td>Same targets, higher vigilance. GI losses plus fasting natriuresis plus blunted thirst is a real volume-depletion and kidney risk.</td></tr>
+      <tr><td>Hunger as a signal</td><td>Fades ~36&ndash;48 h</td><td>Meaningless. Your appetite is already suppressed, so you lose that feedback channel. Rely on the log, not on how you feel.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="slab">
+    <div class="slab-title u">Modified refeed sequence</div>
+    <ul class="tight" style="margin-bottom:0;">
+      <li><b>Thiamine first</b>, before anything else, exactly as in &sect;09.</li>
+      <li><b>Clear liquids only for the first 6&ndash;8 hours.</b> Vegetable broth, thin soup. Amino acids are no longer a concern once the fast has ended.</li>
+      <li><b>Liquid and pureed textures for the first 24 hours.</b> Solids are what get retained. Soups, purees, yoghurt &mdash; not salad, not meat.</li>
+      <li><b>Very small volumes, frequently.</b> A quarter of what seems reasonable, every 2&ndash;3 hours.</li>
+      <li><b>Stay upright for an hour after eating.</b> Do not eat and lie down.</li>
+      <li><b>If you feel full, stop.</b> Fullness on a GLP-1 after a fast means food is sitting, not that you have eaten enough. Pushing more in on top is the failure mode.</li>
+      <li><b>Solids only from day 2</b>, and only if day 1 passed without nausea.</li>
+    </ul>
+  </div>
+
+  <div class="slab">
+    <div class="slab-title u">Additional abort signals</div>
+    <div class="cols">
+      <ul class="tight">
+        <li>Any vomiting &mdash; not just persistent vomiting</li>
+        <li>Severe abdominal distension or pain</li>
+        <li>Inability to pass stool or gas</li>
+      </ul>
+      <ul class="tight">
+        <li>Reflux or regurgitation, especially lying down</li>
+        <li>Dark urine or no urine output</li>
+        <li>Dizziness that persists after salt and fluid</li>
+      </ul>
+    </div>
+    <p style="font-size:.85rem;margin:.4rem 0 0;">Bowel obstruction and ileus appear in GLP-1 labelling as recognised risks. Distension with absent bowel movements is an urgent-care symptom, not a fasting symptom.</p>
+  </div>
+
+  <h3 style="font-family:'Helvetica Neue',Arial,sans-serif;font-stretch:condensed;text-transform:uppercase;letter-spacing:.05em;font-size:1rem;margin:1.4rem 0 .6rem;">Bloodwork to request beforehand</h3>
+
+  <div class="cols">
+    <div>
+      <h4>Directly relevant</h4>
+      <ul class="tight">
+        <li><b>Phosphate</b> &mdash; the refeeding-syndrome marker, rarely on a standard panel unless asked</li>
+        <li><b>Magnesium</b> &mdash; also frequently omitted</li>
+        <li>Potassium and sodium</li>
+        <li>Creatinine and eGFR &mdash; kidney baseline</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Useful context</h4>
+      <ul class="tight">
+        <li>Full blood count and albumin &mdash; nutritional status</li>
+        <li>HbA1c or fasting glucose</li>
+        <li>Liver function</li>
+        <li>Repeat phosphate and magnesium after the first refeed</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>One honest gap.</b> Whether GLP-1 agonists themselves raise or blunt autophagic signalling is not settled. There is preclinical work pointing both directions and no clean human answer. So the interaction with the specific thing you are targeting is unknown &mdash; the risks above are well characterised, the benefit side is not.
+  </div>
+</section>
+
+<!-- SECTION 05 -->
+<section class="page-break">
+  <div class="sec-head"><span class="sec-num u">05</span><h2>The cycle</h2></div>
+
+  <p class="lede">One fast is an event. Cycles are the intervention.</p>
+
+  <p>Autophagic signalling begins upregulating early &mdash; around the 16-to-24 hour mark as glycogen depletes &mdash; and the marginal gain from hour 120 to hour 168 is speculative while the risk curve is not. The published regenerative work is built on <em>repeated cycles</em>: fasting-mimicking protocols run five days monthly for three months, not one long fast.<sup class="ref">[6][7]</sup> More cumulative cycles beats one heroic effort, and it keeps you clear of the window where refeeding syndrome becomes serious.</p>
+
+  <div class="cycle">
+    <div>
+      <span class="ph">Phase 1</span>
+      <span class="dy">3 d</span>
+      <span class="ds">Prime. Deplete glycogen, load inducers.</span>
+    </div>
+    <div>
+      <span class="ph">Phase 2</span>
+      <span class="dy">3&ndash;4 d</span>
+      <span class="ds">Fast. Water, salt, minerals only.</span>
+    </div>
+    <div>
+      <span class="ph">Phase 3</span>
+      <span class="dy">2 d</span>
+      <span class="ds">Refeed. Careful, ordered reintroduction.</span>
+    </div>
+    <div>
+      <span class="ph">Phase 4</span>
+      <span class="dy">~3 wk</span>
+      <span class="ds">Rebuild. Eat and train normally.</span>
+    </div>
+  </div>
+  <p class="u" style="font-size:.6rem;margin:0 0 1rem;">Repeat monthly &middot; do not stack cycles back to back</p>
+
+  <div class="note">
+    <b>Autophagy is only the demolition half.</b> The rebuild &mdash; stem-cell repopulation, mitochondrial biogenesis &mdash; happens on <em>refeeding</em>, not during the fast. In the hematopoietic stem cell work, the regenerative signal appeared in the fasting/refeeding cycle, not in starvation alone.<sup class="ref">[8]</sup> A fast without a well-executed refeed is half an intervention performed badly.
+  </div>
+</section>
+
+<!-- SECTION 06 -->
+<section>
+  <div class="sec-head"><span class="sec-num u">06</span><h2>Phase 1 &mdash; priming, 3 days</h2></div>
+
+  <p>Two goals: arrive at the fast with liver glycogen already low, so you reach the metabolic switch in hours rather than a full day; and load compounds with independent pro-autophagic evidence.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:26%">Do this</th><th style="width:32%">Specifically</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+      <tr class="hero">
+        <td>Go low-carbohydrate</td>
+        <td>Under ~50 g/day for three days. Moderate protein, generous fat.</td>
+        <td>Empties glycogen ahead of time. You start the fast most of the way through Stage I instead of at hour zero.</td>
+      </tr>
+      <tr>
+        <td>Load spermidine</td>
+        <td>Wheat germ (richest common source), natto, aged cheese, mushrooms, legumes, broccoli.</td>
+        <td>Spermidine induces autophagy via EP300 inhibition &mdash; a route independent of mTOR &mdash; and extends lifespan across species.<sup class="ref">[9][10][11]</sup></td>
+      </tr>
+      <tr>
+        <td>Load polyphenols</td>
+        <td>Green tea, coffee, extra-virgin olive oil, berries, dark chocolate.</td>
+        <td>Pro-autophagic polyphenols reduce cytoplasmic protein acetylation, the same signature nutrient depletion produces.<sup class="ref">[12]</sup></td>
+      </tr>
+      <tr>
+        <td>Taper protein on day &minus;1</td>
+        <td>Keep the last day's protein light. No large steak, no protein shake, no leucine-heavy final meal.</td>
+        <td>Reduces the amino acid signal you carry into the fast. Leucine is the specific molecule mTORC1 is listening for.<sup class="ref">[3]</sup></td>
+      </tr>
+      <tr>
+        <td>Start salting early</td>
+        <td>Extra sodium through the final 24 hours.</td>
+        <td>Gets ahead of the natriuresis rather than chasing it. Prevents most of day one's misery.</td>
+      </tr>
+      <tr>
+        <td>Stop alcohol</td>
+        <td>Zero for the full priming window.</td>
+        <td>Depletes thiamine &mdash; the exact reserve you need intact for the refeed.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- SECTION 07 -->
+<section>
+  <div class="sec-head"><span class="sec-num u">07</span><h2>Phase 2 &mdash; hard requirements</h2></div>
+
+  <p class="lede">Non-negotiable. Electrolytes determine whether you finish; the exclusions determine whether it counts.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:22%">Required daily</th><th style="width:22%">Target</th><th>Source and notes</th></tr>
+    </thead>
+    <tbody>
+      <tr class="hero">
+        <td>Sodium</td>
+        <td class="amt mono">3,000&ndash;5,000 mg</td>
+        <td>1¼&ndash;2 tsp fine salt, divided across the day in water. Falling insulin makes the kidneys dump sodium; this is the cause of most "fasting fatigue," headache and cramping.</td>
+      </tr>
+      <tr>
+        <td>Potassium</td>
+        <td class="amt mono">1,000&ndash;3,000 mg</td>
+        <td>Potassium chloride "lite salt," ⅓&ndash;1 tsp <b>divided into small doses across the day</b>. See warning below.</td>
+      </tr>
+      <tr>
+        <td>Magnesium</td>
+        <td class="amt mono">300&ndash;500 mg</td>
+        <td>Glycinate or malate, taken at night. Citrate works but loosens the bowels.</td>
+      </tr>
+      <tr class="hero">
+        <td>Thiamine (B1)</td>
+        <td class="amt mono">50&ndash;100 mg</td>
+        <td>Stores run only weeks and are consumed rapidly when carbohydrate returns. This is your refeeding insurance.<sup class="ref">[13]</sup></td>
+      </tr>
+      <tr>
+        <td>Water</td>
+        <td class="amt mono">2&ndash;3 L</td>
+        <td><b>Salted.</b> Drinking large volumes of plain water while sodium-depleted causes hyponatremia. Thirst plus salt, not volume for its own sake.</td>
+      </tr>
+      <tr>
+        <td>Black coffee</td>
+        <td class="amt mono">1&ndash;3 cups</td>
+        <td>Promoted from "permitted" to "recommended." Coffee raised autophagic flux in liver, muscle and heart within 1&ndash;4 hours and inhibited mTORC1 &mdash; and the effect held for decaffeinated coffee, implicating the polyphenols rather than caffeine.<sup class="ref">[14]</sup></td>
+      </tr>
+      <tr>
+        <td>Walking</td>
+        <td class="amt mono">30&ndash;60 min</td>
+        <td>Easy pace, days 1&ndash;2, tapering after. Exercise is an independent autophagy inducer across muscle, liver, pancreas and adipose tissue.<sup class="ref">[15]</sup> No hard training.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="slab">
+    <div class="slab-title u">Excluded &mdash; these defeat the purpose</div>
+    <div class="cols">
+      <div>
+        <h4>Breaks the mTORC1 target</h4>
+        <ul class="tight">
+          <li><b>Bone broth</b> &mdash; standard fasting advice, wrong for this goal</li>
+          <li>Collagen, BCAAs, EAAs, any protein powder</li>
+          <li>"Fasting-safe" supplements containing amino acids</li>
+          <li>Gelatin capsules in quantity</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Breaks the AMPK target</h4>
+        <ul class="tight">
+          <li><b>MCT oil, butter, cream</b> &mdash; "fat doesn't break a fast" is false here</li>
+          <li>Exogenous ketones</li>
+          <li>Anything with calories, including "just a splash"</li>
+          <li>Sweeteners and gum &mdash; cephalic-phase insulin response</li>
+        </ul>
+      </div>
+    </div>
+    <p style="font-size:.85rem;margin:.5rem 0 0;">Permitted without qualification: water, salt, the minerals above, black coffee, plain and green tea, sparkling water.</p>
+  </div>
+
+  <div class="note">
+    <b>Potassium warning.</b> Never take potassium as a single large dose &mdash; it can trigger arrhythmia. Divide it across the day in water. Skip potassium supplementation entirely if you have any kidney impairment or take ACE inhibitors, ARBs, or potassium-sparing diuretics. This is the one item here with a genuinely narrow margin.
+  </div>
+
+  <div class="note">
+    <b>Also required:</b> stand up slowly every time, keep the room warm, don't drive while lightheaded, and skip saunas and hot baths entirely &mdash; fainting risk is real and peaks on days 2&ndash;3.
+  </div>
+</section>
+
+<!-- SECTION 08 -->
+<section class="page-break">
+  <div class="sec-head"><span class="sec-num u">08</span><h2>Stages, by the clock</h2></div>
+
+  <div class="ruler-wrap">
+    <div class="flagrow">
+      <span style="left:75%">&#9660; 72 h &mdash; target</span>
+    </div>
+    <div class="ruler">
+      <div class="zone tint" style="left:75%;width:25%"></div>
+      <div class="zone hatch" style="left:0;width:16.667%"></div>
+      <div class="vdiv" style="left:16.667%"></div>
+      <div class="vdiv" style="left:25%"></div>
+      <div class="vdiv" style="left:50%"></div>
+      <div class="rlbl" style="left:0;width:16.667%"><b>I</b></div>
+      <div class="rlbl" style="left:16.667%;width:8.333%"><b>II</b></div>
+      <div class="rlbl" style="left:25%;width:25%"><b>III</b></div>
+      <div class="rlbl" style="left:50%;width:25%"><b>IV</b></div>
+      <div class="rlbl" style="left:75%;width:25%"><b>V</b></div>
+      <div class="target" style="left:75%"></div>
+    </div>
+    <div class="ticks">
+      <div class="tick first" style="left:0">0h</div>
+      <div class="tick" style="left:16.667%">16</div>
+      <div class="tick" style="left:25%">24</div>
+      <div class="tick" style="left:50%">48</div>
+      <div class="tick" style="left:75%">72</div>
+      <div class="tick last" style="left:100%">96</div>
+    </div>
+    <div class="names">
+      <div class="nm" style="left:0;width:16.667%">Draw-down</div>
+      <div class="nm low" style="left:16.667%;width:8.333%">Switch</div>
+      <div class="nm" style="left:25%;width:25%">Climbing</div>
+      <div class="nm" style="left:50%;width:25%">Sustained</div>
+      <div class="nm" style="left:75%;width:25%">Optional extension</div>
+    </div>
+    <div class="legend">
+      <span><i class="swatch hatched"></i> Shortened by priming</span>
+      <span><i class="swatch mark"></i> Minimum target</span>
+      <span><i class="swatch tint"></i> Optional 4th day</span>
+    </div>
+    <p class="u" style="font-size:.6rem;margin:.5rem 0 0;">Linear scale &middot; band width is true to duration</p>
+  </div>
+
+  <div class="stage">
+    <div class="stage-meta"><span class="no">I</span><span class="hrs">0&ndash;16 h</span></div>
+    <div>
+      <h3>Glycogen draw-down</h3>
+      <p>Insulin falls, the liver releases stored glucose. Roughly 100 g of glycogen is spent. Autophagy remains at baseline &mdash; nutrient sensors still read "fed."</p>
+      <p class="feel"><b>Autophagy</b> &mdash; Baseline. Nothing yet. <b>This is the stage your priming phase shortens</b>, potentially to a few hours.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-meta"><span class="no">II</span><span class="hrs">16&ndash;24 h</span></div>
+    <div>
+      <h3>The switch</h3>
+      <p>Glycogen runs out. Lipolysis accelerates, ketogenesis begins, and as insulin, IGF-1 and amino acid availability all fall together, mTORC1 goes quiet and AMPK activates.<sup class="ref">[16]</sup></p>
+      <p class="feel"><b>Autophagy</b> &mdash; Upregulation begins here. This is the entry point, not hour 72.</p>
+      <p class="feel"><b>How it feels</b> &mdash; The worst stretch. Hunger waves, irritability, headache. Salt now.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-meta"><span class="no">III</span><span class="hrs">24&ndash;48 h</span></div>
+    <div>
+      <h3>Climbing</h3>
+      <p>Ketones rise from roughly 0.5 toward 2&ndash;3 mmol/L. Gluconeogenesis supplies what glucose is still needed from glycerol, lactate and amino acids. Insulin and IGF-1 reach their floor &mdash; and it is the IGF-1 drop that drives the regenerative signalling downstream.<sup class="ref">[8]</sup></p>
+      <p class="feel"><b>Autophagy</b> &mdash; Sustained induction. Every hour here is doing work.</p>
+      <p class="feel"><b>How it feels</b> &mdash; Hunger usually fades around hour 36&ndash;48, often abruptly. Clarity frequently improves.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-meta"><span class="no">IV</span><span class="hrs">48&ndash;72 h</span></div>
+    <div>
+      <h3>Sustained</h3>
+      <p>Deep ketosis, near-exclusive fat oxidation, nitrogen loss falling as protein sparing engages.<sup class="ref">[17]</sup> Growth hormone is markedly elevated. All the upstream conditions for autophagy are maximally satisfied and stay that way.</p>
+      <p class="feel"><b>Autophagy</b> &mdash; Held at the induced state. The plateau you came for.</p>
+      <p class="feel"><b>How it feels</b> &mdash; Weaker, cold, low stamina. Standing fast will grey your vision.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-meta"><span class="no">V</span><span class="hrs">72&ndash;96 h</span></div>
+    <div>
+      <h3>Optional extension</h3>
+      <p>A steady state; little changes mechanistically. Take this day if the fast has gone smoothly and you're experienced, skip it freely if not.</p>
+      <p class="feel"><b>Autophagy</b> &mdash; No clear additional induction, just more time at the plateau. Diminishing returns begin.</p>
+      <p class="feel"><b>Stop here.</b> Past roughly day five, refeeding syndrome risk climbs steeply while the mechanistic case flattens. That trade is the reason this protocol caps at four days.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 09 -->
+<section class="page-break">
+  <div class="sec-head"><span class="sec-num u">09</span><h2>Phase 3 &mdash; the refeed</h2></div>
+
+  <div class="slab">
+    <div class="slab-title u">Refeeding syndrome</div>
+    <p style="margin:0 0 .7rem;font-size:.92rem;">More people are harmed breaking a long fast than doing one. A large carbohydrate load spikes insulin, which drives phosphate, potassium and magnesium rapidly out of the bloodstream into cells. The resulting hypophosphataemia can cause arrhythmia, respiratory failure and death.<sup class="ref">[13]</sup></p>
+    <p style="margin:0;font-size:.92rem;">At 3&ndash;4 days in a well-nourished adult the risk is meaningfully lower than at seven &mdash; but "lower" is not "absent," and the protective steps are trivial to take.</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th style="width:16%">Order</th><th style="width:26%">What</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr class="hero">
+        <td class="mono">First</td>
+        <td>Thiamine, before any food</td>
+        <td>Not after. Thiamine is consumed as carbohydrate metabolism restarts; deficiency at this moment is the mechanism behind the worst outcomes.<sup class="ref">[13]</sup></td>
+      </tr>
+      <tr>
+        <td class="mono">Hour 0</td>
+        <td>Small portion of cooked vegetables, or vegetable broth with olive oil</td>
+        <td>Tiny. Half of what looks reasonable. Digestive enzyme output is reduced and your stomach has shrunk.</td>
+      </tr>
+      <tr>
+        <td class="mono">+3 h</td>
+        <td>Protein &mdash; eggs, fish, or soft-cooked meat</td>
+        <td>Modest portion. This is the anabolic signal that starts the rebuild, so it belongs here &mdash; just not first and not large.</td>
+      </tr>
+      <tr>
+        <td class="mono">Day 2</td>
+        <td>Normal meals; reintroduce starch, fruit and sugar last</td>
+        <td>Keep carbohydrate deliberately low for the first 24&ndash;48 hours.</td>
+      </tr>
+      <tr>
+        <td class="mono">Throughout</td>
+        <td>Keep magnesium and potassium going</td>
+        <td>Requirement goes <em>up</em>, not down, as insulin returns and drives them intracellularly.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>Expect the scale to jump.</b> Several pounds return within days. That is glycogen, sodium and water &mdash; not fat, and not failure.
+  </div>
+</section>
+
+<!-- SECTION 10 -->
+<section>
+  <div class="sec-head"><span class="sec-num u">10</span><h2>Phase 4 &mdash; the rebuild</h2></div>
+
+  <p>The three weeks after the fast are where regeneration actually occurs. Fasting cleared damaged components; this window replaces them. Wasting it undoes much of the point.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:26%">Priority</th><th style="width:32%">Specifically</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+      <tr class="hero">
+        <td>Resistance training</td>
+        <td>Start within 2&ndash;3 days of refeeding, then 2&ndash;3 sessions weekly.</td>
+        <td>Directs the returning anabolic signal into muscle rather than fat. Without a mechanical stimulus, mTORC1 reactivation is untargeted.</td>
+      </tr>
+      <tr>
+        <td>Adequate protein</td>
+        <td>Roughly 1.2&ndash;1.6 g per kg bodyweight daily through the rebuild weeks.</td>
+        <td>Regeneration is a construction project. Restricting protein now is fighting your own intervention.</td>
+      </tr>
+      <tr>
+        <td>Keep spermidine and polyphenols high</td>
+        <td>Same foods as the priming phase &mdash; wheat germ, natto, mushrooms, legumes, green tea, olive oil, berries.</td>
+        <td>Sustains basal autophagic tone between cycles without requiring caloric restriction.<sup class="ref">[9][10][11]</sup></td>
+      </tr>
+      <tr>
+        <td>Fermented foods and fibre</td>
+        <td>Yoghurt, kefir, sauerkraut, kimchi, diverse plants.</td>
+        <td>Prolonged fasting shifts the gut microbiome; the rebuild window is when you influence what recolonises.</td>
+      </tr>
+      <tr>
+        <td>Omega-3</td>
+        <td>Oily fish twice weekly, or supplement.</td>
+        <td>Membrane reconstruction and inflammatory resolution.</td>
+      </tr>
+      <tr>
+        <td>Sleep</td>
+        <td>Protect it deliberately for the first week.</td>
+        <td>Autophagy in the brain is sleep-dependent. Under-sleeping the rebuild is self-defeating.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>Don't crash-diet between cycles.</b> Chronic restriction on top of monthly prolonged fasts is a different and more dangerous intervention than either alone, and there's no evidence the combination adds autophagic benefit. Eat normally.
+  </div>
+</section>
+
+<!-- SECTION 11 -->
+<section>
+  <div class="sec-head"><span class="sec-num u">11</span><h2>Cycle log</h2></div>
+  <p style="font-size:.85rem;">Fill in by hand. Tracking is how you catch a problem while it's still small &mdash; and how you compare cycle three to cycle one.</p>
+  <table class="log">
+    <thead>
+      <tr>
+        <th style="width:11%">Day</th>
+        <th style="width:11%">Weight</th>
+        <th style="width:11%">Water L</th>
+        <th style="width:11%">Salt tsp</th>
+        <th style="width:8%">K⁺</th>
+        <th style="width:8%">Mg</th>
+        <th style="width:8%">B1</th>
+        <th style="width:8%">Walk</th>
+        <th>Energy, symptoms, notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="mono" style="text-align:center">P&minus;3</td><td></td><td></td><td></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td></td></tr>
+      <tr><td class="mono" style="text-align:center">P&minus;2</td><td></td><td></td><td></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td></td></tr>
+      <tr><td class="mono" style="text-align:center">P&minus;1</td><td></td><td></td><td></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td></td></tr>
+      <tr class="hero"><td class="mono" style="text-align:center">F1</td><td></td><td></td><td></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td></td></tr>
+      <tr class="hero"><td class="mono" style="text-align:center">F2</td><td></td><td></td><td></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td></td></tr>
+      <tr class="hero"><td class="mono" style="text-align:center">F3</td><td></td><td></td><td></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td></td></tr>
+      <tr class="hero"><td class="mono" style="text-align:center">F4</td><td></td><td></td><td></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td></td></tr>
+      <tr><td class="mono" style="text-align:center">R1</td><td></td><td></td><td></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td>First meal:</td></tr>
+      <tr><td class="mono" style="text-align:center">R2</td><td></td><td></td><td></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td style="text-align:center"><span class="box"></span></td><td></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:.75rem;margin:0;"><span class="u" style="font-size:.6rem;">Key</span> &nbsp; P = prime &middot; F = fast &middot; R = refeed &middot; shaded rows are the fast itself</p>
+</section>
+
+<!-- SECTION 12 -->
+<section class="page-break">
+  <div class="sec-head"><span class="sec-num u">12</span><h2>References</h2></div>
+
+  <p style="font-size:.85rem;">A note on evidence quality: much of the autophagy literature is animal or cell work. Where a finding has <em>not</em> been demonstrated in humans, that is marked. Nothing below establishes that a particular fasting schedule produces a particular health outcome in a person &mdash; the mechanisms are well characterised, the clinical translation is still thin.</p>
+
+  <ol class="refs">
+    <li>Klionsky DJ, et al. Guidelines for the use and interpretation of assays for monitoring autophagy (4th edition). <i>Autophagy.</i> 2021;17(1):1&ndash;382. <span class="evidence">Methods</span></li>
+    <li>The Nobel Assembly at Karolinska Institutet. The Nobel Prize in Physiology or Medicine 2016 &mdash; Yoshinori Ohsumi, for discoveries of mechanisms for autophagy.</li>
+    <li>Wolfson RL, Chantranupong L, Saxton RA, et al. Sestrin2 is a leucine sensor for the mTORC1 pathway. <i>Science.</i> 2016;351(6268):43&ndash;48. <span class="evidence">Cell</span></li>
+    <li>Grundler F, Mesnage R, Michalsen A, Wilhelmi de Toledo F. Blood pressure changes in 1610 subjects with and without antihypertensive medication during long-term fasting. <i>J Am Heart Assoc.</i> 2020;9(23). <span class="evidence">Human</span></li>
+    <li>Wilhelmi de Toledo F, Grundler F, Bergouignan A, Drinda S, Michalsen A. Safety, health improvement and well-being during a 4 to 21-day fasting period in an observational study including 1422 subjects. <i>PLoS ONE.</i> 2019;14(1):e0209353. <span class="evidence">Human, observational</span></li>
+    <li>Brandhorst S, Choi IY, Wei M, et al. A periodic diet that mimics fasting promotes multi-system regeneration, enhanced cognitive performance, and healthspan. <i>Cell Metab.</i> 2015;22(1):86&ndash;99. <span class="evidence">Mouse + human</span></li>
+    <li>Wei M, Brandhorst S, Shelehchi M, et al. Fasting-mimicking diet and markers/risk factors for aging, diabetes, cancer, and cardiovascular disease. <i>Sci Transl Med.</i> 2017;9(377):eaai8700. <span class="evidence">Human RCT</span></li>
+    <li>Cheng CW, Adams GB, Perin L, et al. Prolonged fasting reduces IGF-1/PKA to promote hematopoietic-stem-cell-based regeneration and reverse immunosuppression. <i>Cell Stem Cell.</i> 2014;14(6):810&ndash;823. <span class="evidence">Mouse + phase I</span></li>
+    <li>Eisenberg T, Knauer H, Schauer A, et al. Induction of autophagy by spermidine promotes longevity. <i>Nat Cell Biol.</i> 2009;11(11):1305&ndash;1314. <span class="evidence">Yeast, fly, mouse</span></li>
+    <li>Eisenberg T, Abdellatif M, Schroeder S, et al. Cardioprotection and lifespan extension by the natural polyamine spermidine. <i>Nat Med.</i> 2016;22(12):1428&ndash;1438. <span class="evidence">Mouse + epidemiology</span></li>
+    <li>Madeo F, Eisenberg T, Pietrocola F, Kroemer G. Spermidine in health and disease. <i>Science.</i> 2018;359(6374):eaan2788. <span class="evidence">Review</span></li>
+    <li>Pietrocola F, Mariño G, Lissa D, et al. Pro-autophagic polyphenols reduce the acetylation of cytoplasmic proteins. <i>Cell Cycle.</i> 2012;11(20):3851&ndash;3860. <span class="evidence">Cell</span></li>
+    <li>Mehanna HM, Moledina J, Travis J. Refeeding syndrome: what it is, and how to prevent and treat it. <i>BMJ.</i> 2008;336(7659):1495&ndash;1498. <span class="evidence">Clinical review</span></li>
+    <li>Pietrocola F, Malik SA, Mariño G, et al. Coffee induces autophagy in vivo. <i>Cell Cycle.</i> 2014;13(12):1987&ndash;1994. <span class="evidence">Mouse</span></li>
+    <li>He C, Bassik MC, Moresi V, et al. Exercise-induced BCL2-regulated autophagy is required for muscle glucose homeostasis. <i>Nature.</i> 2012;481(7382):511&ndash;515. <span class="evidence">Mouse</span></li>
+    <li>de Cabo R, Mattson MP. Effects of intermittent fasting on health, aging, and disease. <i>N Engl J Med.</i> 2019;381(26):2541&ndash;2551. <span class="evidence">Review</span></li>
+    <li>Cahill GF Jr. Fuel metabolism in starvation. <i>Annu Rev Nutr.</i> 2006;26:1&ndash;22. <span class="evidence">Human, classic</span></li>
+    <li>American Society of Anesthesiologists. Consensus-based guidance on preoperative management of patients (adults and children) on glucagon-like peptide-1 (GLP-1) receptor agonists. ASA; 2023. <span class="evidence">Clinical guidance</span></li>
+    <li>Look M, et al. Body composition changes during weight reduction with tirzepatide in the SURMOUNT-1 study of adults with obesity or overweight. <i>Diabetes Obes Metab.</i> 2025. doi:10.1111/dom.16275. <i>Note: a published correction accompanies this paper and should be read alongside it.</i> <span class="evidence">Human RCT substudy</span></li>
+  </ol>
+</section>
+
+<footer>
+  <p style="margin:0;"><b>This is general information, not medical advice, and I'm not a doctor.</b> Prolonged fasting carries real risk that varies enormously with your individual health, medications and history. Talk to a physician before your first cycle, and get baseline bloodwork &mdash; electrolytes, kidney function, glucose &mdash; if you intend to repeat this monthly.</p>
+</footer>
+
+</div>
+</body>
+</html>

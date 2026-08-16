@@ -1,0 +1,5 @@
+# Client routes — SCOPED, deliberately (same policy as cryovault:
+# no wildcard `/* /index.html 200`; adding a route in src/Route.elm
+# means adding a line here, and that friction is the point).
+
+/resources /index.html 200

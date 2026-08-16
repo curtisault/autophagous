@@ -1,0 +1,873 @@
+/* The protocol sheet — layout and components for the broadsheet pages.
+   Adapted from docs/autophagy-protocol.html, recolored onto the
+   theme.css tokens. Contract: docs/DESIGN-PRINCIPLES.md. */
+
+/* ---------- site nav ---------- */
+.site-nav {
+  background: var(--stencil-bg);
+  color: var(--stencil-tx);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 3.5rem;
+}
+.site-nav .brand {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+}
+.site-nav .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 2.2rem;
+}
+.site-nav .nav-links {
+  display: flex;
+  gap: 1.4rem;
+}
+.site-nav a {
+  color: var(--stencil-tx);
+  text-decoration: none;
+  font-size: 0.62rem;
+  padding-bottom: 0.15rem;
+  border-bottom: 2px solid transparent;
+}
+.site-nav a.active {
+  border-bottom-color: var(--stencil-mark);
+}
+.site-nav a:hover {
+  border-bottom-color: var(--stencil-tx);
+}
+
+/* the theme control: three-state, worn like the nav links */
+.theme-control {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  border-left: 1px solid var(--stencil-tx);
+  padding-left: 1.1rem;
+}
+.theme-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin: 0;
+  padding: 0 0 0.15rem;
+  color: var(--stencil-tx);
+  font-size: 0.56rem;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  opacity: 0.55;
+}
+.theme-btn:hover {
+  opacity: 1;
+  border-bottom-color: var(--stencil-tx);
+}
+.theme-btn.active {
+  opacity: 1;
+  border-bottom-color: var(--stencil-mark);
+}
+
+/* ---------- the document layout (Doc.elm) ----------
+   Full-bleed, cryovault-handbook dimensions: the contents rail holds
+   the left margin, the document takes the rest of the viewport.
+   Section rules run the full width; body text sits left at a reading
+   measure, leaving the right side open for the intent labels. The
+   rail is sticky on desktop and becomes an ink jump-strip on small
+   screens. */
+.doc-layout {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: 0 3rem;
+  padding: 0 3.5rem;
+  align-items: start;
+}
+
+.doc-toc-inner {
+  position: sticky;
+  top: 1rem;
+  padding: 2.4rem 0;
+}
+.doc-toc-head {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  border-bottom: 2px solid var(--rule);
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.4rem;
+}
+.doc-toc-link {
+  display: flex;
+  gap: 0.55rem;
+  align-items: baseline;
+  padding: 0.3rem 0 0.28rem;
+  text-decoration: none;
+  color: var(--tx);
+  border-bottom: 1px solid var(--hairline);
+}
+.doc-toc-num {
+  font-size: 0.6rem;
+  color: var(--mark);
+  flex: none;
+}
+.doc-toc-label {
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+}
+.doc-toc-link:hover .doc-toc-label {
+  box-shadow: inset 0 -3px 0 var(--acid-volt);
+}
+
+/* clause marks hold their own column, left of the body — citable */
+.doc-clause-row {
+  display: grid;
+  grid-template-columns: 3.4rem minmax(0, 1fr);
+}
+.doc-clause-mark {
+  padding-top: 0.35rem;
+  font-size: 0.58rem;
+  color: var(--mark);
+}
+
+/* body content reads at a measure; the open right side is deliberate */
+.doc-clause-body {
+  max-width: 56rem;
+}
+.sheet section > :not(.sec-head):not(.doc-clause-row) {
+  margin-left: 3.4rem;
+  max-width: 56rem;
+}
+
+/* ---------- the document body ----------
+   No paper card: the page is the surface. The rules span its width. */
+.sheet {
+  margin: 0 0 3rem;
+  padding: 2.2rem 0 4rem;
+}
+
+/* ---------- masthead ---------- */
+.masthead {
+  border-bottom: 3px solid var(--rule);
+  padding-bottom: 1rem;
+}
+.masthead .kicker {
+  font-size: 0.62rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.1rem;
+}
+.masthead .kicker .tag-volt {
+  background: var(--acid-volt);
+  color: var(--ink);
+  padding: 0.05rem 0.4rem;
+  margin: -0.05rem 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.masthead h1 {
+  font-family: var(--font-display);
+  font-stretch: condensed;
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+  font-weight: 800;
+  font-size: 2.9rem;
+  line-height: 0.92;
+  margin: 0 0 0.6rem;
+}
+.masthead .standfirst {
+  font-size: 1rem;
+  font-style: italic;
+  margin: 0;
+  max-width: 32rem;
+}
+
+/* ---------- sections ---------- */
+section {
+  margin-top: 2.6rem;
+}
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+  border-bottom: 1.5px solid var(--rule);
+  padding-bottom: 0.35rem;
+  margin-bottom: 1.1rem;
+}
+.sec-intent {
+  margin-left: auto;
+  font-size: 0.54rem;
+  letter-spacing: 0.12em;
+  color: var(--tx-dim);
+  text-align: right;
+}
+/* the section chip is live data: ink in the light, volt in the dark —
+   currentColor keeps its border in step with its number */
+.sec-num {
+  font-size: 0.68rem;
+  color: var(--data-accent);
+  border: 1.5px solid currentColor;
+  padding: 0.12rem 0.4rem;
+  flex: none;
+}
+.sec-head h2 {
+  font-family: var(--font-display);
+  font-stretch: condensed;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  font-size: 1.3rem;
+  margin: 0;
+  line-height: 1.1;
+}
+.sheet p {
+  margin: 0 0 0.85rem;
+}
+.lede {
+  font-size: 1.05rem;
+}
+.sub-head {
+  font-family: var(--font-display);
+  font-stretch: condensed;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 1rem;
+  margin: 1.4rem 0 0.6rem;
+}
+
+/* ---------- slabs ---------- */
+.slab {
+  border: 3px solid var(--rule);
+  padding: 1.2rem 1.3rem;
+  margin-bottom: 1.2rem;
+}
+.slab-title {
+  font-size: 0.72rem;
+  background: var(--stencil-bg);
+  color: var(--stencil-tx);
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  margin: -1.2rem -1.3rem 1rem;
+  position: relative;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 2rem;
+}
+.cols h4 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.66rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.2rem;
+}
+ul.tight {
+  margin: 0 0 0.6rem;
+  padding-left: 1.1rem;
+}
+ul.tight li {
+  margin-bottom: 0.28rem;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+.slab-foot {
+  font-size: 0.85rem;
+  margin: 0.4rem 0 0;
+}
+
+/* ---------- tables ---------- */
+.sheet table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1rem;
+  font-size: 0.87rem;
+}
+.sheet th {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-align: left;
+  border-bottom: 1.5px solid var(--rule);
+  padding: 0.4rem 0.5rem;
+  vertical-align: bottom;
+}
+.sheet td {
+  border-bottom: 0.5px solid var(--rule);
+  padding: 0.5rem 0.5rem;
+  vertical-align: top;
+  line-height: 1.35;
+}
+.sheet tr.hero td {
+  background: var(--tint);
+  font-weight: bold;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.amt {
+  white-space: nowrap;
+}
+
+/* ---------- cycle bar ---------- */
+.cycle {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1.5px solid var(--rule);
+  margin: 1.2rem 0 0.4rem;
+}
+.cycle > div {
+  border-right: 1.5px solid var(--rule);
+  padding: 0.7rem 0.6rem;
+}
+.cycle > div:last-child {
+  border-right: none;
+}
+.cycle .ph {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.58rem;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.cycle .dy {
+  font-family: var(--font-data);
+  font-size: 1.15rem;
+  font-weight: bold;
+  display: block;
+  line-height: 1;
+  color: var(--data-accent);
+}
+.cycle .ds {
+  font-size: 0.72rem;
+  display: block;
+  margin-top: 0.3rem;
+  line-height: 1.25;
+}
+/* the fast itself carries the volt underscore */
+.cycle .fast-phase {
+  box-shadow: inset 0 -6px 0 var(--acid-volt);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---------- ruler ---------- */
+.ruler-wrap {
+  margin: 1.6rem 0 2rem;
+}
+.flagrow {
+  position: relative;
+  height: 1.35em;
+}
+.flagrow span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+.ruler {
+  position: relative;
+  height: 40px;
+  border: 1.5px solid var(--rule);
+}
+.zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.zone.tint {
+  background: var(--wash);
+}
+.zone.hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--rule) 0 1px,
+    transparent 1px 7px
+  );
+}
+.vdiv {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  background: var(--rule);
+}
+.rlbl {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rlbl b {
+  font-family: var(--font-data);
+  font-size: 0.78rem;
+  background: var(--surface);
+  padding: 1px 4px;
+}
+.target {
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  width: 5px;
+  background: var(--acid-volt);
+  border: 1px solid var(--ink);
+  transform: translateX(-2.5px);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.ticks {
+  position: relative;
+  height: 1.4em;
+  margin-top: 4px;
+}
+.tick {
+  position: absolute;
+  top: 0;
+  font-family: var(--font-data);
+  font-size: 0.62rem;
+  transform: translateX(-50%);
+}
+.tick::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 1px;
+  height: 4px;
+  background: var(--rule);
+}
+.tick.first {
+  transform: none;
+}
+.tick.first::before {
+  left: 0;
+}
+.tick.last {
+  transform: translateX(-100%);
+}
+.tick.last::before {
+  left: auto;
+  right: 0;
+}
+.names {
+  position: relative;
+  height: 2.6em;
+  margin-top: 0.2rem;
+}
+.nm {
+  position: absolute;
+  top: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-stretch: condensed;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.58rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.nm.low {
+  top: 1.35em;
+}
+.legend {
+  display: flex;
+  gap: 1.4rem;
+  margin-top: 0.5rem;
+  font-size: 0.62rem;
+  flex-wrap: wrap;
+}
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.swatch {
+  width: 1.5rem;
+  height: 0.75rem;
+  border: 1px solid var(--rule);
+  flex: none;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.swatch.tint {
+  background: var(--wash);
+}
+.swatch.hatched {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--rule) 0 1px,
+    transparent 1px 7px
+  );
+}
+.swatch.mark {
+  width: 5px;
+  background: var(--acid-volt);
+  border: 1px solid var(--ink);
+  height: 1rem;
+}
+
+/* ---------- stage cards ---------- */
+.stage {
+  border-top: 1.5px solid var(--rule);
+  padding: 0.9rem 0 0.3rem;
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 1.4rem;
+}
+.stage-meta .no {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1;
+  display: block;
+  color: var(--data-accent);
+}
+.stage-meta .hrs {
+  font-family: var(--font-data);
+  font-size: 0.72rem;
+  display: block;
+  margin-top: 0.2rem;
+}
+.stage h3 {
+  font-family: var(--font-display);
+  font-stretch: condensed;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.02rem;
+  margin: 0 0 0.4rem;
+}
+.stage p {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.feel {
+  font-size: 0.78rem;
+  border-left: 3px solid var(--rule);
+  padding-left: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+.feel b {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+}
+
+/* ---------- log ---------- */
+.log td,
+.log th {
+  border: 1px solid var(--rule);
+  height: 2rem;
+}
+.log th {
+  font-size: 0.55rem;
+  text-align: center;
+  padding: 0.3rem 0.15rem;
+}
+.log td {
+  padding: 0.2rem;
+}
+.box {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 1px solid var(--rule);
+  vertical-align: -2px;
+}
+
+/* ---------- notes ---------- */
+.note {
+  font-size: 0.8rem;
+  background: var(--panel);
+  border-left: 4px solid var(--rule);
+  padding: 0.7rem 0.9rem;
+  margin: 0 0 1rem;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.note b {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.64rem;
+}
+
+/* ---------- references ---------- */
+ol.refs {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  padding-left: 2rem;
+  margin: 0;
+}
+ol.refs li {
+  margin-bottom: 0.45rem;
+}
+.evidence {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.54rem;
+  font-weight: 700;
+  border: 1px solid var(--rule);
+  padding: 0.05rem 0.3rem;
+  white-space: nowrap;
+}
+
+/* ---------- resources archive ---------- */
+.resource {
+  border-top: 1.5px solid var(--rule);
+  padding: 0.8rem 0 0.6rem;
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 1rem;
+}
+.resource .rid {
+  font-family: var(--font-data);
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--data-accent);
+}
+.resource h3 {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: bold;
+  margin: 0 0 0.2rem;
+}
+.resource .meta {
+  font-size: 0.8rem;
+  color: var(--tx-dim);
+  margin: 0 0 0.35rem;
+}
+.resource .links {
+  font-size: 0.72rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.resource .links a {
+  color: var(--tx);
+}
+.pdf-missing {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.56rem;
+  font-weight: 700;
+  color: var(--warn-tx);
+  border: 1px solid var(--warn-tx);
+  padding: 0.05rem 0.3rem;
+}
+.pdf-archived {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.56rem;
+  font-weight: 700;
+  color: var(--volt-tx);
+  border: 1px solid var(--volt-tx);
+  padding: 0.05rem 0.3rem;
+}
+
+/* ---------- footer ---------- */
+.sheet footer {
+  margin-top: 2.5rem;
+  border-top: 3px solid var(--rule);
+  padding-top: 0.8rem;
+  font-size: 0.72rem;
+}
+
+/* ---------- print ----------
+   The live site is NOT the print surface — printable artifacts are
+   generated from typst/ (docs/DESIGN-PRINCIPLES.md §print). These
+   rules only keep an emergency browser-print legible. */
+@page {
+  margin: 14mm;
+}
+@media print {
+  body {
+    background: #fff;
+    font-size: 10.5pt;
+  }
+  .site-nav {
+    display: none;
+  }
+  .doc-toc {
+    display: none;
+  }
+  .doc-layout {
+    display: block;
+    max-width: none;
+    padding: 0;
+  }
+  .doc-clause-row {
+    display: block;
+  }
+  .doc-clause-mark {
+    display: none;
+  }
+  .sheet section > :not(.sec-head):not(.doc-clause-row) {
+    margin-left: 0;
+    max-width: none;
+  }
+  .sheet {
+    max-width: none;
+    padding: 0;
+  }
+  section,
+  .slab,
+  table,
+  .stage,
+  .ruler-wrap,
+  .cycle {
+    page-break-inside: avoid;
+  }
+  tr {
+    page-break-inside: avoid;
+  }
+  ol.refs li {
+    page-break-inside: avoid;
+  }
+  .masthead h1 {
+    font-size: 30pt;
+  }
+  a {
+    text-decoration: none;
+    color: #000;
+  }
+}
+
+/* ---------- mid screens: the rail becomes an ink jump-strip ---------- */
+@media (max-width: 960px) {
+  .doc-layout {
+    display: block;
+    padding: 0;
+  }
+  .doc-toc {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--stencil-bg);
+  }
+  .sheet {
+    padding: 1.5rem 1.5rem 3rem;
+  }
+  .doc-toc-inner {
+    position: static;
+    display: flex;
+    align-items: baseline;
+    gap: 1.1rem;
+    overflow-x: auto;
+    padding: 0.55rem 1.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .doc-toc-head {
+    display: none;
+  }
+  .doc-toc-link {
+    flex: none;
+    padding: 0;
+    border-bottom: none;
+    color: var(--stencil-tx);
+    white-space: nowrap;
+  }
+  .doc-toc-num {
+    color: var(--stencil-mark);
+  }
+  .doc-toc-link:hover .doc-toc-label {
+    box-shadow: inset 0 -2px 0 var(--stencil-mark);
+  }
+}
+
+/* ---------- small screens ---------- */
+@media (max-width: 640px) {
+  .doc-clause-row {
+    display: block;
+  }
+  .doc-clause-mark {
+    display: none;
+  }
+  .sheet section > :not(.sec-head):not(.doc-clause-row) {
+    margin-left: 0;
+  }
+  .sec-intent {
+    display: none;
+  }
+  .site-nav {
+    padding: 0.55rem 1.25rem;
+  }
+  .site-nav .nav-right {
+    gap: 1rem;
+  }
+  .site-nav .nav-links {
+    gap: 0.9rem;
+  }
+  .theme-control {
+    gap: 0.5rem;
+    padding-left: 0.7rem;
+  }
+  .sheet {
+    padding: 2rem 1.25rem 3rem;
+  }
+  .masthead h1 {
+    font-size: 2rem;
+  }
+  .cols {
+    grid-template-columns: 1fr;
+  }
+  .stage {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+  .stage-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+  }
+  .sheet table {
+    font-size: 0.78rem;
+  }
+  .cycle {
+    grid-template-columns: 1fr 1fr;
+  }
+  .cycle > div:nth-child(2) {
+    border-right: none;
+  }
+  .cycle > div:nth-child(1),
+  .cycle > div:nth-child(2) {
+    border-bottom: 1.5px solid var(--rule);
+  }
+  .names {
+    display: none;
+  }
+  .legend {
+    gap: 0.35rem 0.9rem;
+    font-size: 0.58rem;
+  }
+  .flagrow span {
+    font-size: 0.55rem;
+  }
+  .resource {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+}

@@ -1,0 +1,143 @@
+/* AUTOPHAGOUS design tokens — the single source for color and type.
+   Contract: docs/DESIGN-REQUIREMENTS.md + docs/20260816-theme-plan.md.
+   Components consume ROLE tokens; raw hex in component styles is a
+   bug, and so is consuming a primitive where a role exists (the
+   theme-invariant volt-block motif — .tag-volt, the 72 h target,
+   .swatch.mark — is the sanctioned exception, it uses --ink/--acid-volt
+   directly).
+
+   Two lightings, one language (theme plan §1):
+   - LIGHT (default): the lit facility — frost surface, ink data,
+     acid only as applied blocks and marks.
+   - DARK: stratum-4/5 lighting — text flips to frost, the stencil
+     inverts, and the acids resume as data colors (volt § marks and
+     numerals, orange warnings). Acid never carries body prose.
+
+   Three-state contract: bare :root = complete light set; the
+   prefers-color-scheme block is guarded with :not([data-theme="light"]);
+   [data-theme="dark"] repeats the dark set so a future manual toggle
+   wins in both directions. Nothing sets data-theme yet — the OS
+   preference governs. */
+
+:root {
+  /* ---- primitives (never theme-swapped) ---- */
+  --ink: #111214; /* true ink — the volt-block motif's text/outline */
+  --frost: #edf1f2; /* frost — never pure #fff */
+  --ground: #a6afb2; /* mid steel-grey — reserved for applied blocks */
+  --acid-volt: #c8ff00; /* THE acid */
+  --acid-cyan: #4de8ff; /* the "optional" accent family */
+  --acid-orange: #ff7a1a; /* warning acid (dark-field text only) */
+  --acid-mag-deep: #d4006f; /* reserved — unassigned */
+
+  /* ---- role tokens (light = the lit facility) ---- */
+  --surface: #edf1f2; /* page ground, ruler label chips */
+  --tx: #111214; /* body text */
+  --tx-dim: #4d545b; /* secondary text, intents (AA on light fields) */
+  --rule: #111214; /* structural rules, borders, hatch lines */
+  --hairline: #b7bab2; /* non-structural separators */
+  --tint: #dddddb; /* hero table rows */
+  --panel: #e6ebea; /* note panels */
+  --stencil-bg: #111214; /* the stencil: site nav, slab titles, strip */
+  --stencil-tx: #edf1f2;
+  --stencil-mark: var(--acid-volt); /* accents ON the stencil field */
+  --mark: #4d545b; /* §N.M clause marks, rail numbers */
+  --data-accent: #111214; /* numerals & section numbers: ink while the
+                             lights are on, acid in the dark */
+  --wash: #d9f7fe; /* the optional-zone fill (cyan family) */
+  --volt-tx: #4a7000; /* volt-family text at AA on the current field */
+  --warn-tx: #9a3412; /* warning text at AA on the current field */
+
+  /* ---- type voices ---- */
+  --font-body: Georgia, 'Times New Roman', serif; /* the reading voice */
+  --font-display: 'Helvetica Neue', Arial, sans-serif; /* condensed caps */
+  --font-data: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo,
+    monospace; /* numbers, hours, doses */
+
+  /* ---- measure ---- */
+  --measure: 44rem;
+}
+
+/* ---- dark: the lights go out (theme plan §3) ----
+   The stencil inverts (frost block, near-black text), so accents on
+   the stencil swap to the volt that holds AA on light — the mirror of
+   the page, where --mark and --data-accent go full volt. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --surface: #0b0e11;
+    --tx: #edf1f2;
+    --tx-dim: #8b949b;
+    --rule: #edf1f2;
+    --hairline: #2a2f36;
+    --tint: #1c2229;
+    --panel: #12171c;
+    --stencil-bg: #edf1f2;
+    --stencil-tx: #0b0d0f;
+    --stencil-mark: #4a7000;
+    --mark: var(--acid-volt);
+    --data-accent: var(--acid-volt);
+    --wash: #10333c;
+    --volt-tx: var(--acid-volt);
+    --warn-tx: var(--acid-orange);
+  }
+}
+
+:root[data-theme='dark'] {
+  --surface: #0b0e11;
+  --tx: #edf1f2;
+  --tx-dim: #8b949b;
+  --rule: #edf1f2;
+  --hairline: #2a2f36;
+  --tint: #1c2229;
+  --panel: #12171c;
+  --stencil-bg: #edf1f2;
+  --stencil-tx: #0b0d0f;
+  --stencil-mark: #4a7000;
+  --mark: var(--acid-volt);
+  --data-accent: var(--acid-volt);
+  --wash: #10333c;
+  --volt-tx: var(--acid-volt);
+  --warn-tx: var(--acid-orange);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--surface);
+}
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--tx);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* ---- shared type roles ---- */
+
+/* Condensed caps: headers, labels, system voice. */
+.u {
+  font-family: var(--font-display);
+  font-stretch: condensed;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+
+/* Data voice: numbers never wobble. */
+.mono {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Citation marker. */
+sup.ref {
+  font-family: var(--font-data);
+  font-size: 0.62em;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+}
