@@ -20,8 +20,9 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Html exposing (Html, a, button, div, nav, span, text)
-import Html.Attributes exposing (attribute, class, classList, href, type_)
+import Html.Attributes exposing (attribute, class, classList, href, id, type_)
 import Html.Events exposing (onClick)
+import Page.Legal
 import Page.Protocol
 import Page.Resources
 import Route exposing (Route)
@@ -165,15 +166,62 @@ update msg model =
 
 
 {-| Scroll the window to an anchor. `Dom.getElement` reports
-scene-relative coordinates, so the element's y IS the viewport offset;
-the small subtraction keeps the section head clear of the mobile rail,
-which is sticky. A missing anchor resolves to a no-op, not a crash.
+scene-relative coordinates, so the element's y IS the viewport offset —
+less whatever the sticky chrome covers, or the section head lands
+underneath it. A missing anchor resolves to a no-op, not a crash.
 -}
 jumpTo : String -> Cmd Msg
 jumpTo anchor =
-    Dom.getElement anchor
-        |> Task.andThen (\info -> Dom.setViewport 0 (info.element.y - 56))
+    Task.map2 (\info chrome -> info.element.y - chrome - jumpGap)
+        (Dom.getElement anchor)
+        stickyChromeHeight
+        |> Task.andThen (Dom.setViewport 0)
         |> Task.attempt (\_ -> NoOp)
+
+
+{-| Air between the sticky chrome and the section head it reveals.
+-}
+jumpGap : Float
+jumpGap =
+    8
+
+
+{-| How much of the viewport top the sticky chrome covers right now:
+the site nav always, plus the contents rail when it is worn as the
+jump-strip. Measured rather than hard-coded against the breakpoint, so
+this number cannot drift from the CSS that produces it.
+-}
+stickyChromeHeight : Task.Task x Float
+stickyChromeHeight =
+    Task.map2 (+) (coveredHeight "site-nav") stripHeight
+
+
+{-| An element's height, or nothing covered if it isn't on the page.
+-}
+coveredHeight : String -> Task.Task x Float
+coveredHeight domId =
+    Dom.getElement domId
+        |> Task.map (.element >> .height)
+        |> Task.onError (\_ -> Task.succeed 0)
+
+
+{-| The rail overlays the text only in its jump-strip form (≤960px),
+where it spans the viewport; as the desktop rail it holds the left
+margin and covers nothing. Its width tells the two apart, which keeps
+the breakpoint itself in the stylesheet where it belongs.
+-}
+stripHeight : Task.Task x Float
+stripHeight =
+    Dom.getElement "doc-toc"
+        |> Task.map
+            (\info ->
+                if info.element.width > info.viewport.width * 0.9 then
+                    info.element.height
+
+                else
+                    0
+            )
+        |> Task.onError (\_ -> Task.succeed 0)
 
 
 
@@ -191,18 +239,22 @@ view model =
 
             Route.Resources ->
                 Page.Resources.view
+
+            Route.Legal ->
+                Page.Legal.view
         ]
     }
 
 
 siteNav : Model -> Html Msg
 siteNav model =
-    nav [ class "site-nav" ]
+    nav [ id "site-nav", class "site-nav" ]
         [ span [ class "brand u" ] [ text "Autophagous" ]
         , div [ class "nav-right" ]
             [ div [ class "nav-links u" ]
                 [ navLink model.route Route.Protocol "Protocol"
                 , navLink model.route Route.Resources "Resources"
+                , navLink model.route Route.Legal "Legal"
                 ]
             , themeControl model.theme
             ]

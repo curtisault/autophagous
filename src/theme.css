@@ -53,8 +53,13 @@
   --font-data: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo,
     monospace; /* numbers, hours, doses */
 
-  /* ---- measure ---- */
+  /* ---- measure & chrome ---- */
   --measure: 44rem;
+  --nav-h: 2.4rem; /* the sticky site nav's height — .site-nav sets it as
+                      a hard height, so this token and the rendered bar
+                      cannot disagree. Everything that has to clear the
+                      nav (the rail's sticky offset, the jump-strip)
+                      measures from here. */
 }
 
 /* ---- dark: the lights go out (theme plan §3) ----

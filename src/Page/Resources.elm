@@ -9,7 +9,7 @@ docs/RESOURCES-ARCHIVE.md).
 -}
 
 import Doc
-import Html exposing (Html, a, div, h3, p, span, text)
+import Html exposing (Html, a, b, div, h3, p, span, text)
 import Html.Attributes exposing (class, href, style, target)
 
 
@@ -83,7 +83,15 @@ view =
               }
             ]
         , footNote =
-            [ p [ style "margin" "0" ]
+            -- the medical disclaimer ships on every content page
+            -- (DESIGN-REQUIREMENTS §5), the archive note after it
+            [ p [ style "margin" "0 0 .4rem" ]
+                [ b [] [ text "This is general information, not medical advice, and I'm not a doctor." ]
+                , text " Prolonged fasting carries real risk that varies enormously with your individual health, medications and history. Talk to a physician before your first cycle. Full "
+                , a [ href "/legal" ] [ text "terms and disclaimers" ]
+                , text "."
+                ]
+            , p [ style "margin" "0" ]
                 [ text "Each slug is a permanent public URL — once assigned, it never changes. Full policy: docs/RESOURCES-ARCHIVE.md." ]
             ]
         }

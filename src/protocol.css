@@ -2,14 +2,22 @@
    Adapted from docs/autophagy-protocol.html, recolored onto the
    theme.css tokens. Contract: docs/DESIGN-PRINCIPLES.md. */
 
-/* ---------- site nav ---------- */
+/* ---------- site nav ----------
+   Sticky at the top of every page: the route links and the theme
+   control stay reachable at any scroll depth, and the contents rail
+   hangs its own sticky offset off --nav-h. The height is set, not
+   derived from padding, so the token cannot drift from the bar. */
 .site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: var(--nav-h);
   background: var(--stencil-bg);
   color: var(--stencil-tx);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.55rem 3.5rem;
+  padding: 0 3.5rem;
 }
 .site-nav .brand {
   font-size: 0.72rem;
@@ -82,10 +90,21 @@
   align-items: start;
 }
 
+/* The rail's grid cell must span the whole row for its sticky child to
+   have anywhere to travel — the layout's `align-items: start` would
+   otherwise shrink the cell to the rail's own height and sticky would
+   be a no-op (it was, until 2026-08-16). */
+.doc-toc {
+  align-self: stretch;
+}
 .doc-toc-inner {
   position: sticky;
-  top: 1rem;
+  top: calc(var(--nav-h) + 1rem);
   padding: 2.4rem 0;
+  /* a short viewport must still reach section 12: the rail scrolls
+     inside its own sticky box rather than running off the screen */
+  max-height: calc(100vh - var(--nav-h) - 2rem);
+  overflow-y: auto;
 }
 .doc-toc-head {
   display: block;
@@ -762,9 +781,10 @@ ol.refs li {
     display: block;
     padding: 0;
   }
+  /* the strip parks directly under the sticky nav, never beneath it */
   .doc-toc {
     position: sticky;
-    top: 0;
+    top: var(--nav-h);
     z-index: 20;
     background: var(--stencil-bg);
   }
@@ -776,6 +796,7 @@ ol.refs li {
     display: flex;
     align-items: baseline;
     gap: 1.1rem;
+    max-height: none;
     overflow-x: auto;
     padding: 0.55rem 1.25rem;
     -webkit-overflow-scrolling: touch;
@@ -813,7 +834,7 @@ ol.refs li {
     display: none;
   }
   .site-nav {
-    padding: 0.55rem 1.25rem;
+    padding: 0 1.25rem;
   }
   .site-nav .nav-right {
     gap: 1rem;

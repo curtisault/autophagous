@@ -11,13 +11,14 @@ and a printable cycle log.
 
 ## What's here
 
-Two routes, both worn as the same house document (masthead → numbered
+Three routes, all worn as the same house document (masthead → numbered
 sections → contents rail → disclaimer footer):
 
 | Route | Module | Contents |
 |---|---|---|
 | `/` | `src/Page/Protocol.elm` | The protocol broadsheet, Rev. 3 — 12 numbered sections: epistemic limits, the two switches (mTORC1/AMPK), safety, GLP-1, the cycle, priming, the fast, the five stages by the clock (0–96 h), the refeed, the rebuild, the cycle log, references |
 | `/resources` | `src/Page/Resources.elm` | The citations archive — 19 reserved entries, each with a slot for a locally-archived PDF so the sources outlive link rot |
+| `/legal` | `src/Page/Legal.elm` | Terms and disclaimers — the long form of the footer warning: no medical advice, absolute exclusions, emergencies, assumption of risk, no warranty, liability, privacy, reuse |
 
 Plus one print artifact: `typst/cycle-log.typ` → `/downloads/cycle-log.pdf`,
 linked from §11 of the protocol.

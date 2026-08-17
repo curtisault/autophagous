@@ -103,7 +103,15 @@ content is never softened for tone.
 - Safety-critical content (contraindications, abort signals, the
   potassium warning, refeeding syndrome) is never truncated,
   collapsed behind interaction, or restyled below body legibility.
-- The medical disclaimer ships on every content page footer.
+- The medical disclaimer ships on every content page footer, and links
+  to `/legal` for the long form. *(Amended 2026-08-16: `Page.Legal` is
+  that long form — no-medical-advice, the absolute exclusions,
+  emergencies, assumption of risk, no warranty, liability, third-party
+  sources, privacy, reuse. It **supplements** the footer and the
+  protocol's own safety sections; it never replaces them, and its
+  safety content is bound by this section like any other. The same
+  amendment added the disclaimer to the resources footer, which had
+  been shipping only an archive note.)*
 - No motion without a dated amendment; respect
   `prefers-reduced-motion` if any is ever added.
 - Self-hosted assets only. Archived PDFs live in this repo.

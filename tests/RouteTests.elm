@@ -25,6 +25,8 @@ suite =
                 \_ -> Route.fromUrl (urlAt "/") |> Expect.equal Protocol
             , test "/resources is the archive" <|
                 \_ -> Route.fromUrl (urlAt "/resources") |> Expect.equal Resources
+            , test "/legal is the terms and disclaimers" <|
+                \_ -> Route.fromUrl (urlAt "/legal") |> Expect.equal Legal
             , test "unknown paths fall back to the protocol sheet" <|
                 \_ -> Route.fromUrl (urlAt "/no-such-page") |> Expect.equal Protocol
             ]
@@ -36,6 +38,9 @@ suite =
                             Route.fromUrl (urlAt (Route.toPath route))
                                 |> Expect.equal route
                 )
-                [ Protocol, Resources ]
+                -- every Route variant belongs here; the compiler cannot
+                -- check a hand-written list, so adding a route means
+                -- adding it below as well
+                [ Protocol, Resources, Legal ]
             )
         ]

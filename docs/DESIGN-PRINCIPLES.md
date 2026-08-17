@@ -60,6 +60,32 @@ wears the shared chrome: masthead, contents rail (side nav),
   `Browser.Dom`) because `Browser.application` swallows the browser's
   default fragment scroll.
 
+*(Amended 2026-08-16 — the sticky chrome. Owner: navigation must be
+reachable at any scroll depth.)*
+
+- **The site nav is sticky too** (`top: 0`, z-index 30), so the route
+  links and the theme control never scroll away. Its height is the
+  `--nav-h` token applied as a hard `height`, not a by-product of
+  padding — everything that has to clear the nav measures from that
+  token, so the token and the rendered bar cannot disagree.
+- The desktop rail's sticky offset is `--nav-h + 1rem`; the ≤960px
+  jump-strip parks at exactly `--nav-h` (z-index 20, under the nav) so
+  the two read as one chrome band rather than overlapping.
+- **The rail cell stretches** (`align-self: stretch`). The layout's
+  `align-items: start` had been sizing the cell to the rail's own
+  height, which left `position: sticky` no travel and silently made
+  the desktop rail scroll away — sticky needs a containing block
+  taller than itself.
+- The rail scrolls inside its own sticky box
+  (`max-height: 100vh - --nav-h - 2rem`), so a short viewport can
+  still reach the last section.
+- `Main.jumpTo` **measures** the sticky chrome (the nav, plus the rail
+  when it is in strip form) instead of carrying a hard-coded offset.
+  It tells the rail's two forms apart by width against the viewport,
+  not by knowing the breakpoint — the breakpoint stays in the
+  stylesheet. A number in the Elm that has to match a number in the
+  CSS is a number that will drift.
+
 ## 3. Elm structure
 
 - `src/Main.elm` — the TEA shell: URL wiring, nav, page dispatch.

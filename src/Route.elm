@@ -17,6 +17,8 @@ type Route
       Protocol
       -- the citations archive (`Page.Resources`)
     | Resources
+      -- the terms and disclaimers (`Page.Legal`)
+    | Legal
 
 
 {-| The address of a page. Lowercase, hyphenated.
@@ -29,6 +31,9 @@ toPath route =
 
         Resources ->
             "/resources"
+
+        Legal ->
+            "/legal"
 
 
 {-| The document title. `Browser.application` owns the title, so
@@ -44,12 +49,16 @@ title route =
         Resources ->
             "AUTOPHAGOUS — RESOURCES ARCHIVE"
 
+        Legal ->
+            "AUTOPHAGOUS — TERMS AND DISCLAIMERS"
+
 
 parser : Parser (Route -> a) a
 parser =
     oneOf
         [ Parser.map Protocol top
         , Parser.map Resources (s "resources")
+        , Parser.map Legal (s "legal")
         ]
 
 

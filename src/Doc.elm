@@ -146,7 +146,7 @@ viewClause n i item =
 
 viewToc : Config msg -> Html msg
 viewToc config =
-    nav [ class "doc-toc", attribute "aria-label" "Contents" ]
+    nav [ id "doc-toc", class "doc-toc", attribute "aria-label" "Contents" ]
         [ div [ class "doc-toc-inner" ]
             (span [ class "doc-toc-head u" ] [ text "Contents" ]
                 :: List.indexedMap tocLink config.sections

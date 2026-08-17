@@ -139,7 +139,9 @@ view =
         , footNote =
             [ p [ style "margin" "0" ]
                 [ bT "This is general information, not medical advice, and I'm not a doctor."
-                , text " Prolonged fasting carries real risk that varies enormously with your individual health, medications and history. Talk to a physician before your first cycle, and get baseline bloodwork — electrolytes, kidney function, glucose — if you intend to repeat this monthly."
+                , text " Prolonged fasting carries real risk that varies enormously with your individual health, medications and history. Talk to a physician before your first cycle, and get baseline bloodwork — electrolytes, kidney function, glucose — if you intend to repeat this monthly. Full "
+                , a [ href "/legal" ] [ text "terms and disclaimers" ]
+                , text "."
                 ]
             ]
         }
