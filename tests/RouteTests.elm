@@ -30,6 +30,17 @@ suite =
             , test "unknown paths fall back to the protocol sheet" <|
                 \_ -> Route.fromUrl (urlAt "/no-such-page") |> Expect.equal Protocol
             ]
+        , describe "parse tells routes from static assets"
+            -- the shell branches on this: a same-origin link that is not a
+            -- route must be handed back to the browser, or Browser.application
+            -- swallows the click and the file never downloads
+            [ test "a downloadable asset is not a route" <|
+                \_ -> Route.parse (urlAt "/downloads/cycle-log.pdf") |> Expect.equal Nothing
+            , test "fromUrl still falls back for that same path" <|
+                \_ -> Route.fromUrl (urlAt "/downloads/cycle-log.pdf") |> Expect.equal Protocol
+            , test "real routes still parse" <|
+                \_ -> Route.parse (urlAt "/legal") |> Expect.equal (Just Legal)
+            ]
         , describe "toPath round-trips through fromUrl"
             (List.map
                 (\route ->

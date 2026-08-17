@@ -1,4 +1,4 @@
-module Route exposing (Route(..), fromUrl, title, toPath)
+module Route exposing (Route(..), fromUrl, parse, title, toPath)
 
 {-| Client routes. Pure: no Cmd, no ports — fully unit-testable
 (`tests/RouteTests.elm`).
@@ -62,10 +62,26 @@ parser =
         ]
 
 
+{-| Read a route off a URL, or `Nothing` if the path is not one of
+ours.
+
+The shell needs the honest answer, not the fallback: a same-origin link
+that is *not* a route is a static asset (`/downloads/cycle-log.pdf`),
+and `Browser.application` intercepts its click like any other. Told
+`Nothing`, the shell hands the click back to the browser instead of
+pushing a URL that would silently re-render the protocol sheet.
+
+-}
+parse : Url -> Maybe Route
+parse url =
+    Parser.parse parser url
+
+
 {-| Read a route off a URL. Unknown paths fall back to the protocol
-sheet rather than erroring.
+sheet rather than erroring — the right behaviour for an address typed
+or shared by hand. Use `parse` when the difference matters.
 -}
 fromUrl : Url -> Route
 fromUrl url =
-    Parser.parse parser url
+    parse url
         |> Maybe.withDefault Protocol

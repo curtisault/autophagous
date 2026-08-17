@@ -13,7 +13,7 @@ means grepping this file for `§`.
 
 import Doc
 import Html exposing (Html, a, b, div, em, h3, h4, i, li, ol, p, span, sup, table, tbody, td, text, th, thead, tr, ul)
-import Html.Attributes exposing (class, href, style)
+import Html.Attributes exposing (class, download, href, style)
 
 
 
@@ -899,7 +899,12 @@ secLog : List (Html msg)
 secLog =
     [ p [ style "font-size" ".85rem" ]
         [ text "Fill in by hand. Tracking is how you catch a problem while it's still small — and how you compare cycle three to cycle one. A print-grade PDF of this log is generated from the typst source: "
-        , a [ href "/downloads/cycle-log.pdf" ] [ text "download the cycle log" ]
+        , a
+            -- `download` both names the saved file and keeps
+            -- Browser.application's click handler off it entirely — it
+            -- skips any <a> carrying the attribute
+            [ href "/downloads/cycle-log.pdf", download "cycle-log.pdf" ]
+            [ text "download the cycle log" ]
         , text "."
         ]
     , table [ class "log" ]

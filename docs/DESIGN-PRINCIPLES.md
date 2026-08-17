@@ -93,6 +93,22 @@ reachable at any scroll depth.)*
 - `src/Route.elm` — pure routing (no Cmd, no ports); unit-tested.
   Adding a route = adding a line to `public/_redirects` (scoped
   redirects, no wildcard — cryovault's policy, kept).
+  `parse` returns `Maybe Route` (the honest answer); `fromUrl` is the
+  total version that falls back to the protocol sheet. The shell needs
+  both — see the asset-link rule below.
+
+*(Amended 2026-08-17 — links to static assets.)*
+
+- **A same-origin link that is not a route must reach the browser.**
+  `Browser.application` intercepts every same-origin `<a>` click, so
+  `LinkClicked (Internal url)` branches on `Route.parse`: a real route
+  pushes, anything else (`/downloads/*.pdf`) gets `Nav.load`. Pushing
+  an asset URL instead silently swaps the address bar and re-renders
+  the protocol sheet while the file never loads — which is exactly how
+  the cycle-log download was broken.
+- Download links additionally carry `download` — it names the saved
+  file, and Elm's click handler skips any `<a>` that has the
+  attribute, so the click never enters the app at all.
 - `src/Page/*.elm` — pure views, one module per route. No state of
   their own until a page genuinely needs it.
 - Content lives in Elm view code for now. If a second long-form page

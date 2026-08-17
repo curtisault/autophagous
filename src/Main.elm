@@ -152,8 +152,18 @@ update msg model =
             )
 
         LinkClicked (Browser.Internal url) ->
-            -- push only; the model's route is set by UrlChanged coming back
-            ( model, Nav.pushUrl model.key (Url.toString url) )
+            case Route.parse url of
+                Just _ ->
+                    -- push only; the model's route is set by UrlChanged coming back
+                    ( model, Nav.pushUrl model.key (Url.toString url) )
+
+                Nothing ->
+                    -- Same origin but not a route: a static asset, like the
+                    -- compiled cycle log. `Browser.application` intercepts
+                    -- every same-origin click, so pushing here would swap the
+                    -- address bar and re-render the protocol sheet while the
+                    -- file never loads. Hand it back to the browser.
+                    ( model, Nav.load (Url.toString url) )
 
         LinkClicked (Browser.External href_) ->
             ( model, Nav.load href_ )
