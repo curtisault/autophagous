@@ -32,6 +32,7 @@ type alias Config msg =
     { tag : String -- the volt kicker tag (left)
     , kicker : String -- the kicker's middle line
     , rev : String -- the revision mark (right)
+    , revDate : String -- when that revision landed, ISO — set in the data voice
     , titleLines : List String -- the masthead h1, one entry per line
     , standfirst : String
     , sections : List (Section msg)
@@ -89,7 +90,10 @@ viewMasthead config =
         [ div [ class "kicker u" ]
             [ span [ class "tag-volt" ] [ text config.tag ]
             , span [] [ text config.kicker ]
-            , span [] [ text config.rev ]
+            , span [ class "rev" ]
+                [ text config.rev
+                , span [ class "rev-date mono" ] [ text config.revDate ]
+                ]
             ]
         , h1 []
             (config.titleLines

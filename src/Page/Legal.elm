@@ -56,6 +56,7 @@ view =
         { tag = "Legal Notices"
         , kicker = "Read in full"
         , rev = "Rev. 3"
+        , revDate = "2026-08-16"
         , titleLines = [ "Terms and", "disclaimers" ]
         , standfirst = "The long form of the warning in every footer: what this document is, what it is not, who must not attempt it, and what you are agreeing to by reading on."
         , sections =

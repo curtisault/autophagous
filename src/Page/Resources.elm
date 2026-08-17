@@ -117,6 +117,7 @@ view =
         { tag = "Source Index"
         , kicker = String.fromInt reachableCount ++ " of " ++ String.fromInt (List.length citations) ++ " free to read"
         , rev = "Rev. 3"
+        , revDate = "2026-08-16"
         , titleLines = [ "Primary", "sources" ]
         , standfirst = "Every citation in the protocol, routed to the best copy you can legally reach — the open version of record where one exists, a repository manuscript where it does not, and the publisher's own page for the rest. Nothing is rehosted here."
         , sections =

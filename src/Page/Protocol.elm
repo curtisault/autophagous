@@ -60,6 +60,7 @@ view =
         { tag = "Autophagy Protocol"
         , kicker = "Cyclic · 72–96 h"
         , rev = "Rev. 3"
+        , revDate = "2026-08-16"
         , titleLines = [ "Demolition", "and rebuild" ]
         , standfirst = "A cycle-based protocol for maximising autophagic signalling: how to prime for it, what is mandatory during the fast, and why the refeed is half the intervention."
         , sections =

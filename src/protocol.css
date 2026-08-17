@@ -186,6 +186,19 @@
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
+/* the revision mark carries its date in the data voice — a date is a
+   number, and numbers never wobble (DESIGN-REQUIREMENTS §3) */
+.masthead .kicker .rev {
+  white-space: nowrap;
+}
+.masthead .kicker .rev-date {
+  letter-spacing: 0.04em;
+  color: var(--tx-dim);
+}
+.masthead .kicker .rev-date::before {
+  content: ' · ';
+  color: var(--tx-dim);
+}
 .masthead h1 {
   font-family: var(--font-display);
   font-stretch: condensed;
