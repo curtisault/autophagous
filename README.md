@@ -1,7 +1,7 @@
 # autophagous
 
 A field manual for achieving autophagy through cyclic prolonged fasting —
-published as a single-page Elm document with a companion citations archive
+published as a single-page Elm document with a companion source index
 and a printable cycle log.
 
 > **Not medical advice.** The protocol carries contraindications, abort
@@ -17,7 +17,7 @@ sections → contents rail → disclaimer footer):
 | Route | Module | Contents |
 |---|---|---|
 | `/` | `src/Page/Protocol.elm` | The protocol broadsheet, Rev. 3 — 12 numbered sections: epistemic limits, the two switches (mTORC1/AMPK), safety, GLP-1, the cycle, priming, the fast, the five stages by the clock (0–96 h), the refeed, the rebuild, the cycle log, references |
-| `/resources` | `src/Page/Resources.elm` | The citations archive — 19 reserved entries, each with a slot for a locally-archived PDF so the sources outlive link rot |
+| `/resources` | `src/Page/Resources.elm` | The source index — 19 citations, each routed to the best copy a reader can legally reach; DOI + access state, nothing rehosted |
 | `/legal` | `src/Page/Legal.elm` | Terms and disclaimers — the long form of the footer warning: no medical advice, absolute exclusions, emergencies, assumption of risk, no warranty, liability, privacy, reuse |
 
 Plus one print artifact: `typst/cycle-log.typ` → `/downloads/cycle-log.pdf`,
@@ -57,7 +57,6 @@ src/
 public/
   _redirects         client routes — scoped, one line per route, no wildcard
   downloads/         compiled print artifacts (committed)
-  resources/pdf/     the citation archive, <slug>.pdf
 typst/               print sources
 docs/                the specs — see below
 ```
@@ -88,17 +87,24 @@ These are load-bearing. Breaking one is a bug, not a style difference.
   obligation.
 - **Self-hosted assets only.** No webfonts, no CDNs.
 
-## The citations archive
+## The source index
 
 `src/Page/Resources.elm` is the single source of truth for citation metadata
-and archive status. All 19 slugs are reserved; **none are archived yet** —
-every entry currently renders as "not yet archived."
+and access state. **Link-first: nothing is rehosted.** Every entry carries a
+CrossRef-verified DOI (17 of 19 — the Nobel citation and the ASA guidance
+aren't journal articles and have none) plus an `Access` state from Unpaywall,
+so a reader can see before clicking whether they'll hit free full text or a
+paywall. 14 of 19 are free to reach.
 
-To flip one, in a single commit: drop the PDF at
-`public/resources/pdf/<slug>.pdf` and set `archived = True`. Acquisition
-order, licensing rules (only redistribute what the license permits — never
-archive pirated copies), and the slug convention are in
-`docs/RESOURCES-ARCHIVE.md`.
+The local PDF archive this replaced was retired 2026-08-16 for two reasons:
+being free to *read* on PMC is not permission to *rehost* — only 3 of 19 are
+under an open licence — and a frozen PDF can't report that its paper was
+later corrected, which two of these were. Full reasoning, the access-state
+table, and the per-entry procedure for adding one are in
+`docs/RESOURCES-POLICY.md`.
+
+Slugs survive as anchors: `/resources#<slug>` is a permanent address for a
+single citation.
 
 ## Docs
 
@@ -107,7 +113,7 @@ archive pirated copies), and the slug convention are in
 | `docs/autophagy-protocol.html` | The source content (Rev. 3) — `src/Page/Protocol.elm` is its faithful translation |
 | `docs/DESIGN-REQUIREMENTS.md` | Look, feel, voice, type, color, hard constraints |
 | `docs/DESIGN-PRINCIPLES.md` | Layout structure, Elm structure, the print strategy |
-| `docs/RESOURCES-ARCHIVE.md` | The citation archive: slugs, acquisition, licensing |
+| `docs/RESOURCES-POLICY.md` | The source index: link-first policy, access states, slugs |
 | `docs/20260816-theme-plan.md` | The light/dark theme plan — closed, except the optional volt glow |
 | `AGENTS.md` (`CLAUDE.md`) | The condensed brief for coding agents |
 

@@ -283,7 +283,7 @@ secEvidence =
         ]
     , p []
         [ text "Evidence classes are marked on every citation in the "
-        , a [ href "/resources" ] [ text "resources archive" ]
+        , a [ href "/resources" ] [ text "source index" ]
         , text " precisely so a reader can see where the human data stops. Where the protocol makes a recommendation the evidence does not fully support, it says so."
         ]
     , note
@@ -300,7 +300,7 @@ secEvidence =
 secWarranty : List (Html msg)
 secWarranty =
     [ p []
-        [ text "This site and its contents — including the protocol, the printable cycle log, and the archived source material — are provided "
+        [ text "This site and its contents — including the protocol, the printable cycle log, and the source index — are provided "
         , bT "as they are, without warranty of any kind"
         , text ", express or implied, including any implied warranty of accuracy, completeness, fitness for a particular purpose, or non-infringement."
         ]
@@ -386,9 +386,11 @@ secReuse =
     [ p []
         [ text "The protocol text, the site design, and the printable artifacts are the author's own work. You are welcome to read them, print them, and use them personally. Republishing them — in whole or in substantial part, and particularly with the safety content removed — is not permitted." ]
     , p []
-        [ bT "The archived source PDFs are a separate matter entirely."
-        , text " Each remains under its own licence and its publisher's terms; they are archived here only where that licence allows redistribution, and they are not the author's to relicense. The full policy is "
-        , span [ class "mono", style "font-size" ".8rem" ] [ text "docs/RESOURCES-ARCHIVE.md" ]
+        [ bT "The cited sources are a separate matter entirely, and none of them are hosted here."
+        , text " Every entry in the "
+        , a [ href "/resources" ] [ text "source index" ]
+        , text " links out to the publisher, a repository, or the document's own page; nothing is rehosted, copied, or mirrored. Each work remains under its own licence and its publisher's terms, and none of it is the author's to relicense. The full policy is "
+        , span [ class "mono", style "font-size" ".8rem" ] [ text "docs/RESOURCES-POLICY.md" ]
         , text "."
         ]
     , p []

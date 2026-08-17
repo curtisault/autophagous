@@ -116,10 +116,21 @@ Priority artifact: **the cycle log.**
   a content change to the log means editing the typst source and
   recompiling — the Elm log table mirrors it manually.
 
-## 5. Resources archive
+## 5. The source index
 
-Policy doc: RESOURCES-ARCHIVE.md. The manifest in
+Policy doc: RESOURCES-POLICY.md. The manifest in
 `src/Page/Resources.elm` is the single source of truth for citation
-metadata and archive status; PDFs land at
-`public/resources/pdf/<slug>.pdf` and the entry's `archived` flag
-flips to `True` in the same change.
+metadata and access state.
+
+*(Revised 2026-08-16 — owner: link-first, never rehost. The local PDF
+archive under `public/resources/pdf/` is retired; read access on a
+repository was never redistribution permission, and a frozen copy
+cannot report a paper's later correction. Full reasoning in the policy
+doc.)*
+
+- Every entry links out. Nothing is served from this repo.
+- `Access` states come from Unpaywall, DOIs from CrossRef, and both
+  are verified per entry — a title-only CrossRef match returns
+  commentaries and corrigenda ahead of papers.
+- Slugs survive as per-entry anchors: `/resources#<slug>` is a
+  permanent public address for one citation.

@@ -651,7 +651,7 @@ ol.refs li {
   white-space: nowrap;
 }
 
-/* ---------- resources archive ---------- */
+/* ---------- source index ---------- */
 .resource {
   border-top: 1.5px solid var(--rule);
   padding: 0.8rem 0 0.6rem;
@@ -686,25 +686,29 @@ ol.refs li {
 .resource .links a {
   color: var(--tx);
 }
-.pdf-missing {
+/* access marks on a source entry: how the reader reaches it. One base,
+   three states — open/licensed and free-to-read both read as volt, a
+   paywall reads as the warning acid. */
+.access-tag {
   font-family: var(--font-display);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.56rem;
   font-weight: 700;
-  color: var(--warn-tx);
-  border: 1px solid var(--warn-tx);
   padding: 0.05rem 0.3rem;
+  white-space: nowrap;
 }
-.pdf-archived {
-  font-family: var(--font-display);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.56rem;
-  font-weight: 700;
+.access-tag.is-open,
+.access-tag.is-free {
   color: var(--volt-tx);
   border: 1px solid var(--volt-tx);
-  padding: 0.05rem 0.3rem;
+}
+.access-tag.is-free {
+  border-style: dashed;
+}
+.access-tag.is-closed {
+  color: var(--warn-tx);
+  border: 1px solid var(--warn-tx);
 }
 
 /* ---------- footer ---------- */

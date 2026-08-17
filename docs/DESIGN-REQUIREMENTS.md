@@ -65,8 +65,8 @@ Primitives (never swapped): `--ink #111214`, `--frost #edf1f2`,
 | `--mark` | `§N.M` clause marks, rail numbers | `#4d545b` | `--acid-volt` |
 | `--data-accent` | section chips, phase/stage numerals, `[NN]` ids | `#111214` | `--acid-volt` |
 | `--wash` | optional-zone fill | `#d9f7fe` | `#10333c` |
-| `--volt-tx` | volt-family text (archived tag) | `#4a7000` | `--acid-volt` |
-| `--warn-tx` | warning text (not-archived tag) | `#9a3412` | `--acid-orange` |
+| `--volt-tx` | volt-family text (open/free access tag) | `#4a7000` | `--acid-volt` |
+| `--warn-tx` | warning text (paywalled tag) | `#9a3412` | `--acid-orange` |
 
 All pairings audited ≥ 5.1:1 (AA) in both themes, 2026-08-16.
 
@@ -114,7 +114,10 @@ content is never softened for tone.
   been shipping only an archive note.)*
 - No motion without a dated amendment; respect
   `prefers-reduced-motion` if any is ever added.
-- Self-hosted assets only. Archived PDFs live in this repo.
+- Self-hosted assets only — no CDNs, no webfonts, no third-party
+  scripts. *(Amended 2026-08-16: this governs the site's own assets.
+  Cited sources are the opposite case — they are **linked, never
+  rehosted**; see DESIGN-PRINCIPLES §5 and RESOURCES-POLICY.md.)*
 
 ## 6. Print
 

@@ -15,7 +15,7 @@ import Url.Parser as Parser exposing (Parser, oneOf, s, top)
 type Route
     = -- the protocol broadsheet (`Page.Protocol`) — the home page
       Protocol
-      -- the citations archive (`Page.Resources`)
+      -- the source index (`Page.Resources`)
     | Resources
       -- the terms and disclaimers (`Page.Legal`)
     | Legal
@@ -47,7 +47,7 @@ title route =
             "AUTOPHAGOUS — DEMOLITION AND REBUILD"
 
         Resources ->
-            "AUTOPHAGOUS — RESOURCES ARCHIVE"
+            "AUTOPHAGOUS — SOURCE INDEX"
 
         Legal ->
             "AUTOPHAGOUS — TERMS AND DISCLAIMERS"

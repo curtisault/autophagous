@@ -969,8 +969,8 @@ secRefs =
     [ p [ style "font-size" ".85rem" ]
         [ text "A note on evidence quality: much of the autophagy literature is animal or cell work. Where a finding has "
         , emT "not"
-        , text " been demonstrated in humans, that is marked. Nothing below establishes that a particular fasting schedule produces a particular health outcome in a person — the mechanisms are well characterised, the clinical translation is still thin. Archived copies of every citation live in the "
-        , a [ href "/resources" ] [ text "resources archive" ]
+        , text " been demonstrated in humans, that is marked. Nothing below establishes that a particular fasting schedule produces a particular health outcome in a person — the mechanisms are well characterised, the clinical translation is still thin. Every citation is routed to the best copy you can legally reach — most of them free — in the "
+        , a [ href "/resources" ] [ text "source index" ]
         , text "."
         ]
     , ol [ class "refs" ]
