@@ -12,7 +12,7 @@ fasting. Elm + Vite. Structure follows cryovault
 | `docs/DESIGN-REQUIREMENTS.md` | Look, feel, voice, type, color, hard constraints |
 | `docs/DESIGN-PRINCIPLES.md` | Layout structure, Elm structure, the print strategy (§print) |
 | `docs/RESOURCES-ARCHIVE.md` | The citation-PDF archive: slugs, acquisition, licensing |
-| `docs/20260816-theme-plan.md` | Light/dark system-theme plan (Acid Y2K dark) — **pending owner approval**; light-only until executed |
+| `docs/20260816-theme-plan.md` | Light/dark system-theme plan (Acid Y2K dark) — **closed**, Phases 0–3 shipped 2026-08-16; only the optional volt glow (§5) is still an owner call. DESIGN-REQUIREMENTS §2 is now the palette authority |
 
 ## Commands
 
