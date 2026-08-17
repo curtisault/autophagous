@@ -41,6 +41,7 @@ npm run dev
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Serve the built output |
 | `npm test` | elm-test (`tests/RouteTests.elm`) |
+| `npm run deploy` | Build and push `dist/` to Cloudflare Pages (skips the test gate — prefer pushing to `main`) |
 | `npm run print` | Compile `typst/cycle-log.typ` → `public/downloads/cycle-log.pdf` — **commit the PDF**, the site links to it |
 
 ## Layout
@@ -53,10 +54,14 @@ src/
   Doc.elm            the document format: masthead, rail, § numbering, clause marks, footer
   Page/*.elm         pure views, one per route
   theme.css          tokens only
+  fonts.css          @font-face only (hand-maintained)
   protocol.css       components
 public/
+  404.html           keeps Pages' SPA fallback OFF — see docs/DEPLOY.md
+  _headers           cache policy (immutable only where names are stable)
   _redirects         client routes — scoped, one line per route, no wildcard
   downloads/         compiled print artifacts (committed)
+  fonts/             self-hosted woff2 + their OFL licence texts
 typst/               print sources
 docs/                the specs — see below
 ```
@@ -85,7 +90,11 @@ These are load-bearing. Breaking one is a bug, not a style difference.
   and never forced through the site's CSS (DESIGN-PRINCIPLES §print). The
   `@media print` rules are an emergency fallback carrying no design
   obligation.
-- **Self-hosted assets only.** No webfonts, no CDNs.
+- **Self-hosted assets only.** No CDNs. The two webfonts (Archivo Expanded
+  700 for display, JetBrains Mono 400/700 for data) are committed under
+  `public/fonts/` with their OFL licences. Body type stays a system serif on
+  purpose — see DESIGN-REQUIREMENTS §3. Never set `font-stretch` or
+  `font-weight: 800` on the display voice; only one 700 cut ships.
 
 ## The source index
 
@@ -114,6 +123,7 @@ single citation.
 | `docs/DESIGN-REQUIREMENTS.md` | Look, feel, voice, type, color, hard constraints |
 | `docs/DESIGN-PRINCIPLES.md` | Layout structure, Elm structure, the print strategy |
 | `docs/RESOURCES-POLICY.md` | The source index: link-first policy, access states, slugs |
+| `docs/DEPLOY.md` | Cloudflare Pages pipeline, the 404 contract, cache policy, one-time setup |
 | `docs/20260816-theme-plan.md` | The light/dark theme plan — closed, except the optional volt glow |
 | `AGENTS.md` (`CLAUDE.md`) | The condensed brief for coding agents |
 
@@ -121,9 +131,6 @@ Design decisions are amended in place, dated, in the doc that owns them.
 
 ## Notes for contributors
 
-- Structure follows the sibling project `cryovault` (`../cryovault/`) — the
-  palette is inherited from it, the design language is this project's own
-  and drifts freely.
 - `vite.config.js` carries two deliberate workarounds: an HMR-accept rewrite
   for `vite-plugin-elm` under Vite 8, and a pinned `cssTarget` so minified
   range media queries stay parseable on pre-16.4 iOS WebKit. Both are

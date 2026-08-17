@@ -1,6 +1,7 @@
 # Project toolchain — install with `mise install`.
 #
-# - node: keep in step with any future CI workflow
+# - node: keep the major in step with .github/workflows/deploy.yml
+#   (setup-node `node-version`)
 # - elm: must stay on the 0.19.1 line (elm-test 0.19.1 runner pin);
 #   the `elm` devDependency in package.json pins what node_modules
 #   resolves

@@ -4,7 +4,7 @@ port module Main exposing (main)
 dispatch — and the viewport. `Browser.application` intercepts every
 internal link click, including the contents rail's `#anchor` jumps, so
 the default scroll-to-fragment never happens; the shell re-implements
-it with `Browser.Dom` (same problem cryovault's shell solves).
+it with `Browser.Dom`.
 
 Theme (theme plan Phase 3): the shell owns the three-state preference
 (System / Light / Dark). The palette itself is pure CSS — `theme.css`

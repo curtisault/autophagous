@@ -3,8 +3,9 @@ module Route exposing (Route(..), fromUrl, parse, title, toPath)
 {-| Client routes. Pure: no Cmd, no ports — fully unit-testable
 (`tests/RouteTests.elm`).
 
-Adding a route here means adding a line to `public/_redirects` —
-that friction is deliberate (inherited policy from cryovault).
+Adding a route here means adding a line to `public/_redirects`, by
+name. That friction is deliberate: see the 404 contract in
+docs/DEPLOY.md for what a wildcard rule would break.
 
 -}
 

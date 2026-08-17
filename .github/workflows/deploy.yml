@@ -1,0 +1,80 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # keep the major in step with mise.toml (the local pin)
+          node-version: 26
+          cache: npm
+
+      - run: npm ci
+
+      # Elm IS an npm devDependency here, so `npm ci` already puts a
+      # 0.19.1 binary in node_modules/.bin. This global install is
+      # deliberate belt-and-braces: it puts elm on PATH outright, so
+      # nothing depends on npm-script PATH injection or on the elm
+      # package's postinstall having run — "elm not found" at the test
+      # or build step is the failure it prevents, for a few seconds.
+      # Must stay on the 0.19.1 line — elm-test is pinned there and the
+      # 0.19.2 runner mismatches.
+      - run: npm install -g elm@0.19.1-6
+
+      - name: Cache Elm packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.elm
+          key: elm-${{ hashFiles('elm.json') }}
+
+      # The gate. Never remove; add further gates as run steps above
+      # the deploy, never below it.
+      - run: npm test
+
+      - run: npm run build
+
+      # Guard a real Cloudflare Pages failure mode: a missing 404.html
+      # re-enables the SPA fallback, which answers absent hashed assets
+      # with index.html as 200 text/html — strict-MIME refuses it and
+      # the immutable header then pins that mistake for a year.
+      # Cheap to assert, expensive to discover in production.
+      - name: Assert the SPA fallback stays off
+        run: |
+          test -f dist/404.html \
+            || { echo "::error::dist/404.html missing — Pages would turn the SPA fallback back on (docs/DEPLOY.md)"; exit 1; }
+          grep -q '^/\* ' dist/_redirects \
+            && { echo "::error::wildcard rule in _redirects — reinstates the SPA-fallback MIME failure (docs/DEPLOY.md)"; exit 1; }
+          echo "404.html present, no wildcard redirect"
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=autophagous
+
+      # Purge the zone cache so no edge location keeps serving stale
+      # HTML after a deploy. No-op until CLOUDFLARE_ZONE_ID is added as
+      # a repo secret and the API token gains Zone → Cache Purge →
+      # Purge, so it is safe to merge before either exists.
+      - name: Purge zone cache
+        env:
+          CF_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$CF_ZONE_ID" ]; then
+            echo "CLOUDFLARE_ZONE_ID not set — skipping zone purge"
+            exit 0
+          fi
+          curl -sf -X POST \
+            "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}'

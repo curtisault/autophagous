@@ -39,18 +39,18 @@ Y2K cyberpunk** — the dark theme is where the acids come out.
 ## 1. The two looks
 
 One design language ("clinical broadsheet — an issued technical
-document"), two lightings, following cryovault's field arc:
+document"), two lightings:
 
 - **Light — the lit facility.** What ships today: frost surface, ink
   everywhere, acid only as applied blocks and marks. Unchanged.
-- **Dark — the lights go out.** Cryovault stratum-4/5 physics: near-void
+- **Dark — the lights go out.** Stratum-4/5 lighting: near-void
   surface, text flips to frost, the stencil inverts (frost blocks,
   near-black text), and **the acids resume as data colors** — volt
   section numbers, volt clause marks, volt rail numbers, orange
   warnings — the OPERATOR'S HANDBOOK look. The dazzle stays in
   decoration and marks, never in body prose.
 
-Acid discipline is theme-dependent, exactly as in cryovault: on light
+Acid discipline is theme-dependent: on light
 ground acid never carries small text; on dark ground it may carry
 *marks and data*, still never body copy.
 
@@ -123,7 +123,7 @@ target marker likewise carry across unchanged.
 - **Phase 3 — manual toggle (optional, later).** Three-state control
   in the site nav; persisted in localStorage; a port sets `data-theme`
   on `<html>` (Elm owns only `<body>`, so this is boot.js's job, same
-  shape as cryovault's calm/save ports). Exit: pref survives reload;
+  shape as the other outbound ports). Exit: pref survives reload;
   "System" tracks live OS changes.
 - **Phase 4 — docs.** Rewrite DESIGN-REQUIREMENTS §2 as the dual
   palette table; record the inverted acid discipline; dated amendment

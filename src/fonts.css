@@ -1,0 +1,98 @@
+/* AUTOPHAGOUS — the self-hosted faces (DESIGN-REQUIREMENTS §3).
+   HAND-MAINTAINED, and not generated: this project carries no
+   fetch-fonts script, so faces are added here by hand and the .woff2
+   files are committed under public/fonts/.
+
+   Two families, adopted 2026-08-17:
+
+   - Archivo Expanded 700 → the DISPLAY voice. Note this is *expanded*
+     (usWidthClass 7) where the old system stack was condensed, so
+     every display size was retuned when it landed — see the §3
+     amendment. Do not re-add `font-stretch: condensed` anywhere: the
+     only cut we ship is the wide one, and asking for condensed just
+     makes a browser synthesise it.
+   - JetBrains Mono 400/700 → the DATA voice. The only family in the
+     set with two weights, which is why the bold data marks (the
+     citation `[NN]` ids) still get a real bold rather than a faux one.
+
+   Deliberately NOT adopted: Instrument Serif (no italic, no bold, and
+   no µ / ¼ — all three of which the electrolyte dosing rows need, so
+   it cannot carry body text) and Inter (single weight 500). The body
+   voice stays a system serif; reasoning in the §3 amendment.
+
+   Both families are SIL Open Font License 1.1. The licence text ships
+   beside the fonts as the OFL requires:
+   public/fonts/Archivo-OFL.txt, public/fonts/JetBrainsMono-OFL.txt.
+   Self-hosted, per the never-waived asset constraint (§5).
+
+   Only the latin and latin-ext subsets are carried — the site is
+   lang="en" and has no Cyrillic. unicode-range means latin-ext is
+   only fetched if a document ever needs it, so it costs nothing to
+   keep as headroom. */
+
+/* ---------- display: Archivo Expanded ---------- */
+@font-face {
+  font-family: 'Archivo Expanded';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/archivo-expanded-700-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Archivo Expanded';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/archivo-expanded-700-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+/* ---------- data: JetBrains Mono ---------- */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-400-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-700-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-700-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}

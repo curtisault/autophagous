@@ -4,6 +4,26 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
+    <!-- The two faces that are on screen before anything is scrolled:
+         the masthead/labels (display) and the § marks and numerals
+         (data). Served from public/fonts, so these paths are stable —
+         Vite copies public/ verbatim and does not hash it. `crossorigin`
+         is required even same-origin: fonts are fetched in CORS mode,
+         and without it the preload is discarded and fetched twice. -->
+    <link
+      rel="preload"
+      href="/fonts/archivo-expanded-700-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/jetbrains-mono-400-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <title>AUTOPHAGOUS — DEMOLITION AND REBUILD</title>
     <meta
       name="description"

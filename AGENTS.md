@@ -1,8 +1,9 @@
 # autophagous
 
 A field manual for achieving autophagy through cyclic prolonged
-fasting. Elm + Vite. Structure follows cryovault
-(`../cryovault/`) — palette inherited from it, design language its own.
+fasting. Elm + Vite. The design language is set out in full in
+`docs/DESIGN-REQUIREMENTS.md` and `docs/DESIGN-PRINCIPLES.md` — those
+two docs are the authority on how this looks and why.
 
 ## Doc map
 
@@ -12,6 +13,7 @@ fasting. Elm + Vite. Structure follows cryovault
 | `docs/DESIGN-REQUIREMENTS.md` | Look, feel, voice, type, color, hard constraints |
 | `docs/DESIGN-PRINCIPLES.md` | Layout structure, Elm structure, the print strategy (§print) |
 | `docs/RESOURCES-POLICY.md` | The source index: link-first policy, access states, slugs |
+| `docs/DEPLOY.md` | Cloudflare Pages pipeline, the 404/SPA-fallback contract, cache policy, one-time setup |
 | `docs/20260816-theme-plan.md` | Light/dark system-theme plan (Acid Y2K dark) — **closed**, Phases 0–3 shipped 2026-08-16; only the optional volt glow (§5) is still an owner call. DESIGN-REQUIREMENTS §2 is now the palette authority |
 
 ## Commands
@@ -39,8 +41,10 @@ typst.
   browser's own fragment jumps — and the theme preference
   (System/Light/Dark), applied to `<html>` by boot.js via the
   `saveTheme` port because Elm owns only `<body>`.
-- CSS: `theme.css` = tokens only; `protocol.css` = components. Raw hex
-  outside theme.css is a bug.
+- CSS: `theme.css` = tokens only; `fonts.css` = `@font-face` only;
+  `protocol.css` = components. Raw hex outside theme.css is a bug, and
+  so is `font-stretch` or `font-weight: 800` on the display voice —
+  only one 700 cut ships (DESIGN-REQUIREMENTS §3).
 - The manifest in `src/Page/Resources.elm` is the single source of
   truth for citation metadata and access state; nothing is rehosted —
   link-first policy in RESOURCES-POLICY.md.
@@ -49,3 +53,8 @@ typst.
   or softened — DESIGN-REQUIREMENTS §5.
 - Printables are typst-generated (`typst/`), never forced through the
   site's CSS — DESIGN-PRINCIPLES §print.
+- `public/404.html` must exist and `public/_redirects` must stay
+  wildcard-free: together they keep Cloudflare Pages' SPA fallback off.
+  Deleting either serves `index.html` as `text/html` for missing hashed
+  assets and caches that mistake for a year — docs/DEPLOY.md. CI fails
+  the build if you break it.

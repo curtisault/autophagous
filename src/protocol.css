@@ -21,7 +21,7 @@
 }
 .site-nav .brand {
   font-size: 0.72rem;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.16em;
 }
 .site-nav .nav-right {
   display: flex;
@@ -76,7 +76,7 @@
 }
 
 /* ---------- the document layout (Doc.elm) ----------
-   Full-bleed, cryovault-handbook dimensions: the contents rail holds
+   Full-bleed handbook dimensions: the contents rail holds
    the left margin, the document takes the rest of the viewport.
    Section rules run the full width; body text sits left at a reading
    measure, leaving the right side open for the intent labels. The
@@ -109,7 +109,7 @@
 .doc-toc-head {
   display: block;
   font-size: 0.58rem;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.16em;
   border-bottom: 2px solid var(--rule);
   padding-bottom: 0.35rem;
   margin-bottom: 0.4rem;
@@ -199,12 +199,17 @@
   content: ' · ';
   color: var(--tx-dim);
 }
+/* Archivo Expanded ships a single 700 cut — asking for 800 makes the
+   browser synthesise a heavier one on top of an already-bold face,
+   which smears the display sizes. 700 everywhere the display voice
+   appears. The size holds at 2.9rem: measured, the longest line
+   ("AND REBUILD") is 401px against a 656px column at the narrowest
+   desktop, so the wide face fits without shrinking the masthead. */
 .masthead h1 {
   font-family: var(--font-display);
-  font-stretch: condensed;
   text-transform: uppercase;
   letter-spacing: -0.015em;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 2.9rem;
   line-height: 0.92;
   margin: 0 0 0.6rem;
@@ -231,8 +236,8 @@ section {
 }
 .sec-intent {
   margin-left: auto;
-  font-size: 0.54rem;
-  letter-spacing: 0.12em;
+  font-size: 0.5rem;
+  letter-spacing: 0.07em;
   color: var(--tx-dim);
   text-align: right;
 }
@@ -245,15 +250,17 @@ section {
   padding: 0.12rem 0.4rem;
   flex: none;
 }
+/* 1.3rem → 1.15rem: the expanded face carries the same authority at a
+   smaller size, and the old size pushed the head past the column once
+   the intent label was measured in it (see .sec-intent). */
 .sec-head h2 {
   font-family: var(--font-display);
-  font-stretch: condensed;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 800;
-  font-size: 1.3rem;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  font-size: 1.15rem;
   margin: 0;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 .sheet p {
   margin: 0 0 0.85rem;
@@ -263,10 +270,10 @@ section {
 }
 .sub-head {
   font-family: var(--font-display);
-  font-stretch: condensed;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 1rem;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  font-size: 0.9rem;
   margin: 1.4rem 0 0.6rem;
 }
 
@@ -510,10 +517,11 @@ ul.tight li {
   top: 0;
   text-align: center;
   font-family: var(--font-display);
-  font-stretch: condensed;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  font-size: 0.58rem;
+  letter-spacing: 0.02em;
+  /* the ruler's narrowest cell ("Switch") is 8.333% of the track — at
+     0.58rem the wide face filled it to within half a pixel */
+  font-size: 0.52rem;
   font-weight: 700;
   line-height: 1.2;
 }
@@ -568,7 +576,7 @@ ul.tight li {
 .stage-meta .no {
   font-family: var(--font-display);
   font-size: 1.9rem;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
   display: block;
   color: var(--data-accent);
@@ -581,7 +589,6 @@ ul.tight li {
 }
 .stage h3 {
   font-family: var(--font-display);
-  font-stretch: condensed;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-size: 1.02rem;

@@ -1,0 +1,11 @@
+# Cloudflare Pages config. Deploy target and procedure: docs/DEPLOY.md.
+#
+# First deploy: `npx wrangler login`, then `npm run deploy` — the Pages
+# project is created on that first run, NOT in the dashboard.
+#
+# `name` must stay in step with two other places: the `--project-name`
+# in .github/workflows/deploy.yml and the `deploy` script in
+# package.json. All three say `autophagous`.
+name = "autophagous"
+compatibility_date = "2026-08-17"
+pages_build_output_dir = "dist"

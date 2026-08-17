@@ -47,11 +47,15 @@
   --volt-tx: #4a7000; /* volt-family text at AA on the current field */
   --warn-tx: #9a3412; /* warning text at AA on the current field */
 
-  /* ---- type voices ---- */
+  /* ---- type voices (faces declared in fonts.css) ----
+     Body stays a system serif on purpose: it is the only voice here
+     that needs real bold, real italic, and µ / ¼ / ⅓ for the
+     electrolyte doses, and no face in the adopted set has them. */
   --font-body: Georgia, 'Times New Roman', serif; /* the reading voice */
-  --font-display: 'Helvetica Neue', Arial, sans-serif; /* condensed caps */
-  --font-data: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo,
-    monospace; /* numbers, hours, doses */
+  --font-display: 'Archivo Expanded', 'Archivo',
+    'Helvetica Neue', Arial, sans-serif; /* wide caps — NOT condensed */
+  --font-data: 'JetBrains Mono', 'SFMono-Regular', Consolas,
+    'Liberation Mono', Menlo, monospace; /* numbers, hours, doses */
 
   /* ---- measure & chrome ---- */
   --measure: 44rem;
@@ -124,12 +128,15 @@ body {
 
 /* ---- shared type roles ---- */
 
-/* Condensed caps: headers, labels, system voice. */
+/* Wide caps: headers, labels, system voice. An expanded face carries
+   its own width, so it needs markedly less tracking than the condensed
+   stack this replaced — 0.14em on Archivo Expanded reads as gappy
+   rather than authoritative. Never re-add `font-stretch`: the only cut
+   shipped is the wide one. */
 .u {
   font-family: var(--font-display);
-  font-stretch: condensed;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   font-weight: 700;
 }
 

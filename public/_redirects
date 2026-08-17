@@ -1,6 +1,10 @@
-# Client routes — SCOPED, deliberately (same policy as cryovault:
-# no wildcard `/* /index.html 200`; adding a route in src/Route.elm
-# means adding a line here, and that friction is the point).
+# Client routes — SCOPED, deliberately. No wildcard `/* /index.html
+# 200`: a wildcard makes Cloudflare Pages answer every missing hashed
+# asset with index.html as 200 text/html, which strict-MIME refuses and
+# the immutable cache header then pins for a year (docs/DEPLOY.md, "The
+# 404 contract"). Adding a route in src/Route.elm means adding a line
+# here by name, and that friction is the point. CI fails the build if a
+# wildcard appears.
 
 /resources /index.html 200
 /legal /index.html 200

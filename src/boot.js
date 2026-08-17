@@ -5,6 +5,7 @@
 // The theme attribute lives on <html>, which Elm does not own, so the
 // shell reaches it through the saveTheme port (theme plan Phase 3).
 import './theme.css'
+import './fonts.css'
 import './protocol.css'
 import { Elm } from './Main.elm'
 

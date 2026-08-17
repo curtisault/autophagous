@@ -6,8 +6,8 @@ DESIGN-REQUIREMENTS.md (look/feel/color/type).
 ## 1. The surface
 
 *(Revised 2026-08-16 — owner: the original centered "sheet on a bench"
-read like a permanent print preview. Full-bleed now, dimensioned like
-cryovault's handbook.)*
+read like a permanent print preview. Full-bleed now, dimensioned as
+below.)*
 
 The page IS the document: the frost `--paper` runs edge to edge, the
 site nav is a full-width ink strip, and the document grid takes the
@@ -38,7 +38,7 @@ The hierarchy is semantic: **slab = binding**, **note = commentary**,
 
 ## 2a. The document format (`Doc.elm`)
 
-Adopted 2026-08-16 from cryovault's `Doc.elm`. Every broadsheet page
+Adopted 2026-08-16. Every broadsheet page
 wears the shared chrome: masthead, contents rail (side nav),
 `§`-numbered sections, clause marks, footer.
 
@@ -92,7 +92,8 @@ reachable at any scroll depth.)*
   All state lives here.
 - `src/Route.elm` — pure routing (no Cmd, no ports); unit-tested.
   Adding a route = adding a line to `public/_redirects` (scoped
-  redirects, no wildcard — cryovault's policy, kept).
+  redirects, no wildcard — the friction is the point; see DEPLOY.md's
+  404 contract for what a wildcard would break).
   `parse` returns `Maybe Route` (the honest answer); `fromUrl` is the
   total version that falls back to the protocol sheet. The shell needs
   both — see the asset-link rule below.

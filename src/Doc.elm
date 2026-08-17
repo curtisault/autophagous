@@ -1,7 +1,7 @@
 module Doc exposing (Body(..), Config, Section, view)
 
-{-| The document format (DESIGN-PRINCIPLES §2a), after cryovault's
-`Doc.elm`: the shared chrome every broadsheet page wears — the
+{-| The document format (DESIGN-PRINCIPLES §2a): the shared chrome
+every broadsheet page wears — the
 masthead, the contents rail, section numbering, clause marks, and the
 footer.
 
@@ -13,8 +13,8 @@ format and starts being a page.
 
 **Sections are one ordered list, and the contents rail is derived from
 it.** A section number derived from a list cannot disagree with that
-list — which is the point (cryovault learned this the hard way,
-DECISIONS §14 over there). In-prose cross-references ("see §09") are
+list — which is the point, and was learned the hard way. In-prose
+cross-references ("see §09") are
 the one thing still maintained by hand, so reordering sections means
 grepping for `§`.
 

@@ -1,8 +1,8 @@
 # AUTOPHAGOUS — Design Requirements
 
-Look, feel, voice, type, color, hard constraints. This project shares
-cryovault's *palette* but not its design language — decisions here are
-this project's own and drift from cryovault freely.
+Look, feel, voice, type, color, hard constraints. This document and
+DESIGN-PRINCIPLES.md are the authority: the aesthetic here stands on
+its own and answers to nothing outside these docs.
 
 ## 1. The design language: CLINICAL BROADSHEET
 
@@ -12,8 +12,8 @@ authoritative — a field manual, not a wellness blog.
 
 *(Amended 2026-08-16: the surface is full-bleed — the page IS the
 document. The original "sheet laid on a steel bench" framing read like
-a permanent print preview and was retired; layout dimensions now
-follow cryovault's handbook. See DESIGN-PRINCIPLES §1.)*
+a permanent print preview and was retired; the layout is dimensioned
+as the handbook geometry in DESIGN-PRINCIPLES §1.)*
 
 *(Amended 2026-08-16, owner: the target register is **Acid Y2K
 cyberpunk**. The clinical-broadsheet language stays; the style lands
@@ -70,23 +70,62 @@ Primitives (never swapped): `--ink #111214`, `--frost #edf1f2`,
 
 All pairings audited ≥ 5.1:1 (AA) in both themes, 2026-08-16.
 
-**Acid discipline (theme-dependent, from cryovault):** on light
-ground, acid never carries small text — data is ink; acid is blocks,
-bars, and marks. On dark ground the acids resume as data colors —
+**Acid discipline (theme-dependent):** on light ground, acid never
+carries small text — data is ink; acid is blocks, bars, and marks. On dark ground the acids resume as data colors —
 marks, numerals, warnings — but never body prose. The stencil is the
 inverted field, so its accent swaps to whichever volt holds AA there.
 The dazzle lives in decoration and marks, never in reading text.
 
 ## 3. Type
 
-Three voices, system stacks (no webfonts yet — a deliberate default,
-revisit with a dated amendment):
+*(Amended 2026-08-17 — the webfont revisit this section asked for.
+Two self-hosted faces adopted; the body voice stays a system stack.
+Faces are declared in `src/fonts.css`, files in `public/fonts/`.)*
 
-- **Body (reading):** Georgia / Times New Roman serif, 16px root, 1.5 line-height.
-- **Display (`.u`):** Helvetica Neue condensed, uppercase, tracked —
+Three voices:
+
+- **Body (reading):** Georgia / Times New Roman serif, 16px root, 1.5
+  line-height. **System stack, deliberately.** No face in the adopted
+  set can carry body text: they are all single-weight and upright, so
+  every `<b>` and `<em>` in the protocol would be a browser-synthesised
+  fake — including the safety bold — and Instrument Serif additionally
+  lacks `µ` and `¼`, which the electrolyte dosing rows use. Georgia has
+  a true bold, a true italic, and the full glyph set. Keeping it is a
+  §5 legibility decision, not inertia.
+- **Display (`.u`):** **Archivo Expanded 700**, uppercase, tracked —
   headers, labels, system voice.
-- **Data (`.mono`):** SF Mono / Consolas, tabular-nums — every number:
-  hours, doses, targets. Numbers never wobble.
+- **Data (`.mono`):** **JetBrains Mono 400/700**, tabular-nums — every
+  number: hours, doses, targets. Numbers never wobble.
+
+**Display is now wide, not condensed.** This is the one real break with
+the old look, and it cascades:
+
+- `.u` tracking drops 0.14em → 0.10em; a wide face needs less air, and
+  0.14em on it reads gappy rather than authoritative. The two 0.22em
+  outliers (brand, rail heading) drop to 0.16em for the same reason.
+- **Never set `font-stretch`.** Only the wide cut ships; asking for
+  condensed makes a browser synthesise it.
+- **The display face has one weight, 700.** `font-weight: 800` used to
+  appear on `h1`, `h2` and the stage numeral; all three now say 700,
+  because 800 against a single-cut face synthesises a heavier one on
+  top of an already-bold design and smears it.
+- Sizes were retuned against **measured advance widths**, not guessed:
+  `h2` 1.3rem → 1.15rem, `.sub-head` 1rem → 0.9rem, `.sec-intent`
+  0.54rem → 0.5rem, `.nm` 0.58rem → 0.52rem (its narrowest ruler cell
+  was filling to within half a pixel). `h1` holds at 2.9rem — the
+  longest line measures 401px against a 656px column at the narrowest
+  desktop.
+- Section heads fit on one line from ~1150px up. Between 960 and
+  1150px the intent label wraps to its own right-aligned line, which is
+  what `.sec-head`'s `flex-wrap` is for. Accepted, not overlooked.
+
+Both families are SIL OFL 1.1; the licence text ships beside them in
+`public/fonts/`, as the OFL requires. Latin and latin-ext subsets only
+— the site is `lang="en"`, and `unicode-range` means latin-ext costs
+nothing unless a document needs it.
+
+Not adopted from the set: **Instrument Serif** (reasons above) and
+**Inter** (single weight 500, and the body voice is serif).
 
 Measure: `--measure: 44rem`.
 
