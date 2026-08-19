@@ -1,0 +1,48 @@
+name: Test
+
+# Pull requests only. `deploy.yml` already gates main on the same
+# suite, so running this on push as well would double every run for
+# no extra signal.
+on:
+  pull_request:
+
+# Least privilege: this job reads the tree and reports a status. It
+# touches nothing else.
+permissions:
+  contents: read
+
+# A force-push supersedes whatever was already running for that PR.
+# Cancel it rather than paying for a result nobody will read.
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # keep the major in step with mise.toml (the local pin)
+          node-version: 26
+          cache: npm
+
+      - run: npm ci
+
+      # Same belt-and-braces as deploy.yml: elm is an npm devDependency,
+      # so `npm ci` already provides a binary, but this puts it on PATH
+      # outright — nothing then depends on npm-script PATH injection or
+      # on the elm package's postinstall having run. Must stay on the
+      # 0.19.1 line; elm-test is pinned there and the 0.19.2 runner
+      # mismatches.
+      - run: npm install -g elm@0.19.1-6
+
+      - name: Cache Elm packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.elm
+          key: elm-${{ hashFiles('elm.json') }}
+
+      - run: npm test
