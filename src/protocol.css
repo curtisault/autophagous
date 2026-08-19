@@ -793,6 +793,7 @@ ol.refs li {
 }
 .plan-seg {
   display: flex;
+  flex-wrap: wrap;
 }
 .plan-btn {
   font-size: 0.6rem;
@@ -1035,6 +1036,33 @@ sup.ref .ref-link:hover {
   font-size: 0.58rem;
 }
 
+/* ---------- the dosing sheet (Page.Dosing) ----------
+   Each cell answers the same question three ways: the milligrams §07
+   asked for, the grams you weigh, and the spoon you have. The
+   milligrams lead because that is the number that can be checked
+   against the protocol; the spoon is dimmed because it is the one
+   that is approximate. */
+.dose .dose-mg,
+.dose .dose-g,
+.dose .dose-tsp {
+  display: block;
+}
+.dose .dose-mg {
+  font-size: 0.8rem;
+  color: var(--tx);
+}
+.dose .dose-g {
+  font-size: 0.72rem;
+  color: var(--tx);
+}
+.dose .dose-tsp {
+  font-size: 0.62rem;
+  color: var(--tx-dim);
+}
+.dose td {
+  vertical-align: top;
+}
+
 /* ---------- footer ---------- */
 .sheet footer {
   margin-top: 2.5rem;
@@ -1164,12 +1192,25 @@ sup.ref .ref-link:hover {
   .site-nav {
     padding: 0 1.25rem;
   }
-  /* the brand goes: on a phone the bar is a fourth route wider than it
-     was, and the masthead below already names the document. Note the
-     bar is still tight at ~360px — a proper small-screen nav is an
-     owner call, not something this rule pretends to have solved. */
+  /* the brand goes: on a phone the bar is two routes wider than it was,
+     and the masthead below already names the document. Even so, five
+     routes plus the theme control do not fit ~360px, so the bar scrolls
+     rather than clipping — nothing becomes unreachable. A proper
+     small-screen nav is still an owner call; this only makes the
+     overflow honest. */
   .site-nav .brand {
     display: none;
+  }
+  .site-nav {
+    overflow-x: auto;
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+  .site-nav .nav-right {
+    flex: none;
+  }
+  .site-nav .nav-links {
+    flex: none;
   }
   .site-nav .nav-right {
     gap: 1rem;

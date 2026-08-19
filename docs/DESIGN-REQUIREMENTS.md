@@ -188,6 +188,13 @@ content is never softened for tone.
   strength, and says outright that it is not the protocol. The
   planner's §01 slab is the pattern. A summarised warning is a way of
   missing one.)*
+  *(Amended 2026-08-18, again: a derived surface may **add a
+  constraint** the protocol does not state — the dosing sheet will not
+  divide a day into fewer than three doses, and §07 gives no number —
+  but only where it says on the page that the constraint is its own
+  judgement. Tightening in the safe direction is allowed; attributing
+  your own number to the source is not. The corollary: a derived
+  surface never loosens one.)*
 - The medical disclaimer ships on every content page footer, and links
   to `/legal` for the long form. *(Amended 2026-08-16: `Page.Legal` is
   that long form — no-medical-advice, the absolute exclusions,

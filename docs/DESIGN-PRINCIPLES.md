@@ -177,6 +177,14 @@ will be.)*
 - `src/Ruler.elm` — the 0–96 h clock, extracted from `Page.Protocol`
   when the second reader appeared. The protocol draws it plain; the
   planner draws it with a needle at the hour the reader has reached.
+- `src/Dose.elm` — §07's daily requirements as arithmetic: milligrams
+  of an element into grams of the salt that carries it, and a day into
+  the divided doses the protocol requires. **It invents no doses.**
+  The teaspoon masses (6.0 g fine salt, 5.7 g potassium chloride) are
+  chosen so the conversion reproduces §07's own "1¼–2 tsp" and
+  "⅓–1 tsp" — `DoseTests` runs the protocol's milligram targets
+  through it and checks they come back as the protocol's teaspoons, so
+  the sheet cannot contradict the section it converts.
 - `src/Safety.elm` — safety content more than one surface renders. See
   §3b: this is how the clock shows the abort signals **in full without
   paraphrasing them** — they are the same values, not a restatement.
@@ -204,6 +212,25 @@ will be.)*
   top and must not re-read the form out from under the reader. Only a
   real arrival applies the query — and an arrival keeps whatever the
   URL does not mention, so a nav click cannot wipe a filled-in form.
+
+*(Amended 2026-08-18 — `src/Viewport.elm`, after the guard was got
+wrong twice.)*
+
+- **Whether a URL change moves the reader is now one pure function**,
+  `Viewport.actionFor`, with the whole table under test. It was two
+  ad-hoc conditions inline, and the second one was wrong: `arrived`
+  guarded the scroll-to-top but nothing guarded the **anchor jump**,
+  so once a URL carried a fragment, every mirrored control click
+  re-ran that jump. On the dosing sheet the fragment was usually
+  `#sec-dose-set` — §01, the top of the page — so changing doses per
+  day threw the reader to the top every time.
+- The flag is `Model.mirroring`: set wherever this shell writes the
+  URL itself, read by the next `UrlChanged`, cleared after. An
+  arrival on a mirroring route sets it too, because that arrival
+  writes the URL back in the same batch and the echo is still coming.
+- The rule in one line: **an echo of our own write moves nobody.** If
+  a control needs the address bar updated, that is a fact about the
+  address bar, not about where the reader is standing.
 - **The start instant is derived, never stored.** The model holds the
   raw field string; `Page.Plan` receives `Maybe Posix`. A half-typed
   date is `Nothing`, which the page states plainly and falls back to
@@ -238,6 +265,46 @@ rather than part of it. The rule that makes that safe:
   them: `Safety.elm` holds them once and both surfaces call it. A
   derived surface that finds itself needing to reword a warning has
   found the boundary, not a special case.
+
+*(Amended 2026-08-18 — the dosing sheet, and adding constraints.)*
+
+- The dosing sheet (`/dosing`) is the third derived surface and takes
+  the same shape: it converts §07 and links back to it, and it renders
+  `Safety.potassiumDose` and `Safety.saltedWater` — the protocol's own
+  values, now shared rather than duplicated.
+- **A derived surface may tighten, never loosen.** The sheet refuses
+  to divide a day into fewer than three doses; §07 says "divided into
+  small doses across the day" and gives no number. That floor is the
+  sheet's judgement and the page says so in as many words
+  (DESIGN-REQUIREMENTS §5). Adding your own number silently, or
+  attributing it to the protocol, is the failure this rule names.
+- **It shows its working.** §04 of that page lists every constant and
+  where it came from, including which ones were chosen to agree with
+  §07 rather than looked up. A converter a reader cannot check is a
+  converter they have to trust.
+
+*(Amended 2026-08-18 — excluded options are costed, not omitted.)*
+
+- Leaving a popular product off the page does not stop anyone using
+  it; it only means they never see the arithmetic. So the sheet has a
+  section for the things people reach for instead — Liquid I.V., a
+  sports drink, coconut water, bone broth — with the §07 clause each
+  one breaks.
+- **An excluded thing is not a setting.** It was briefly a fourth
+  option in the potassium control, which framed it as a choice a
+  reader might legitimately make; it is a *section* now, titled what
+  it is. The controls offer only what the protocol permits.
+- **Cost it out where you can.** The stick mix is computed from
+  constants in `Dose` and tested: §07's daily potassium would take
+  2.7–8.1 sticks, which is 30–89 g of sugar. That is a better answer
+  than an assertion. Where the numbers are label values rather than
+  computed ones, the page says so and leads with the mechanism, which
+  is the part that still holds when the product is reformulated.
+- **Name the close call.** A zero-sugar sweetened stick has the right
+  profile and no calories; §07 excludes it for the cephalic-phase
+  insulin response, which is a less certain mechanism than the calorie
+  rule. The page says exactly that rather than flattening it into the
+  same verdict as bone broth.
 
 ## §print — the print strategy
 

@@ -613,7 +613,7 @@ secFast =
             , tr []
                 [ td [] [ text "Water" ]
                 , td [ class "amt mono" ] [ text "2–3 L" ]
-                , td [] [ bT "Salted.", text " Drinking large volumes of plain water while sodium-depleted causes hyponatremia. Thirst plus salt, not volume for its own sake." ]
+                , td [] Safety.saltedWater
                 ]
             , tr []
                 [ td [] [ text "Black coffee" ]
@@ -659,10 +659,8 @@ secFast =
         , p [ class "slab-foot", style "margin-top" ".5rem" ]
             [ text "Permitted without qualification: water, salt, the minerals above, black coffee, plain and green tea, sparkling water." ]
         ]
-    , note
-        [ bT "Potassium warning."
-        , text " Never take potassium as a single large dose — it can trigger arrhythmia. Divide it across the day in water. Skip potassium supplementation entirely if you have any kidney impairment or take ACE inhibitors, ARBs, or potassium-sparing diuretics. This is the one item here with a genuinely narrow margin."
-        ]
+    , -- shared with the dosing sheet, which converts exactly this dose
+      Safety.potassiumDose
     , note
         [ bT "Also required:"
         , text " stand up slowly every time, keep the room warm, don't drive while lightheaded, and skip saunas and hot baths entirely — fainting risk is real and peaks on days 2–3."

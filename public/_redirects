@@ -7,5 +7,6 @@
 # wildcard appears.
 
 /plan /index.html 200
+/dosing /index.html 200
 /resources /index.html 200
 /legal /index.html 200
