@@ -1,14 +1,34 @@
 # Project toolchain — install with `mise install`.
 #
-# - node: keep the major in step with .github/workflows/deploy.yml
-#   (setup-node `node-version`)
-# - elm: must stay on the 0.19.1 line (elm-test 0.19.1 runner pin);
-#   the `elm` devDependency in package.json pins what node_modules
-#   resolves
+# This file is the SINGLE SOURCE OF TRUTH for every tool version. CI
+# installs from it directly (jdx/mise-action in both workflows), so
+# there is no second pin anywhere to keep in step.
+#
+# There is deliberately NO node here. Deno is the only JavaScript
+# runtime: it runs Vite, wrangler, and the compiled Elm test bundle.
+# Adding node back would give two runtimes silently disagreeing about
+# module resolution — if something cannot run under Deno, fix that,
+# do not reintroduce node.
+#
+# - deno: the runtime and the package manager. Dependencies and task
+#   definitions live in `deno.json`; there is no package.json.
+# - elm: must stay on the 0.19.1 line — `elm.json` declares
+#   `"elm-version": "0.19.1"`. mise is the only thing that puts the
+#   compiler on PATH. vite-plugin-elm (via node-elm-compiler) and
+#   elm-test-rs both resolve the bare name `elm` off PATH.
+# - elm-test-rs: the test runner (`deno task test`), built from a
+#   FORK. Upstream's Deno support was written in 2021 against Deno 1
+#   and still calls three APIs that Deno 2 removed (`Deno.read`,
+#   `Deno.writeAll`, `Deno.writeAllSync`), so `--deno` fails outright
+#   on stock 3.2.0. The fork is that fix and nothing else — four
+#   lines, see github.com/curtisault/elm-test-rs branch `deno2`.
+#   Drop back to `ubi:mpizenberg/elm-test-rs` the moment upstream
+#   ships it. Note this compiles from source on install (~40 s).
 # - typst: compiles the printable artifacts (typst/*.typ) into
-#   public/downloads/ via `npm run print`
+#   public/downloads/ via `deno task print`
 
 [tools]
-node = "26"
+deno = "2"
 elm = "0.19.1"
+"cargo:https://github.com/curtisault/elm-test-rs" = "branch:deno2"
 typst = "latest"

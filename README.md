@@ -32,19 +32,32 @@ persisting to `localStorage`.
 ## Quick start
 
 ```sh
-mise install     # node 26, elm 0.19.1, typst — pinned in mise.toml
-npm install
-npm run dev
+mise install     # deno 2, elm 0.19.1, elm-test-rs, typst — pinned in mise.toml
+deno install     # dependencies, from deno.json
+deno task dev
 ```
+
+**There is no Node here, and no npm.** Deno is the only JavaScript
+runtime — it runs Vite, wrangler, and the compiled Elm test bundle.
+Dependencies and tasks live in `deno.json`. A `package.json` survives,
+carrying one `overrides` block and nothing else — see *Notes for
+contributors*.
+
+`mise install` is not optional. The Elm compiler and the test runner
+are not packages of any kind — `deno task build` and `deno task test`
+resolve the bare names `elm` and `elm-test-rs` off PATH, and
+`mise.toml` is the only place their versions are written down,
+including for CI. The first install compiles `elm-test-rs` from source
+(~40 s); see the note in `mise.toml` for why it comes from a fork.
 
 | Command | Does |
 |---|---|
-| `npm run dev` | Vite dev server |
-| `npm run build` | Production build to `dist/` |
-| `npm run preview` | Serve the built output |
-| `npm test` | elm-test (routing, wall-clock conversion, the schedule, the calendar export) |
-| `npm run deploy` | Build and push `dist/` to Cloudflare Pages (skips the test gate — prefer pushing to `main`) |
-| `npm run print` | Compile `typst/cycle-log.typ` → `public/downloads/cycle-log.pdf` — **commit the PDF**, the site links to it |
+| `deno task dev` | Vite dev server |
+| `deno task build` | Production build to `dist/` |
+| `deno task preview` | Serve the built output |
+| `deno task test` | elm-test-rs (routing, wall-clock conversion, the schedule, the calendar export) |
+| `deno task deploy` | Build and push `dist/` to Cloudflare Pages (skips the test gate — prefer pushing to `main`) |
+| `deno task print` | Compile `typst/cycle-log.typ` → `public/downloads/cycle-log.pdf` — **commit the PDF**, the site links to it |
 
 ## Layout
 
@@ -190,6 +203,12 @@ Design decisions are amended in place, dated, in the doc that owns them.
   for `vite-plugin-elm` under Vite 8, and a pinned `cssTarget` so minified
   range media queries stay parseable on pre-16.4 iOS WebKit. Both are
   commented at the source.
-- `package.json` forces `cross-spawn@^6.0.6` through `overrides` to clear a
-  ReDoS advisory that `vite-plugin-elm`'s dependency chain hard-pins with no
-  upstream release to move to.
+- `package.json` exists **only** to force `cross-spawn@^6.0.6` through
+  `overrides`, clearing a ReDoS advisory that `vite-plugin-elm`'s dependency
+  chain hard-pins with no upstream release to move to. `deno.json` has no
+  equivalent mechanism, and Deno does read the field — without that file the
+  vulnerable 6.0.5 is what gets installed. Do not delete it, and do not put
+  dependencies or scripts in it; those live in `deno.json`.
+- `elm-test-rs` is pinned to a **fork**. Upstream's Deno support dates from
+  2021 and calls three APIs Deno 2 removed, so `--deno` fails outright on
+  stock 3.2.0. The fork is that fix and nothing else — see `mise.toml`.

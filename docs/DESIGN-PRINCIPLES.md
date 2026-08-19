@@ -443,7 +443,7 @@ Priority artifact: **the cycle log.**
 - The live site is never forced to be printable. `@media print` CSS is
   a courtesy fallback, not a contract.
 - Printable artifacts are authored in **typst** (`typst/*.typ`) and
-  compiled to `public/downloads/*.pdf` via `npm run print`. The site
+  compiled to `public/downloads/*.pdf` via `deno task print`. The site
   links to the compiled PDFs.
 - typst sources use only fonts typst embeds (Libertinus Serif, DejaVu
   Sans Mono) so artifacts compile identically everywhere.

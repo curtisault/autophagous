@@ -18,13 +18,30 @@ two docs are the authority on how this looks and why.
 
 ## Commands
 
-Toolchain pinned in `mise.toml` (`mise install`): node 26, elm 0.19.1,
-typst.
+Toolchain pinned in `mise.toml` (`mise install`): deno 2, elm 0.19.1,
+elm-test-rs, typst. `mise.toml` is the **single source of truth** for
+every tool version — CI installs from the same file via
+`jdx/mise-action`.
 
-- `npm run dev` — Vite dev server
-- `npm run build` — production build to `dist/`
-- `npm test` — elm-test
-- `npm run print` — compile `typst/cycle-log.typ` → `public/downloads/cycle-log.pdf` (commit the PDF; the site links to it)
+**There is no Node and no npm.** Deno is the only JavaScript runtime:
+it runs Vite, wrangler, and the compiled Elm test bundle. Dependencies
+and tasks live in `deno.json`. The surviving `package.json` holds one
+`overrides` block and must hold nothing else — it is the only way to
+force a transitive npm version, and deleting it silently reinstates a
+`cross-spawn` ReDoS advisory. If
+something will not run under Deno, fix that — do not reintroduce node.
+`elm-test-rs` comes from a **fork** because upstream's Deno support
+still calls three APIs Deno 2 removed; `mise.toml` documents it and
+says when to drop back to upstream.
+
+Neither the Elm compiler nor the test runner is a package; both
+resolve off PATH, so `mise install` is required before
+`deno task build` or `deno task test` will work.
+
+- `deno task dev` — Vite dev server
+- `deno task build` — production build to `dist/`
+- `deno task test` — elm-test-rs under Deno
+- `deno task print` — compile `typst/cycle-log.typ` → `public/downloads/cycle-log.pdf` (commit the PDF; the site links to it)
 
 ## Architecture rules
 
