@@ -45,6 +45,7 @@ import Route exposing (Route)
 import Task
 import Time
 import Url exposing (Url)
+import Viewport
 
 
 port saveTheme : String -> Cmd msg
@@ -161,6 +162,11 @@ type alias Model =
     -- the URL cannot silently drop their `#anchor`
     , fragment : Maybe String
 
+    -- set whenever this shell writes the URL itself. The `UrlChanged`
+    -- that comes back is an echo, not a navigation, and must not move
+    -- the reader — see Viewport
+    , mirroring : Bool
+
     -- this site's own base URL, kept for the calendar export: every
     -- event links back to the protocol section it came from, and a
     -- relative link is meaningless once the file has left the browser
@@ -180,6 +186,7 @@ init flags url key =
       , doseSource = Dose.sourceFromParam (Route.queryParam "k" url)
       , doseServings = Dose.servingsFromParam (Route.queryParam "per" url)
       , fragment = url.fragment
+      , mirroring = False
       , active = Nothing
       , origin = originOf url
       }
@@ -254,19 +261,26 @@ update msg model =
                     else
                         landed
             in
-            ( updated
+            ( -- an arrival on a mirroring route writes the URL back in
+              -- the same batch, so the *next* UrlChanged is this
+              -- shell's echo; anything else clears the flag
+              { updated | mirroring = arrived && arrivalMirrors route }
             , Cmd.batch
-                [ case url.fragment of
-                    Just anchor ->
+                [ case
+                    Viewport.actionFor
+                        { mirroring = model.mirroring
+                        , arrived = arrived
+                        , fragment = url.fragment
+                        }
+                  of
+                    Viewport.Stay ->
+                        Cmd.none
+
+                    Viewport.ToTop ->
+                        Task.perform (\_ -> NoOp) (Dom.setViewport 0 0)
+
+                    Viewport.ToAnchor anchor ->
                         jumpTo anchor
-
-                    Nothing ->
-                        if arrived then
-                            -- a page change starts at the top, like a page load
-                            Task.perform (\_ -> NoOp) (Dom.setViewport 0 0)
-
-                        else
-                            Cmd.none
                 , -- arriving from the nav carries no query, so put the
                   -- page's own state back into the URL: both these
                   -- pages promise the address bar is the state
@@ -322,7 +336,7 @@ update msg model =
                                 model.planStart
                     }
             in
-            ( updated
+            ( { updated | mirroring = model.route == Route.Plan }
             , if model.route == Route.Plan then
                 syncPlanUrl updated
 
@@ -333,28 +347,28 @@ update msg model =
         PlanStartChanged raw ->
             let
                 updated =
-                    { model | planStart = raw }
+                    { model | planStart = raw, mirroring = True }
             in
             ( updated, syncPlanUrl updated )
 
         PlanTargetChanged target ->
             let
                 updated =
-                    { model | planTarget = target }
+                    { model | planTarget = target, mirroring = True }
             in
             ( updated, syncPlanUrl updated )
 
         DoseSourceChanged source ->
             let
                 updated =
-                    { model | doseSource = source }
+                    { model | doseSource = source, mirroring = True }
             in
             ( updated, syncDosingUrl updated )
 
         DoseServingsChanged servings ->
             let
                 updated =
-                    { model | doseServings = Dose.clampServings servings }
+                    { model | doseServings = Dose.clampServings servings, mirroring = True }
             in
             ( updated, syncDosingUrl updated )
 
@@ -407,6 +421,14 @@ subscriptions model =
 
 
 -- THE PLANNER'S URL
+
+
+{-| Whether arriving on this route writes the URL back, and therefore
+whether the `UrlChanged` that follows is this shell's own echo.
+-}
+arrivalMirrors : Route -> Bool
+arrivalMirrors route =
+    route == Route.Plan || route == Route.Dosing
 
 
 {-| Read the planner's state off a URL, keeping what the URL does not
