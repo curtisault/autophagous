@@ -13,7 +13,7 @@ two docs are the authority on how this looks and why.
 | `docs/DESIGN-REQUIREMENTS.md` | Look, feel, voice, type, color, hard constraints |
 | `docs/DESIGN-PRINCIPLES.md` | Layout structure, Elm structure, the print strategy (§print) |
 | `docs/RESOURCES-POLICY.md` | The source index: link-first policy, access states, slugs |
-| `docs/DEPLOY.md` | Cloudflare Pages pipeline, the 404/SPA-fallback contract, cache policy, one-time setup |
+| `docs/DEPLOY.md` | CI (PR test workflow + the deploy pipeline), the 404/SPA-fallback contract, cache policy, one-time setup |
 | `docs/20260816-theme-plan.md` | Light/dark system-theme plan (Acid Y2K dark) — **closed**, Phases 0–3 shipped 2026-08-16; only the optional volt glow (§5) is still an owner call. DESIGN-REQUIREMENTS §2 is now the palette authority |
 
 ## Commands
