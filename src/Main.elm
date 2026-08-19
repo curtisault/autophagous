@@ -147,6 +147,11 @@ type alias Model =
     , planStart : String
     , planTarget : Target
 
+    -- whether the narrow layout's menu panel is open. Closed by any
+    -- real navigation, because tapping a route is the last thing a
+    -- reader wants to do inside it
+    , menuOpen : Bool
+
     -- what the reader has typed into the rail's search box. Not in the
     -- URL: a plan is a document you keep, a search is a way of looking
     -- at one, and it should not survive the back button
@@ -195,6 +200,7 @@ init flags url key =
       , mirroring = False
       , active = Nothing
       , query = ""
+      , menuOpen = False
       , origin = originOf url
       }
     , Cmd.batch
@@ -233,6 +239,7 @@ type Msg
     | Tick Time.Posix
     | SectionSeen String
     | QueryChanged String
+    | ToggleMenu
     | NoOp
 
 
@@ -267,6 +274,9 @@ update msg model =
 
                             else
                                 ""
+
+                        -- and the menu shuts behind them
+                        , menuOpen = model.mirroring && model.menuOpen
                         , active =
                             if route /= model.route then
                                 Nothing
@@ -398,6 +408,9 @@ update msg model =
 
         QueryChanged query ->
             ( { model | query = query }, Cmd.none )
+
+        ToggleMenu ->
+            ( { model | menuOpen = not model.menuOpen }, Cmd.none )
 
         SectionSeen anchor ->
             ( { model
@@ -563,7 +576,7 @@ jumpGap =
 
 {-| How much of the viewport top the sticky chrome covers right now:
 the site nav always, plus the contents rail when it is worn as the
-jump-strip. Measured rather than hard-coded against the breakpoint, so
+search strip. Measured rather than hard-coded against the breakpoint, so
 this number cannot drift from the CSS that produces it.
 -}
 stickyChromeHeight : Task.Task x Float
@@ -580,7 +593,7 @@ coveredHeight domId =
         |> Task.onError (\_ -> Task.succeed 0)
 
 
-{-| The rail overlays the text only in its jump-strip form (≤960px),
+{-| The rail overlays the text only in its narrow form (≤60rem),
 where it spans the viewport; as the desktop rail it holds the left
 margin and covers nothing. Its width tells the two apart, which keeps
 the breakpoint itself in the stylesheet where it belongs.
@@ -691,9 +704,14 @@ calendarFile model start =
 
 siteNav : Model -> Html Msg
 siteNav model =
-    nav [ id "site-nav", class "site-nav" ]
+    nav
+        [ id "site-nav"
+        , class "site-nav"
+        , classList [ ( "menu-open", model.menuOpen ) ]
+        ]
         [ span [ class "brand u" ] [ text "Autophagous" ]
-        , div [ class "nav-right" ]
+        , menuToggle model.menuOpen
+        , div [ id "nav-menu", class "nav-menu" ]
             [ div [ class "nav-links u" ]
                 [ navLink model.route Route.Protocol "Protocol"
                 , navLink model.route Route.Plan "Plan"
@@ -703,6 +721,41 @@ siteNav model =
                 ]
             , themeControl model.theme
             ]
+        ]
+
+
+{-| The narrow layout's way in. Hidden entirely above 45rem, where the
+menu is simply the bar (protocol.css §2b).
+
+The mark is three rules, which is the same vocabulary the rest of the
+document is drawn in, and it does not change between states — the word
+beside it does. Nothing morphs and nothing slides: the panel is either
+there or it is not, which is what the no-motion rule asks for.
+
+-}
+menuToggle : Bool -> Html Msg
+menuToggle open =
+    button
+        [ type_ "button"
+        , class "nav-toggle u"
+        , attribute "aria-expanded"
+            (if open then
+                "true"
+
+             else
+                "false"
+            )
+        , attribute "aria-controls" "nav-menu"
+        , onClick ToggleMenu
+        ]
+        [ span [ class "nav-toggle-mark", attribute "aria-hidden" "true" ] []
+        , text
+            (if open then
+                "Close"
+
+             else
+                "Menu"
+            )
         ]
 
 

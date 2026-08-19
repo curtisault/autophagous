@@ -62,7 +62,7 @@
   --nav-h: 2.4rem; /* the sticky site nav's height — .site-nav sets it as
                       a hard height, so this token and the rendered bar
                       cannot disagree. Everything that has to clear the
-                      nav (the rail's sticky offset, the jump-strip)
+                      nav (the rail's sticky offset, the search strip)
                       measures from here. */
 }
 
