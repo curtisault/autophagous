@@ -65,6 +65,12 @@ view ctx =
               , intent = String.fromInt ctx.servings ++ " doses"
               , body = Doc.Panel (secEach ctx)
               }
+            , { anchor = "sec-dose-avoid"
+              , tocLabel = "What not to use"
+              , title = "What not to reach for"
+              , intent = "Excluded · and why"
+              , body = Doc.Panel (secAvoid ctx)
+              }
             , { anchor = "sec-dose-working"
               , tocLabel = "The working"
               , title = "What these numbers assume"
@@ -115,6 +121,12 @@ secSet ctx =
         , text " Products sold as \u{201C}lite salt,\u{201D} \u{201C}low-sodium salt\u{201D} or \u{201C}salt substitute\u{201D} are usually a 50/50 blend of table salt and potassium chloride; products sold as \u{201C}NoSalt\u{201D} or \u{201C}Nu-Salt\u{201D} are usually the pure chloride. §07's "
         , span [ class "mono" ] [ text "⅓–1 tsp" ]
         , text " is the figure for the pure salt: a teaspoon of a blend carries barely half as much potassium, and brings sodium with it."
+        ]
+    , p []
+        [ b [] [ text "Only three things are on that list for a reason." ]
+        , text " Liquid I.V., a sports drink, coconut water and bone broth are the four people usually reach for instead, and §07 excludes all of them — "
+        , a [ href "#sec-dose-avoid" ] [ text "with the arithmetic" ]
+        , text "."
         ]
     ]
 
@@ -242,6 +254,29 @@ weighed hero label symbol element salt perTsp note =
         ]
 
 
+{-| A stick count, with the potassium it delivers above it.
+-}
+stickCell : Float -> Float -> Html msg
+stickCell potassiumMg count =
+    span []
+        [ span [ class "dose-mg" ] [ text (Dose.milligrams potassiumMg ++ " K") ]
+        , span [ class "dose-g" ] [ text (Dose.sticks count) ]
+        ]
+
+
+{-| What those sticks cost, which is the whole answer to whether they
+belong in a fast.
+-}
+sugarCell : Float -> Html msg
+sugarCell count =
+    span []
+        [ span [ class "dose-mg" ]
+            [ text (Dose.grams (count * Dose.stickSugar) ++ " sugar") ]
+        , span [ class "dose-g" ]
+            [ text (String.fromInt (round (count * Dose.stickCalories)) ++ " kcal") ]
+        ]
+
+
 {-| The three answers to "how much": the element §07 asked for, the
 salt you weigh, the spoon you have. The element is named on every
 figure — a row headed "Fine salt" showing "1,000 mg" would otherwise
@@ -351,7 +386,129 @@ eachRows ctx each =
 
 
 
--- §04 THE WORKING
+-- §04 WHAT NOT TO REACH FOR
+
+
+{-| The four things people reach for instead, and the §07 clause each
+one breaks.
+
+Leaving these off the page would not stop anyone using them; it would
+only mean they never saw the arithmetic. So the stick mix is costed
+out in full — the constants are in `Dose` and tested — and the rest
+are named with the mechanism that rules them out, which is the part
+that generalises to whatever is on the shelf next year.
+
+-}
+secAvoid : Context msg -> List (Html msg)
+secAvoid _ =
+    [ p [ class "lede" ]
+        [ text "Every one of these carries real electrolytes. That is exactly why they are worth naming: the electrolytes are not the problem." ]
+    , table [ class "plan" ]
+        [ thead []
+            [ tr []
+                [ th [ style "width" "22%" ] [ text "What people reach for" ]
+                , th [ style "width" "34%" ] [ text "What it brings" ]
+                , th [] [ text "Why it is out" ]
+                ]
+            ]
+        , tbody []
+            [ tr [ class "hero" ]
+                [ td [] [ span [ class "plan-t" ] [ text "Liquid I.V. and other stick mixes" ] ]
+                , td []
+                    [ text "Per stick: "
+                    , span [ class "mono" ] [ text (Dose.milligrams Dose.stickSodium ++ " Na") ]
+                    , text ", "
+                    , span [ class "mono" ] [ text (Dose.milligrams Dose.stickPotassium ++ " K") ]
+                    , text " — and "
+                    , span [ class "mono" ] [ text (Dose.grams Dose.stickSugar) ]
+                    , text " of sugar. §07's daily potassium would take "
+                    , span [ class "mono" ] [ text (stickRange ++ " sticks") ]
+                    , text ": "
+                    , b [] [ text (sugarRange ++ " of sugar") ]
+                    , text ", "
+                    , span [ class "mono" ] [ text calorieRange ]
+                    , text "."
+                    ]
+                , td []
+                    [ text "§07 excludes anything with calories. There is no dose of this compatible with the fast — but it is a reasonable thing to drink during the "
+                    , a [ href "/#sec-refeed" ] [ text "refeed" ]
+                    , text ", when carbohydrate is coming back anyway and §09 asks you to keep potassium going."
+                    ]
+                ]
+            , tr []
+                [ td [] [ span [ class "plan-t" ] [ text "Sports drinks" ] ]
+                , td [] [ text "Sugar in the same range as a stick mix, and less sodium than you would guess — a large bottle carries under half of what a quarter-teaspoon of salt does." ]
+                , td [] [ text "Same clause, same reason. It is a rehydration drink built for someone still eating." ]
+                ]
+            , tr []
+                [ td [] [ span [ class "plan-t" ] [ text "Coconut water" ] ]
+                , td [] [ text "Genuinely high in potassium, and almost no sodium — which is backwards. Sodium is what a fast actually strips out, through the natriuresis §07 describes." ]
+                , td [] [ text "Sugar, so the same clause; and it does not solve the shortfall you have." ]
+                ]
+            , tr [ class "hero" ]
+                [ td [] [ span [ class "plan-t" ] [ text "Bone broth" ] ]
+                , td [] [ text "Sodium, and amino acids with it. This is the one people reach for believing it is the fasting-safe option." ]
+                , td []
+                    [ text "§07 names it first among the exclusions: "
+                    , b [] [ text "standard fasting advice, wrong for this goal" ]
+                    , text ". Amino acids are what mTORC1 is listening for, so this breaks the target the fast exists to hit — not the calorie rule, the mechanism itself."
+                    ]
+                ]
+            , tr []
+                [ td [] [ span [ class "plan-t" ] [ text "Zero-sugar sweetened sticks" ] ]
+                , td [] [ text "The right electrolyte profile and no calories at all. This is the closest call on the list, and worth stating plainly rather than lumping in with the rest." ]
+                , td [] [ text "§07 excludes sweeteners and gum for the cephalic-phase insulin response — a sweet taste with no sugar behind it still asks the pancreas a question. The mechanism is less certain than the calorie rule; the protocol takes the conservative side and so does this sheet." ]
+                ]
+            ]
+        ]
+    , div [ class "note" ]
+        [ b [] [ text "Figures other than the stick mix are approximate." ]
+        , text " They are label values from memory of the category, not a measurement, and formulations change. The stick numbers are computed from the constants in §05 and hold to whatever label you put in. What does not change is the clause each one breaks."
+        ]
+    , p [ class "plan-source u" ]
+        [ a [ href "/#sec-fast" ] [ text "§07 — the exclusions in full" ] ]
+    ]
+
+
+{-| Sticks needed for §07's potassium range, and what they cost.
+-}
+stickRange : String
+stickRange =
+    round1 (Dose.sticksFor Dose.potassium.low) ++ "–" ++ round1 (Dose.sticksFor Dose.potassium.high)
+
+
+sugarRange : String
+sugarRange =
+    round0 (Dose.sticksFor Dose.potassium.low * Dose.stickSugar)
+        ++ "–"
+        ++ round0 (Dose.sticksFor Dose.potassium.high * Dose.stickSugar)
+        ++ " g"
+
+
+calorieRange : String
+calorieRange =
+    round0 (Dose.sticksFor Dose.potassium.low * Dose.stickCalories)
+        ++ "–"
+        ++ round0 (Dose.sticksFor Dose.potassium.high * Dose.stickCalories)
+        ++ " kcal"
+
+
+round0 : Float -> String
+round0 =
+    round >> String.fromInt
+
+
+round1 : Float -> String
+round1 value =
+    let
+        tenths =
+            round (value * 10)
+    in
+    String.fromInt (tenths // 10) ++ "." ++ String.fromInt (modBy 10 tenths)
+
+
+
+-- §05 THE WORKING
 
 
 secWorking : Context msg -> List (Html msg)

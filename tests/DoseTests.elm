@@ -102,6 +102,30 @@ suite =
                         * 1000
                         |> Expect.within (Expect.Absolute 1) 3000
             ]
+        , describe "a stick mix is costed, never offered"
+            -- §07 excludes anything with calories, so it is not one of
+            -- the sources. The page still answers "how much would it
+            -- take?", because that answer is more use than silence
+            [ test "it is not a potassium source" <|
+                \_ ->
+                    List.map Dose.sourceLabel Dose.sources
+                        |> Expect.equal [ "Potassium chloride", "50/50 lite salt", "Not taking it" ]
+            , test "and no parameter can make it one" <|
+                \_ ->
+                    List.map Dose.sourceFromParam [ Just "stick", Just "liquidiv" ]
+                        |> Expect.equal [ Kcl, Kcl ]
+            , test "hitting §07's potassium would take between two and nine sticks" <|
+                \_ ->
+                    ( Dose.sticksFor Dose.potassium.low, Dose.sticksFor Dose.potassium.high )
+                        |> Expect.all
+                            [ Tuple.first >> Expect.within (Expect.Absolute 0.1) 2.7
+                            , Tuple.second >> Expect.within (Expect.Absolute 0.1) 8.1
+                            ]
+            , test "which is a day's worth of sugar, not a splash" <|
+                \_ ->
+                    (Dose.sticksFor Dose.potassium.high * Dose.stickSugar > 50)
+                        |> Expect.equal True
+            ]
         , describe "excluded means excluded"
             [ test "no potassium chloride" <|
                 \_ -> ( excluded.kcl.low, excluded.kcl.high ) |> Expect.equal ( 0, 0 )

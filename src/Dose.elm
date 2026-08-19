@@ -25,6 +25,12 @@ module Dose exposing
     , sourceLabel
     , sourceParam
     , sources
+    , stickCalories
+    , stickPotassium
+    , stickSodium
+    , stickSugar
+    , sticks
+    , sticksFor
     , teaspoons
     , thiamine
     , water
@@ -137,6 +143,42 @@ figure for the pure salt.
 litePotassiumFraction : Float
 litePotassiumFraction =
     0.5
+
+
+{-| One stick of Liquid I.V. Hydration Multiplier, from the label.
+
+Formulations change and the sugar-free line differs; a reader should
+check the packet in front of them. Any stick mix can be read through
+these four numbers.
+
+-}
+stickSodium : Float
+stickSodium =
+    500
+
+
+stickPotassium : Float
+stickPotassium =
+    370
+
+
+{-| Grams of sugar per stick — **the number that decides it.**
+
+§07 excludes "anything with calories, including 'just a splash'" and
+sweeteners along with it, so a stick mix is not a fasting electrolyte
+at any dose. It is not one of the `Source` options for that reason;
+these constants exist so the page can show what reaching for one
+would actually cost, which is a better answer than silence.
+
+-}
+stickSugar : Float
+stickSugar =
+    11
+
+
+stickCalories : Float
+stickCalories =
+    45
 
 
 
@@ -348,6 +390,33 @@ this sheet would rather you used.
 grams : Float -> String
 grams value =
     round1 value ++ " g"
+
+
+{-| How many sticks of a mix it would take to reach a milligram
+target of potassium. Used only to cost out an option the protocol
+excludes — see `Page.Dosing`'s "what not to reach for".
+-}
+sticksFor : Float -> Float
+sticksFor potassiumMg =
+    potassiumMg / stickPotassium
+
+
+{-| A count of sticks, to one decimal — they are not divisible, which
+is part of the point.
+-}
+sticks : Float -> String
+sticks value =
+    if value <= 0 then
+        "—"
+
+    else
+        round1 value
+            ++ (if value < 2 then
+                    " stick"
+
+                else
+                    " sticks"
+               )
 
 
 {-| Whole litres, for a day's total — 2,000 ml is a true statement

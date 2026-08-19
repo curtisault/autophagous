@@ -45,6 +45,11 @@ typst.
   the URL: the planner mirrors its form into `?start=&target=` with
   `replaceUrl`, and that echo must not scroll or reset the form
   (DESIGN-PRINCIPLES §3a).
+- `src/Viewport.elm` — whether a URL change moves the reader, as one
+  pure tested function. Do not inline this decision again: it has been
+  got wrong twice, most recently by guarding the scroll-to-top and
+  forgetting the anchor jump. An echo of the shell's own write moves
+  nobody.
 - `src/Cycle.elm` — the cycle as data: stage boundaries and the
   schedule, offsets in minutes from hour 0. No `Posix`, no `Html`.
   `Page.Protocol` (stage cards, ruler) and `Page.Plan` both read it —
