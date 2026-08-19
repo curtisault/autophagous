@@ -48,6 +48,9 @@ type alias Context msg =
     , startValue : String
     , target : Target
     , download : Maybe { href : String, name : String }
+
+    -- the section the reader is in, for the contents rail
+    , active : Maybe String
     , onStart : String -> msg
     , onTarget : Target -> msg
     }
@@ -83,6 +86,7 @@ view ctx =
                      , body = Doc.Clauses (secCarry ctx)
                      }
                    ]
+        , active = ctx.active
         , footNote =
             -- the medical disclaimer ships on every content page
             -- (DESIGN-REQUIREMENTS §5)

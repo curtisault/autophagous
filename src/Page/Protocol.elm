@@ -11,6 +11,7 @@ means grepping this file for `§`.
 
 -}
 
+import Citations
 import Cycle
 import Doc
 import Html exposing (Html, a, b, div, em, h3, h4, i, li, ol, p, span, sup, table, tbody, td, text, th, thead, tr, ul)
@@ -23,9 +24,27 @@ import Safety
 -- HELPERS
 
 
-ref : String -> Html msg
-ref label =
-    sup [ class "ref" ] [ text label ]
+{-| A citation marker, and a link to the source it names. `[9][10][11]`
+is one marker per id, so each is separately reachable — the sources
+behind a claim are rarely interchangeable.
+
+Before 2026-08-18 this was a dead `<sup>`: a document that looked
+cited without being navigable.
+
+-}
+ref : List Int -> Html msg
+ref ids =
+    sup [ class "ref" ] (List.map refLink ids)
+
+
+refLink : Int -> Html msg
+refLink id =
+    a
+        [ class "ref-link"
+        , href (Citations.href id)
+        , Html.Attributes.title "Source index entry"
+        ]
+        [ text ("[" ++ String.fromInt id ++ "]") ]
 
 
 bT : String -> Html msg
@@ -57,8 +76,8 @@ tightList items =
 -- VIEW
 
 
-view : Html msg
-view =
+view : Maybe String -> Html msg
+view active =
     Doc.view
         { tag = "Autophagy Protocol"
         , kicker = "Cyclic · 72–96 h"
@@ -140,6 +159,7 @@ view =
               , body = Doc.Panel secRefs
               }
             ]
+        , active = active
         , footNote =
             [ p [ style "margin" "0" ]
                 [ bT "This is general information, not medical advice, and I'm not a doctor."
@@ -162,7 +182,7 @@ secLimits =
         [ text "Autophagy is measured by tissue biopsy and immunoblotting for markers like LC3B lipidation and p62 clearance — and even in laboratories, distinguishing genuine autophagic "
         , emT "flux"
         , text " from a backed-up pipeline requires careful controls."
-        , ref "[1]"
+        , ref [ 1 ]
         , text " There is no blood test, no wearable, no home assay. Ketone meters measure ketosis, which is a correlated but separate process."
         ]
     , p []
@@ -185,7 +205,7 @@ secSwitches : List (Html msg)
 secSwitches =
     [ p []
         [ text "Every rule in this document derives from two nutrient sensors. Yoshinori Ohsumi's mapping of the autophagy machinery won the 2016 Nobel Prize in Physiology or Medicine;"
-        , ref "[2]"
+        , ref [ 2 ]
         , text " what follows is the applied edge of it."
         ]
     , table []
@@ -204,7 +224,7 @@ secSwitches =
                     [ text "Amino acids, "
                     , bT "especially leucine"
                     , text ". Sestrin2 binds leucine directly and releases its brake on mTORC1 at concentrations around 20\u{00A0}µM."
-                    , ref "[3]"
+                    , ref [ 3 ]
                     , text " Also insulin and IGF-1."
                     ]
                 ]
@@ -252,7 +272,7 @@ secSafety =
                     , [ text "Kidney disease of any stage" ]
                     , [ text "Arrhythmia or known heart condition" ]
                     , [ text "Gout — uric acid rises during a fast" ]
-                    , [ text "Blood pressure medication — doses often need reducing", ref "[4]" ]
+                    , [ text "Blood pressure medication — doses often need reducing", ref [ 4 ] ]
                     , [ bT "GLP-1 receptor agonists", text " — substantial changes required, see §04" ]
                     ]
                 ]
@@ -264,7 +284,7 @@ secSafety =
     , note
         [ bT "On the safety literature."
         , text " The largest prolonged-fasting safety study — 1,422 people fasting 4 to 21 days, adverse events under 1% — is frequently cited as evidence that long fasts are safe."
-        , ref "[5]"
+        , ref [ 5 ]
         , text " Two caveats worth knowing: it was conducted at a specialist clinic with medical supervision, and the protocol was "
         , emT "not"
         , text " water-only. Participants received roughly 200–250 kcal per day. Unsupervised water fasting is a different intervention with a different risk profile."
@@ -296,7 +316,7 @@ secGlp1 =
                     [ td [] [ text "Delayed gastric emptying" ]
                     , td []
                         [ text "GLP-1s slow gastric emptying roughly two- to four-fold. The anesthesia literature records patients with substantial solid gastric contents despite correct fasting — in some cases after more than a day without food and weeks off the drug."
-                        , ref "[18]"
+                        , ref [ 18 ]
                         , text " The refeed schedule in §09 assumes food moves through on a normal clock. Yours may not."
                         ]
                     ]
@@ -304,7 +324,7 @@ secGlp1 =
                     [ td [] [ text "You may already meet a refeeding risk criterion" ]
                     , td []
                         [ text "Standard clinical criteria flag unintentional weight loss above 10–15% over 3–6 months as elevated refeeding-syndrome risk"
-                        , ref "[13]"
+                        , ref [ 13 ]
                         , text " — a threshold many GLP-1 users cross. Months of reduced intake can also leave phosphate, magnesium and thiamine stores low invisibly. The \u{201C}3–4 days is safer than 7\u{201D} reasoning assumed a well-nourished, weight-stable baseline."
                         ]
                     ]
@@ -312,7 +332,7 @@ secGlp1 =
                     [ td [] [ text "Lean mass is already under pressure" ]
                     , td []
                         [ text "In the SURMOUNT-1 DXA substudy roughly 25% of weight lost was lean mass; semaglutide substudies have reported higher fractions."
-                        , ref "[19]"
+                        , ref [ 19 ]
                         , text " Stacking prolonged fasting compounds precisely what Phase 4 exists to counteract."
                         ]
                     ]
@@ -443,7 +463,7 @@ secCycle =
         [ text "Autophagic signalling begins upregulating early — around the 16-to-24 hour mark as glycogen depletes — and the marginal gain from hour 120 to hour 168 is speculative while the risk curve is not. The published regenerative work is built on "
         , emT "repeated cycles"
         , text ": fasting-mimicking protocols run five days monthly for three months, not one long fast."
-        , ref "[6][7]"
+        , ref [ 6, 7 ]
         , text " More cumulative cycles beats one heroic effort, and it keeps you clear of the window where refeeding syndrome becomes serious."
         ]
     , div []
@@ -483,7 +503,7 @@ secCycle =
         , text " The rebuild — stem-cell repopulation, mitochondrial biogenesis — happens on "
         , emT "refeeding"
         , text ", not during the fast. In the hematopoietic stem cell work, the regenerative signal appeared in the fasting/refeeding cycle, not in starvation alone."
-        , ref "[8]"
+        , ref [ 8 ]
         , text " A fast without a well-executed refeed is half an intervention performed badly."
         ]
     ]
@@ -516,7 +536,7 @@ secPrime =
                 , td [] [ text "Wheat germ (richest common source), natto, aged cheese, mushrooms, legumes, broccoli." ]
                 , td []
                     [ text "Spermidine induces autophagy via EP300 inhibition — a route independent of mTOR — and extends lifespan across species."
-                    , ref "[9][10][11]"
+                    , ref [ 9, 10, 11 ]
                     ]
                 ]
             , tr []
@@ -524,7 +544,7 @@ secPrime =
                 , td [] [ text "Green tea, coffee, extra-virgin olive oil, berries, dark chocolate." ]
                 , td []
                     [ text "Pro-autophagic polyphenols reduce cytoplasmic protein acetylation, the same signature nutrient depletion produces."
-                    , ref "[12]"
+                    , ref [ 12 ]
                     ]
                 ]
             , tr []
@@ -532,7 +552,7 @@ secPrime =
                 , td [] [ text "Keep the last day's protein light. No large steak, no protein shake, no leucine-heavy final meal." ]
                 , td []
                     [ text "Reduces the amino acid signal you carry into the fast. Leucine is the specific molecule mTORC1 is listening for."
-                    , ref "[3]"
+                    , ref [ 3 ]
                     ]
                 ]
             , tr []
@@ -587,7 +607,7 @@ secFast =
                 , td [ class "amt mono" ] [ text "50–100 mg" ]
                 , td []
                     [ text "Stores run only weeks and are consumed rapidly when carbohydrate returns. This is your refeeding insurance."
-                    , ref "[13]"
+                    , ref [ 13 ]
                     ]
                 ]
             , tr []
@@ -600,7 +620,7 @@ secFast =
                 , td [ class "amt mono" ] [ text "1–3 cups" ]
                 , td []
                     [ text "Promoted from \u{201C}permitted\u{201D} to \u{201C}recommended.\u{201D} Coffee raised autophagic flux in liver, muscle and heart within 1–4 hours and inhibited mTORC1 — and the effect held for decaffeinated coffee, implicating the polyphenols rather than caffeine."
-                    , ref "[14]"
+                    , ref [ 14 ]
                     ]
                 ]
             , tr []
@@ -608,7 +628,7 @@ secFast =
                 , td [ class "amt mono" ] [ text "30–60 min" ]
                 , td []
                     [ text "Easy pace, days 1–2, tapering after. Exercise is an independent autophagy inducer across muscle, liver, pancreas and adipose tissue."
-                    , ref "[15]"
+                    , ref [ 15 ]
                     , text " No hard training."
                     ]
                 ]
@@ -698,7 +718,7 @@ stageProse numeral =
         "II" ->
             [ p []
                 [ text "Glycogen runs out. Lipolysis accelerates, ketogenesis begins, and as insulin, IGF-1 and amino acid availability all fall together, mTORC1 goes quiet and AMPK activates."
-                , ref "[16]"
+                , ref [ 16 ]
                 ]
             , p [ class "feel" ]
                 [ bT "Autophagy", text " — Upregulation begins here. This is the entry point, not hour 72." ]
@@ -709,7 +729,7 @@ stageProse numeral =
         "III" ->
             [ p []
                 [ text "Ketones rise from roughly 0.5 toward 2–3 mmol/L. Gluconeogenesis supplies what glucose is still needed from glycerol, lactate and amino acids. Insulin and IGF-1 reach their floor — and it is the IGF-1 drop that drives the regenerative signalling downstream."
-                , ref "[8]"
+                , ref [ 8 ]
                 ]
             , p [ class "feel" ]
                 [ bT "Autophagy", text " — Sustained induction. Every hour here is doing work." ]
@@ -720,7 +740,7 @@ stageProse numeral =
         "IV" ->
             [ p []
                 [ text "Deep ketosis, near-exclusive fat oxidation, nitrogen loss falling as protein sparing engages."
-                , ref "[17]"
+                , ref [ 17 ]
                 , text " Growth hormone is markedly elevated. All the upstream conditions for autophagy are maximally satisfied and stay that way."
                 ]
             , p [ class "feel" ]
@@ -754,7 +774,7 @@ secRefeed =
         [ div [ class "slab-title u" ] [ text "Refeeding syndrome" ]
         , p [ style "margin" "0 0 .7rem", style "font-size" ".92rem" ]
             [ text "More people are harmed breaking a long fast than doing one. A large carbohydrate load spikes insulin, which drives phosphate, potassium and magnesium rapidly out of the bloodstream into cells. The resulting hypophosphataemia can cause arrhythmia, respiratory failure and death."
-            , ref "[13]"
+            , ref [ 13 ]
             ]
         , p [ style "margin" "0", style "font-size" ".92rem" ]
             [ text "At 3–4 days in a well-nourished adult the risk is meaningfully lower than at seven — but \u{201C}lower\u{201D} is not \u{201C}absent,\u{201D} and the protective steps are trivial to take." ]
@@ -773,7 +793,7 @@ secRefeed =
                 , td [] [ text "Thiamine, before any food" ]
                 , td []
                     [ text "Not after. Thiamine is consumed as carbohydrate metabolism restarts; deficiency at this moment is the mechanism behind the worst outcomes."
-                    , ref "[13]"
+                    , ref [ 13 ]
                     ]
                 ]
             , tr []
@@ -837,7 +857,7 @@ secRebuild =
                 , td [] [ text "Same foods as the priming phase — wheat germ, natto, mushrooms, legumes, green tea, olive oil, berries." ]
                 , td []
                     [ text "Sustains basal autophagic tone between cycles without requiring caloric restriction."
-                    , ref "[9][10][11]"
+                    , ref [ 9, 10, 11 ]
                     ]
                 ]
             , tr []
@@ -951,57 +971,21 @@ secRefs =
         , a [ href "/resources" ] [ text "source index" ]
         , text "."
         ]
-    , ol [ class "refs" ]
-        [ refItem "Klionsky DJ, et al. Guidelines for the use and interpretation of assays for monitoring autophagy (4th edition). " "Autophagy." " 2021;17(1):1–382. " (Just "Methods")
-        , refItem "The Nobel Assembly at Karolinska Institutet. The Nobel Prize in Physiology or Medicine 2016 — Yoshinori Ohsumi, for discoveries of mechanisms for autophagy." "" "" Nothing
-        , refItem "Wolfson RL, Chantranupong L, Saxton RA, et al. Sestrin2 is a leucine sensor for the mTORC1 pathway. " "Science." " 2016;351(6268):43–48. " (Just "Cell")
-        , refItem "Grundler F, Mesnage R, Michalsen A, Wilhelmi de Toledo F. Blood pressure changes in 1610 subjects with and without antihypertensive medication during long-term fasting. " "J Am Heart Assoc." " 2020;9(23). " (Just "Human")
-        , refItem "Wilhelmi de Toledo F, Grundler F, Bergouignan A, Drinda S, Michalsen A. Safety, health improvement and well-being during a 4 to 21-day fasting period in an observational study including 1422 subjects. " "PLoS ONE." " 2019;14(1):e0209353. " (Just "Human, observational")
-        , refItem "Brandhorst S, Choi IY, Wei M, et al. A periodic diet that mimics fasting promotes multi-system regeneration, enhanced cognitive performance, and healthspan. " "Cell Metab." " 2015;22(1):86–99. " (Just "Mouse + human")
-        , refItem "Wei M, Brandhorst S, Shelehchi M, et al. Fasting-mimicking diet and markers/risk factors for aging, diabetes, cancer, and cardiovascular disease. " "Sci Transl Med." " 2017;9(377):eaai8700. " (Just "Human RCT")
-        , refItem "Cheng CW, Adams GB, Perin L, et al. Prolonged fasting reduces IGF-1/PKA to promote hematopoietic-stem-cell-based regeneration and reverse immunosuppression. " "Cell Stem Cell." " 2014;14(6):810–823. " (Just "Mouse + phase I")
-        , refItem "Eisenberg T, Knauer H, Schauer A, et al. Induction of autophagy by spermidine promotes longevity. " "Nat Cell Biol." " 2009;11(11):1305–1314. " (Just "Yeast, fly, mouse")
-        , refItem "Eisenberg T, Abdellatif M, Schroeder S, et al. Cardioprotection and lifespan extension by the natural polyamine spermidine. " "Nat Med." " 2016;22(12):1428–1438. " (Just "Mouse + epidemiology")
-        , refItem "Madeo F, Eisenberg T, Pietrocola F, Kroemer G. Spermidine in health and disease. " "Science." " 2018;359(6374):eaan2788. " (Just "Review")
-        , refItem "Pietrocola F, Mariño G, Lissa D, et al. Pro-autophagic polyphenols reduce the acetylation of cytoplasmic proteins. " "Cell Cycle." " 2012;11(20):3851–3860. " (Just "Cell")
-        , refItem "Mehanna HM, Moledina J, Travis J. Refeeding syndrome: what it is, and how to prevent and treat it. " "BMJ." " 2008;336(7659):1495–1498. " (Just "Clinical review")
-        , refItem "Pietrocola F, Malik SA, Mariño G, et al. Coffee induces autophagy in vivo. " "Cell Cycle." " 2014;13(12):1987–1994. " (Just "Mouse")
-        , refItem "He C, Bassik MC, Moresi V, et al. Exercise-induced BCL2-regulated autophagy is required for muscle glucose homeostasis. " "Nature." " 2012;481(7382):511–515. " (Just "Mouse")
-        , refItem "de Cabo R, Mattson MP. Effects of intermittent fasting on health, aging, and disease. " "N Engl J Med." " 2019;381(26):2541–2551. " (Just "Review")
-        , refItem "Cahill GF Jr. Fuel metabolism in starvation. " "Annu Rev Nutr." " 2006;26:1–22. " (Just "Human, classic")
-        , refItem "American Society of Anesthesiologists. Consensus-based guidance on preoperative management of patients (adults and children) on glucagon-like peptide-1 (GLP-1) receptor agonists. ASA; 2023. " "" "" (Just "Clinical guidance")
-        , li []
-            [ text "Look M, et al. Body composition changes during weight reduction with tirzepatide in the SURMOUNT-1 study of adults with obesity or overweight. "
-            , i [] [ text "Diabetes Obes Metab." ]
-            , text " 2025. doi:10.1111/dom.16275. "
-            , i [] [ text "Note: a published correction accompanies this paper and should be read alongside it." ]
-            , text " "
-            , span [ class "evidence" ] [ text "Human RCT substudy" ]
-            ]
-        ]
+    , ol [ class "refs" ] (List.map refItem Citations.all)
     ]
 
 
-refItem : String -> String -> String -> Maybe String -> Html msg
-refItem before journal after evidence =
+{-| One numbered reference. The list is `Citations.all` in id order, so
+the ordinal the browser draws and the `[NN]` markers in the prose are
+the same number by construction — they used to be two hand-kept lists
+that happened to agree.
+-}
+refItem : Citations.Citation -> Html msg
+refItem c =
     li []
-        (List.concat
-            [ [ text before ]
-            , if journal == "" then
-                []
-
-              else
-                [ i [] [ text journal ] ]
-            , if after == "" then
-                []
-
-              else
-                [ text after ]
-            , case evidence of
-                Just tag ->
-                    [ span [ class "evidence" ] [ text tag ] ]
-
-                Nothing ->
-                    []
-            ]
+        (Citations.line c
+            ++ [ text " "
+               , span [ class "evidence" ] [ text c.evidence ]
+               , a [ class "ref-out", href (Citations.href c.id) ] [ text "source" ]
+               ]
         )

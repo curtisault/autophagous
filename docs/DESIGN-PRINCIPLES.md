@@ -60,6 +60,35 @@ wears the shared chrome: masthead, contents rail (side nav),
   `Browser.Dom`) because `Browser.application` swallows the browser's
   default fragment scroll.
 
+*(Amended 2026-08-18 — the rail marks where you are, and clauses have
+their own addresses.)*
+
+- **Every clause is addressable.** The `§N.M` mark was `aria-hidden`
+  decoration while the prose invited readers to cite "the potassium
+  warning is §7.4"; it is a link now. Its id is built from the
+  **anchor**, not the number — `sec-fast-4`, not `7-4` — because the
+  number is derived from a section's position in a list, and
+  reordering the document must not silently repoint a link someone
+  has already shared. What the reader copies is the address bar, the
+  same as the planner: no clipboard, no port, no permission prompt.
+- **The rail marks the section under the reader** (`is-active`, the
+  persistent form of the row's own hover). `Doc.Config` takes it;
+  the shell owns it.
+- It arrives through the `sectionSeen` **port**, because `elm/browser`
+  has no scroll subscription — it offers resize, visibility, keys,
+  clicks and animation frames, and nothing for scroll. The alternative
+  was polling `Browser.Dom.getViewport` every animation frame to
+  answer a question that changes a few times a minute.
+- boot.js schedules its read on scroll, on resize, and on **DOM
+  mutation** — a route change fires no scroll event, and Elm renders
+  asynchronously, so the DOM is the only reliable signal that the
+  section list changed. The read is rAF-throttled and sends nothing
+  when the answer is unchanged. The active style must never affect
+  layout (it is a box-shadow) or marking a section could move it.
+- The shell **clears `active` on navigation**: `sec-fast` exists on
+  both the protocol and the planner, so a stale anchor would mark the
+  wrong row.
+
 *(Amended 2026-08-16 — the sticky chrome. Owner: navigation must be
 reachable at any scroll depth.)*
 
@@ -230,9 +259,8 @@ Priority artifact: **the cycle log.**
 
 ## 5. The source index
 
-Policy doc: RESOURCES-POLICY.md. The manifest in
-`src/Page/Resources.elm` is the single source of truth for citation
-metadata and access state.
+Policy doc: RESOURCES-POLICY.md. The manifest in `src/Citations.elm`
+is the single source of truth for citation metadata and access state.
 
 *(Revised 2026-08-16 — owner: link-first, never rehost. The local PDF
 archive under `public/resources/pdf/` is retired; read access on a
@@ -246,3 +274,25 @@ doc.)*
   commentaries and corrigenda ahead of papers.
 - Slugs survive as per-entry anchors: `/resources#<slug>` is a
   permanent public address for one citation.
+
+*(Amended 2026-08-18 — the citation apparatus. Owner: the markers were
+decorative and the reference list was a second copy.)*
+
+- **The manifest moved to `src/Citations.elm`.** The protocol's §12
+  reference list had been nineteen citations written out a second
+  time, in a second format, and the two had already drifted on which
+  papers carry corrections. Both pages render `Citations.line` now, so
+  they cannot disagree again — which is why the entries are held in
+  parts (`authors` / `journal` / `locus`): the journal is italicised
+  in both renderings and a flat string cannot carry that.
+- **`[13]` is a link** to `/resources#<slug>`. A run like `[9][10][11]`
+  is three links, not one: the sources behind a claim are rarely
+  interchangeable.
+- **The index points back.** Each entry names the sections that cite
+  it (`Citations.sites`), so a reader can see what a source is holding
+  up rather than only that it was read.
+- That table is hand-maintained — it is the same class of thing as the
+  protocol's own "see §09" — but it is **checked in both directions**:
+  `CitationTests` renders the protocol and asserts each section links
+  exactly the sources the table claims, and no others. A marker added
+  without a table entry fails; a table entry with no marker fails.

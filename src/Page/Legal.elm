@@ -50,8 +50,8 @@ tightList items =
 -- VIEW
 
 
-view : Html msg
-view =
+view : Maybe String -> Html msg
+view active =
     Doc.view
         { tag = "Legal Notices"
         , kicker = "Read in full"
@@ -127,6 +127,7 @@ view =
               , body = Doc.Clauses secChanges
               }
             ]
+        , active = active
         , footNote =
             [ p [ style "margin" "0" ]
                 [ bT "This is general information, not medical advice, and I'm not a doctor."
@@ -370,7 +371,8 @@ secPrivacy =
     , p []
         [ text "No cookies are set. No tracking pixels, fingerprinting, advertising identifiers, or third-party scripts are loaded — every asset is served from this site's own origin, which is a "
         , a [ href "/#sec-limits" ] [ text "design constraint" ]
-        , text " of the project, not merely a current state of affairs." ]
+        , text " of the project, not merely a current state of affairs."
+        ]
     , note
         [ p [ style "margin" "0" ]
             [ text "Whoever hosts these files may keep their own server logs (IP addresses, timestamps, requested paths) as a normal part of serving a website. That is outside the author's control and is not read, analysed, or connected to anything else." ]

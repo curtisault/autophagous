@@ -136,6 +136,15 @@
 .doc-toc-link:hover .doc-toc-label {
   box-shadow: inset 0 -3px 0 var(--acid-volt);
 }
+/* where the reader actually is: the persistent form of that hover.
+   The anchor arrives from boot.js through the sectionSeen port —
+   Elm has no scroll subscription. */
+.doc-toc-link.is-active .doc-toc-label {
+  box-shadow: inset 0 -3px 0 var(--acid-volt);
+}
+.doc-toc-link.is-active .doc-toc-num {
+  color: var(--data-accent);
+}
 
 /* clause marks hold their own column, left of the body — citable */
 .doc-clause-row {
@@ -146,6 +155,15 @@
   padding-top: 0.35rem;
   font-size: 0.58rem;
   color: var(--mark);
+}
+/* the mark is a link to its own clause — "the potassium warning is
+   §7.4" now has somewhere to point. It keeps the margin's quiet, and
+   only answers on hover. */
+a.doc-clause-mark {
+  text-decoration: none;
+}
+a.doc-clause-mark:hover {
+  color: var(--tx);
 }
 
 /* body content reads at a measure; the open right side is deliberate */
@@ -964,6 +982,57 @@ ol.refs li {
   height: 1rem;
   border: none;
   background: var(--rule);
+}
+
+/* ---------- the citation apparatus ----------
+   Markers point out to the source index, the index points back to the
+   sections that cite it, and the reference list carries the route to
+   the full text. All three are links now; none of them shout. */
+sup.ref .ref-link {
+  color: var(--tx);
+  text-decoration: none;
+}
+sup.ref .ref-link:hover {
+  box-shadow: inset 0 -2px 0 var(--acid-volt);
+}
+
+/* the reference list's route out to the index entry */
+.ref-out {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: var(--tx-dim);
+  text-decoration: none;
+  margin-left: 0.45rem;
+  white-space: nowrap;
+}
+.ref-out::after {
+  content: ' →';
+}
+.ref-out:hover {
+  color: var(--tx);
+}
+
+/* and the way back: which claims this source is holding up */
+.cited-in {
+  font-size: 0.5rem;
+  color: var(--tx-dim);
+  margin: 0 0 0.45rem;
+  line-height: 1.9;
+}
+.cited-in a {
+  color: var(--tx-dim);
+  text-decoration: none;
+}
+.cited-in a:hover {
+  color: var(--tx);
+  box-shadow: inset 0 -2px 0 var(--acid-volt);
+}
+.cited-in .mono {
+  letter-spacing: 0;
+  font-size: 0.58rem;
 }
 
 /* ---------- footer ---------- */
