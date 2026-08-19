@@ -88,7 +88,15 @@ typst.
   they compressed, and never paraphrase safety content —
   DESIGN-PRINCIPLES §3b, DESIGN-REQUIREMENTS §5.
 - CSS: `theme.css` = tokens only; `fonts.css` = `@font-face` only;
-  `protocol.css` = components. Raw hex outside theme.css is a bug, and
+  `protocol.css` = components. **Breakpoints are in `rem`, never `px`,
+  and there is no device detection anywhere** — a narrow window is a
+  narrow layout (DESIGN-PRINCIPLES §2b). Nothing may clip and nothing
+  hides behind a gesture. **60rem is the one narrow tier**: the rail
+  drops to its search box and the site nav's routes move into a
+  disclosure panel, positioned absolutely so `--nav-h` never changes
+  and opening it shifts no layout. Nothing about it moves. Bar items
+  are `flex: none` — a shrinking flex child prints through its
+  neighbour inside a fixed-height bar. Raw hex outside theme.css is a bug, and
   so is `font-stretch` or `font-weight: 800` on the display voice —
   only one 700 cut ships (DESIGN-REQUIREMENTS §3).
 - `src/Citations.elm` is the single source of truth for citation

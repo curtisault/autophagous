@@ -20,10 +20,15 @@
   padding: 0 3.5rem;
 }
 .site-nav .brand {
+  flex: none;
   font-size: 0.72rem;
   letter-spacing: 0.16em;
 }
-.site-nav .nav-right {
+/* the routes and the theme control travel together: on a wide screen
+   they are the right-hand end of the bar, on a narrow one they are the
+   panel behind the Menu button. Same element, two shapes. */
+.site-nav .nav-menu {
+  flex: none;
   display: flex;
   align-items: center;
   gap: 2.2rem;
@@ -31,6 +36,47 @@
 .site-nav .nav-links {
   display: flex;
   gap: 1.4rem;
+}
+/* chrome is never squashed by text pressure: a route that shrinks
+   below its own label does not wrap inside a bar of fixed height, it
+   prints through its neighbour */
+.site-nav .nav-links a,
+.site-nav .theme-btn {
+  flex: none;
+  white-space: nowrap;
+}
+/* the way in, on narrow layouts only */
+.nav-toggle {
+  display: none;
+  align-items: center;
+  gap: 0.55rem;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0.6rem 0;
+  margin: 0;
+  color: var(--stencil-tx);
+  font-size: 0.62rem;
+  cursor: pointer;
+}
+/* three rules — the vocabulary the rest of the document is drawn in.
+   It does not change between states; the word beside it does. */
+.nav-toggle-mark {
+  position: relative;
+  width: 1.05rem;
+  height: 0.62rem;
+  border-top: 2px solid var(--stencil-tx);
+  border-bottom: 2px solid var(--stencil-tx);
+}
+.nav-toggle-mark::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: var(--stencil-tx);
 }
 .site-nav a {
   color: var(--stencil-tx);
@@ -48,6 +94,7 @@
 
 /* the theme control: three-state, worn like the nav links */
 .theme-control {
+  flex: none;
   display: flex;
   align-items: baseline;
   gap: 0.7rem;
@@ -1212,57 +1259,62 @@ sup.ref .ref-link:hover {
   }
 }
 
-/* ---------- mid screens: the rail becomes an ink jump-strip ---------- */
-@media (max-width: 960px) {
+/* ---------- mid screens: the rail keeps only its search box ----------
+   Breakpoints are authored in rem, never px (adopted 2026-08-19 from
+   cryovault's §4): a reader who has raised their default font size has
+   less usable space and must reach the narrow layout sooner. A wide
+   window flipping to the stacked layout at a 32px default font is
+   correct, not a bug. 60rem is 960px at the default font size — that
+   is arithmetic, not the unit doing the work. */
+@media (max-width: 60rem) {
   .doc-layout {
     display: block;
     padding: 0;
   }
-  /* the strip parks directly under the sticky nav, never beneath it */
+  .sheet {
+    padding: 1.5rem 1.5rem 3rem;
+  }
+
+  /* The contents rail drops its contents. The section list became a
+     horizontal scroller here, which put half the document's sections
+     behind a sideways swipe with no affordance and looked like a
+     mistake — and on a phone scrolling to a section is cheap anyway.
+
+     What stays is the search box, which is the one thing the rail did
+     that scrolling cannot replace: it is how you reach §09 of twelve
+     without knowing where §09 is. The strip keeps its sticky park
+     under the nav and becomes one full-width field on the ink field. */
   .doc-toc {
     position: sticky;
     top: var(--nav-h);
     z-index: 20;
     background: var(--stencil-bg);
   }
-  .sheet {
-    padding: 1.5rem 1.5rem 3rem;
-  }
   .doc-toc-inner {
     position: static;
-    display: flex;
-    align-items: baseline;
-    gap: 1.1rem;
+    display: block;
     max-height: none;
-    overflow-x: auto;
-    padding: 0.55rem 1.25rem;
-    -webkit-overflow-scrolling: touch;
+    overflow: visible;
+    padding: 0.5rem 1.25rem;
   }
-  .doc-toc-head {
+  .doc-toc-head,
+  .doc-toc-link {
     display: none;
   }
-  .doc-toc-link {
-    flex: none;
-    padding: 0;
-    border-bottom: none;
-    color: var(--stencil-tx);
-    white-space: nowrap;
-  }
-  .doc-toc-num {
-    color: var(--stencil-mark);
-  }
-  /* the search box rides at the head of the strip, on the ink field */
   .doc-search {
-    flex: none;
     margin-bottom: 0;
   }
   .doc-search-input {
-    width: 7rem;
+    /* a third of the screen, not the whole strip: a rule running the
+       full width read as a divider rather than a field, and the box
+       does not need the room — the results it opens get the full
+       measure of the sheet (owner's call, 2026-08-19) */
+    max-width: 33vw;
     background: transparent;
     color: var(--stencil-tx);
     border: none;
     border-bottom: 1.5px solid var(--stencil-tx);
-    padding: 0 0 0.15rem;
+    padding: 0 0 0.2rem;
   }
   .doc-search-input::placeholder {
     color: var(--stencil-tx);
@@ -1275,13 +1327,92 @@ sup.ref .ref-link:hover {
     grid-template-columns: 1fr;
     gap: 0.15rem;
   }
-  .doc-toc-link:hover .doc-toc-label {
-    box-shadow: inset 0 -2px 0 var(--stencil-mark);
+}
+
+
+/* ---------- the narrow layout's menu ----------
+   Five routes and a three-state theme control have never fitted a
+   phone's bar. It wraps behind a disclosure now: the bar keeps its one
+   row and its --nav-h, and the routes live in a panel hung off the
+   bottom of it.
+
+   The panel is positioned absolutely, which is the point — the bar's
+   height never changes, so the sticky contents rail below it keeps
+   working off a token that cannot go stale, and opening the menu
+   shifts no layout. It is a child of the sticky nav, so it travels
+   with it and paints above the search strip without a z-index of its
+   own.
+
+   Nothing slides and nothing fades: the panel is either there or it is
+   not (DESIGN-REQUIREMENTS §1). Rows are 2.6rem of target, and the
+   whole panel is out of the DOM's reach when closed, so nothing is
+   focusable behind a button that says it is shut.
+
+   Same 60rem as the rail above, deliberately: one narrow tier, not
+   two. It was 45rem for a day, which left a band where the rail had
+   already collapsed but the bar still tried to carry five routes and
+   the theme control — at ~790px the brand printed straight through
+   PROTOCOL and DOSING through RESOURCES. */
+@media (max-width: 60rem) {
+  .site-nav {
+    padding: 0 1.25rem;
+  }
+  .nav-toggle {
+    display: flex;
+  }
+  .site-nav .nav-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--stencil-bg);
+    border-top: 1.5px solid var(--stencil-tx);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .site-nav.menu-open .nav-menu {
+    display: flex;
+  }
+  .site-nav .nav-links {
+    flex-direction: column;
+    gap: 0;
+  }
+  .site-nav .nav-menu a {
+    font-size: 0.68rem;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--stencil-tx);
+    /* the active route is marked down its edge rather than under it:
+       an underline in a stacked list reads as the row separator */
+    border-left: 4px solid transparent;
+    padding-left: calc(1.25rem - 4px);
+  }
+  .site-nav .nav-menu a.active {
+    border-bottom-color: var(--stencil-tx);
+    border-left-color: var(--stencil-mark);
+  }
+  .site-nav .nav-menu a:hover {
+    border-bottom-color: var(--stencil-tx);
+    border-left-color: var(--stencil-tx);
+  }
+  /* the theme control is the panel's last row, not a thing beside the
+     routes: the rule above it comes from the last route */
+  .theme-control {
+    border-left: none;
+    padding: 0.8rem 1.25rem;
+    gap: 1.4rem;
+  }
+  .theme-btn {
+    font-size: 0.62rem;
+    padding: 0.25rem 0;
   }
 }
 
 /* ---------- small screens ---------- */
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   .doc-clause-row {
     display: block;
   }
@@ -1293,39 +1424,6 @@ sup.ref .ref-link:hover {
   }
   .sec-intent {
     display: none;
-  }
-  .site-nav {
-    padding: 0 1.25rem;
-  }
-  /* the brand goes: on a phone the bar is two routes wider than it was,
-     and the masthead below already names the document. Even so, five
-     routes plus the theme control do not fit ~360px, so the bar scrolls
-     rather than clipping — nothing becomes unreachable. A proper
-     small-screen nav is still an owner call; this only makes the
-     overflow honest. */
-  .site-nav .brand {
-    display: none;
-  }
-  .site-nav {
-    overflow-x: auto;
-    justify-content: flex-start;
-    gap: 1rem;
-  }
-  .site-nav .nav-right {
-    flex: none;
-  }
-  .site-nav .nav-links {
-    flex: none;
-  }
-  .site-nav .nav-right {
-    gap: 1rem;
-  }
-  .site-nav .nav-links {
-    gap: 0.9rem;
-  }
-  .theme-control {
-    gap: 0.5rem;
-    padding-left: 0.7rem;
   }
   .sheet {
     padding: 2rem 1.25rem 3rem;

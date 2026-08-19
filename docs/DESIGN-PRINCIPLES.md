@@ -53,9 +53,9 @@ wears the shared chrome: masthead, contents rail (side nav),
   mark; `Panel` bodies (apparatus with its own structure — stage
   cards, the log grid, the reference list) are numbered at section
   level only.
-- The rail is sticky beside the sheet on desktop; below 960px it
-  becomes a sticky ink jump-strip; clause marks and intents drop at
-  640px; print hides the rail entirely.
+- The rail is sticky beside the sheet on desktop; below 60rem it
+  keeps only its search box (§2b); clause marks and intents drop at
+  40rem; print hides the rail entirely.
 - `#anchor` jumps are performed by the shell (`Main.jumpTo`, via
   `Browser.Dom`) because `Browser.application` swallows the browser's
   default fragment scroll.
@@ -163,6 +163,87 @@ reachable at any scroll depth.)*
   not by knowing the breakpoint — the breakpoint stays in the
   stylesheet. A number in the Elm that has to match a number in the
   CSS is a number that will drift.
+
+## 2b. Narrow layouts
+
+*(Added 2026-08-19, adopting the mechanism from `../cryovault/`
+DESIGN-PRINCIPLES §4 — the mechanism only; this project keeps its own
+look, per the note in §1.)*
+
+- **There is no device detection, and there will not be.** No
+  user-agent sniffing, no touch or pointer test, no JS. A narrow window
+  on a desktop is a narrow layout; that is the whole definition.
+- **Breakpoints are authored in `rem`, never `px`.** A reader who has
+  raised their default font size has less usable space and must reach
+  the narrow layout sooner, and only a rem query delivers that. A wide
+  window flipping to the stacked layout at a 32px default font is
+  correct behaviour, not a bug. The tiers are 60rem (the contents rail
+  keeps only its search box **and** the site nav's routes move into a
+  disclosure panel) and 40rem (clause marks and intents go).
+- **Breakpoints are for structural changes only.** When one row needs
+  to reflow, use `flex-wrap` and a `flex-basis` so it reflows
+  continuously; a media query that micro-manages a single row is a
+  smell.
+- **Nothing may clip, and nothing hides behind a gesture.** The site
+  nav briefly took a horizontal scrollbar when five routes plus the
+  theme control stopped fitting a phone, which put half the routes
+  behind a swipe with no affordance. A wrapped second row replaced it
+  and read as a compromise rather than a design.
+- **Below 60rem the routes live in a disclosure panel** (`Menu` /
+  `Close`), hung off the bottom of the bar. The bar keeps its one row.
+- **The nav and the rail collapse at the same width — one narrow tier,
+  not two.** They were 45rem and 60rem for a day, which left a band
+  where the rail had already gone but the bar still tried to carry
+  five routes plus the theme control: at ~790px the brand printed
+  straight through PROTOCOL, and DOSING through RESOURCES. Two
+  breakpoints for one idea is how you get a band nobody looked at.
+- **Chrome is never squashed by text pressure** (cryovault §5): every
+  route and theme button is `flex: none; white-space: nowrap`. A flex
+  child that shrinks below its own label does not wrap inside a bar of
+  fixed height — it prints through its neighbour, which is what the
+  overlap above actually was.
+- **Below 60rem the contents rail keeps only its search box.** The
+  section list had become a horizontal scroller, which put half the
+  document's sections behind a sideways swipe with no affordance and
+  read as a mistake rather than a strip — and on a phone, scrolling to
+  a section is cheap. *(Owner's call, 2026-08-19.)*
+- What stays is the search box, and it stays **visible** rather than
+  moving into the menu panel: it is the one thing the rail does that
+  scrolling cannot replace — how you reach §09 of twelve without
+  knowing where §09 is — and burying it behind a tap would make the
+  cheapest way through the document the most hidden.
+
+### Why the panel is positioned absolutely
+
+- **`--nav-h` never changes.** The sticky contents rail hangs off that
+  token, and a bar that grew when the menu opened would either shift
+  the whole page or leave the rail overlapping. An absolutely
+  positioned panel takes the bar's height out of the question
+  entirely, and opening the menu shifts no layout at all.
+- It is a child of the sticky `nav`, so it travels with it and paints
+  above the search strip without needing a `z-index` of its own.
+- It is `display: none` when closed, so nothing inside it is
+  focusable while the button says it is shut.
+
+### What the panel is not
+
+- **It does not move.** No slide, no fade, no overlay dimming: the
+  panel is either there or it is not (DESIGN-REQUIREMENTS §1). This is
+  the same reading as the live clock — a thing that changes state is
+  not a thing in motion.
+- **The mark does not morph.** Three rules, the vocabulary the rest of
+  the document is drawn in, unchanged between states; the word beside
+  it carries the state. An icon that becomes a cross needs either a
+  transform-over-time to read, or it reads as a different icon.
+- **It is not a modal.** No scrim, no focus trap, no scroll lock —
+  those are all things that would need motion or JS to feel right, and
+  a navigation list needs neither.
+- Rows are 2.6rem of target, and the active route is marked **down its
+  left edge** rather than underneath: an underline in a stacked list
+  reads as the row separator.
+- Any real navigation closes it, the same rule that clears the search
+  query (§3a) — tapping a route is the last thing a reader wants to do
+  inside a panel that then stays open.
 
 ## 3. Elm structure
 

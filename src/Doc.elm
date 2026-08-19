@@ -271,6 +271,11 @@ viewToc config searching found =
 {-| The box, in the rail, because searching is navigation and the rail
 is where navigation lives. It is a ruled cell like every other control
 here (DESIGN-REQUIREMENTS §1).
+
+Below 60rem the rail keeps this and drops everything else: the section
+list became a horizontal scroller nobody wanted, and on a phone the
+box does its job (DESIGN-PRINCIPLES §2b).
+
 -}
 viewSearch : Chrome msg -> Html msg
 viewSearch chrome =

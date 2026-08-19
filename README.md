@@ -99,6 +99,13 @@ These are load-bearing. Breaking one is a bug, not a style difference.
   once a minute; a value that changes is not motion (DESIGN-REQUIREMENTS
   §1). `prefers-reduced-motion` has nothing to reduce, and if that stops
   being true something was broken.
+- **No device detection; breakpoints in `rem`.** A narrow window is a narrow
+  layout, and a reader with a raised default font size reaches it sooner —
+  which only a rem query delivers. Nothing may clip, and nothing hides
+  behind a gesture: below 60rem — one narrow tier for all of the chrome —
+  the site nav's routes move into a disclosure panel — absolutely positioned, so the bar's height never changes and the
+  sticky rail below it keeps working off a token that cannot go stale. It
+  does not slide, fade or dim (DESIGN-PRINCIPLES §2b).
 - **Search is in the rail, and results replace the sheet.** The index is
   hand-written but checked against the rendered pages in both directions:
   a `term` must appear in the section it claims, an `alias` must not. The
