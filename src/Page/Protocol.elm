@@ -15,6 +15,8 @@ import Cycle
 import Doc
 import Html exposing (Html, a, b, div, em, h3, h4, i, li, ol, p, span, sup, table, tbody, td, text, th, thead, tr, ul)
 import Html.Attributes exposing (class, download, href, style)
+import Ruler
+import Safety
 
 
 
@@ -256,25 +258,9 @@ secSafety =
                 ]
             ]
         ]
-    , div [ class "slab" ]
-        [ div [ class "slab-title u" ] [ text "Break the fast immediately if" ]
-        , div [ class "cols" ]
-            [ tightList
-                [ [ text "Heart palpitations or irregular heartbeat" ]
-                , [ text "Chest pain" ]
-                , [ text "Fainting, or near-fainting that doesn't resolve on sitting" ]
-                , [ text "Confusion, slurred speech, or disorientation" ]
-                ]
-            , tightList
-                [ [ text "Persistent vomiting, or you can't keep water down" ]
-                , [ text "Visual disturbance" ]
-                , [ text "Severe weakness — can't climb stairs" ]
-                , [ text "Numbness or tingling that spreads" ]
-                ]
-            ]
-        , p [ class "slab-foot" ]
-            [ text "None of these are \u{201C}push through\u{201D} symptoms. Eat something, salt it, and reassess. A cycle abandoned early costs you almost nothing; you have another one next month." ]
-        ]
+    , -- shared with the planner's live clock, which shows these in full
+      -- rather than a link: see Safety.elm
+      Safety.abortSignals Nothing
     , note
         [ bT "On the safety literature."
         , text " The largest prolonged-fasting safety study — 1,422 people fasting 4 to 21 days, adverse events under 1% — is frequently cited as evidence that long fasts are safe."
@@ -675,7 +661,8 @@ what is genuinely its own: the prose.
 -}
 secStages : List (Html msg)
 secStages =
-    ruler :: List.map stageCard Cycle.stages
+    Ruler.view { target = Cycle.T72, now = Nothing }
+        :: List.map stageCard Cycle.stages
 
 
 stageCard : Cycle.Stage -> Html msg
@@ -755,148 +742,6 @@ stageProse numeral =
 
         _ ->
             []
-
-
-{-| The clock the stage cards sit on, drawn from `Cycle.stages`: every
-left and width below is that list divided by its own scale, so the
-bands cannot say one thing while the cards say another. The flag and
-the volt mark sit at the 72 h target — the minimum the protocol asks
-for, and the shorter of the planner's two.
--}
-ruler : Html msg
-ruler =
-    let
-        target =
-            Cycle.targetHours Cycle.T72
-    in
-    div [ class "ruler-wrap" ]
-        [ div [ class "flagrow" ]
-            [ span [ style "left" (pct target) ]
-                [ text ("▼ " ++ String.fromInt target ++ " h — target") ]
-            ]
-        , div [ class "ruler" ]
-            -- the optional fourth day, then the stretch priming
-            -- shortens, then the boundaries, then the cells that
-            -- name them: painting order, back to front
-            (band "zone tint" target Cycle.scaleHours
-                :: List.map (\s -> band "zone hatch" s.from s.to) (openingStage Cycle.stages)
-                ++ List.map divider (dividedAt target Cycle.stages)
-                ++ List.map rulerCell Cycle.stages
-                ++ [ div [ class "target", style "left" (pct target) ] [] ]
-            )
-        , div [ class "ticks" ] (List.indexedMap tick ticks)
-        , div [ class "names" ] (List.map rulerName Cycle.stages)
-        , div [ class "legend" ]
-            [ span [] [ i [ class "swatch hatched" ] [], text "Shortened by priming" ]
-            , span [] [ i [ class "swatch mark" ] [], text "Minimum target" ]
-            , span [] [ i [ class "swatch tint" ] [], text "Optional 4th day" ]
-            ]
-        , p [ class "u", style "font-size" ".6rem", style "margin" ".5rem 0 0" ]
-            [ text "Linear scale · band width is true to duration" ]
-        ]
-
-
-{-| Hours as a position on the track. Rounded to three places: the
-thirds (16 h of 96) are otherwise seventeen digits of noise in the
-DOM, and a thousandth of this track is a fifth of a pixel.
--}
-pct : Int -> String
-pct hours =
-    String.fromFloat
-        (toFloat (round (toFloat hours / toFloat Cycle.scaleHours * 100000)) / 1000)
-        ++ "%"
-
-
-band : String -> Int -> Int -> Html msg
-band cls from to =
-    div
-        [ class cls
-        , style "left" (pct from)
-        , style "width" (pct (to - from))
-        ]
-        []
-
-
-{-| The stage that opens the clock — the one the hatch marks, because
-it is the stretch priming shortens.
--}
-openingStage : List Cycle.Stage -> List Cycle.Stage
-openingStage =
-    List.filter (\s -> s.from == 0)
-
-
-{-| The boundaries that need a rule drawn. Not hour 0 — the ruler's own
-border is that line — and not the target, where the volt mark already
-is: a divider under it would be a rule nobody can see.
--}
-dividedAt : Int -> List Cycle.Stage -> List Int
-dividedAt target =
-    List.map .from >> List.filter (\from -> from > 0 && from /= target)
-
-
-divider : Int -> Html msg
-divider from =
-    div [ class "vdiv", style "left" (pct from) ] []
-
-
-rulerCell : Cycle.Stage -> Html msg
-rulerCell s =
-    div
-        [ class "rlbl"
-        , style "left" (pct s.from)
-        , style "width" (pct (s.to - s.from))
-        ]
-        [ b [] [ text s.numeral ] ]
-
-
-{-| Every boundary, once: hour 0, then each stage's end.
--}
-ticks : List Int
-ticks =
-    0 :: List.map .to Cycle.stages
-
-
-tick : Int -> Int -> Html msg
-tick i hours =
-    div
-        [ class
-            (if i == 0 then
-                "tick first"
-
-             else if hours == Cycle.scaleHours then
-                "tick last"
-
-             else
-                "tick"
-            )
-        , style "left" (pct hours)
-        ]
-        [ text
-            (if i == 0 then
-                "0h"
-
-             else
-                String.fromInt hours
-            )
-        ]
-
-
-rulerName : Cycle.Stage -> Html msg
-rulerName s =
-    div
-        [ class
-            -- the narrow cells drop to a second row rather than
-            -- colliding with their neighbours (protocol.css, .nm.low)
-            (if s.to - s.from <= 8 then
-                "nm low"
-
-             else
-                "nm"
-            )
-        , style "left" (pct s.from)
-        , style "width" (pct (s.to - s.from))
-        ]
-        [ text s.label ]
 
 
 

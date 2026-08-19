@@ -44,6 +44,29 @@ never had to ask for. It does not introduce a widget language.)*
 - Still no motion. A control that responds to a click by *being*
   different is in the language; one that animates into it is not.
 
+*(Amended 2026-08-18 — the live clock, and what the motion clause
+means. Owner: the planner's §02 shows a reader inside a fast how many
+hours they are into it, which is a figure that has to change.)*
+
+- **A value that changes is not motion.** The clock re-renders once a
+  minute; the figure does not travel from one reading to the next, and
+  nothing fades, slides or eases. The rule this section has always
+  meant is intact: **no transitions, no animations, no
+  transforms-over-time, anywhere.** Grep for `transition`, `animation`
+  or `@keyframes` in `protocol.css` — there should continue to be
+  none.
+- Therefore `prefers-reduced-motion` has nothing to reduce. If that
+  ever stops being true, this clause is the thing that was broken.
+- The tick is a minute, matching the coarsest unit displayed. A
+  second-by-second clock would re-render the same string 59 times out
+  of 60 and would read as a device rather than a document.
+- **The volt block motif gains a fourth sanctioned use**: `.clock` in
+  its live state carries a `--acid-volt` rule down its left edge. It
+  means one thing — you are inside the cycle right now — and like the
+  rest of the motif it is theme-invariant. The full sanctioned list is
+  `.tag-volt`, the 72 h ruler target, the legend's mark swatch, and
+  this.
+
 ## 2. Color — two lightings, one language
 
 *(Rewritten 2026-08-16, theme plan Phases 1–2: role tokens split from
@@ -58,7 +81,8 @@ Tokens live in `src/theme.css`. Components consume **role tokens**
 only; raw hex in component styles is a bug, and so is consuming a
 primitive where a role exists. Sanctioned exception: the
 theme-invariant **volt-block motif** (`.tag-volt`, the 72 h target,
-the legend's mark swatch) uses `--acid-volt` + `--ink` directly and
+the legend's mark swatch, and — from 2026-08-18 — the live clock's
+`.clock.is-live` rule) uses `--acid-volt` + `--ink` directly and
 renders identically in both themes.
 
 Primitives (never swapped): `--ink #111214`, `--frost #edf1f2`,

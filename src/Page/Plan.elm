@@ -20,11 +20,14 @@ be mistaken for the contraindications (DESIGN-REQUIREMENTS §5).
 -}
 
 import Civil
+import Clock
 import Cycle exposing (Entry, Phase, Span(..), Target, Weight(..))
 import Doc
 import Html exposing (Html, a, b, button, div, input, label, li, p, span, table, tbody, td, text, th, thead, tr, ul)
-import Html.Attributes exposing (attribute, class, download, href, id, style, type_, value)
+import Html.Attributes exposing (attribute, class, classList, download, href, id, style, type_, value)
 import Html.Events exposing (onClick, onInput)
+import Ruler
+import Safety
 import Time exposing (Posix, Zone)
 
 
@@ -36,6 +39,12 @@ it is filled in teaches the reader nothing.
 type alias Context msg =
     { zone : Zone
     , start : Maybe Posix
+
+    -- the shell's clock, ticking once a minute while this page is on
+    -- screen. `Nothing` until `Time.now` lands, which is one frame —
+    -- and a frame is long enough to show a reading of "−20682 d",
+    -- so §02 waits rather than counting from the epoch
+    , now : Maybe Posix
     , startValue : String
     , target : Target
     , download : Maybe { href : String, name : String }
@@ -60,6 +69,12 @@ view ctx =
             , intent = "Local time · shareable"
             , body = Doc.Clauses (secStart ctx)
             }
+                :: { anchor = "sec-now"
+                   , tocLabel = "Now"
+                   , title = "Where you are now"
+                   , intent = "Live · your device clock"
+                   , body = Doc.Clauses (secNow ctx)
+                   }
                 :: List.map (phaseSection ctx) (Cycle.plan ctx.target)
                 ++ [ { anchor = "sec-carry"
                      , tocLabel = "Carry it"
@@ -121,7 +136,7 @@ secStart ctx =
         , p [ style "margin" "0 0 .7rem", style "font-size" ".92rem" ]
             [ text "This page compresses the protocol to the lines that have a time attached. It leaves out everything that decides whether you should be doing this at all — those sections are not summarised here because a summary of a contraindication is a way of missing one." ]
         , ul [ class "tight" ]
-            [ li [] [ a [ href "/#sec-safety" ] [ text "Contraindications and abort signals" ], text " — the absolute exclusions, and what makes you stop mid-fast." ]
+            [ li [] [ a [ href "/#sec-safety" ] [ text "Contraindications" ], text " — the absolute exclusions, and the list to clear with a doctor first. (The abort signals are below, in full.)" ]
             , li [] [ a [ href "/#sec-glp1" ] [ text "If you are on a GLP-1" ], text " — this stops being self-managed." ]
             , li [] [ a [ href "/#sec-fast" ] [ text "The potassium warning" ], text " — never one large dose; the one item with a genuinely narrow margin." ]
             , li [] [ a [ href "/#sec-refeed" ] [ text "Refeeding syndrome" ], text " — more people are harmed breaking a long fast than doing one." ]
@@ -183,6 +198,109 @@ startState ctx =
         ( Nothing, _ ) ->
             p [ class "plan-state u is-bad" ]
                 [ text "That is not a date the calendar has — the schedule below is in elapsed hours" ]
+
+
+
+-- §02 WHERE YOU ARE NOW
+
+
+{-| The clock. Everything in it is looked up in `Cycle.plan` through
+`Clock`, so it cannot disagree with the tables further down the page,
+and the abort signals are the protocol's own values (`Safety`) rather
+than a summary of them — the one reader who needs them most is at
+hour 41 and will not follow a link.
+-}
+secNow : Context msg -> List (Html msg)
+secNow ctx =
+    case ( ctx.start, ctx.now ) of
+        ( Just start, Just now ) ->
+            let
+                read =
+                    Clock.reading ctx.target (Civil.minutesBetween start now)
+            in
+            [ clockHead ctx start read
+            , Ruler.view { target = ctx.target, now = Just read.elapsed }
+            , nextLine ctx start read
+            ]
+                ++ currentLine read
+                ++ [ Safety.abortSignals (Just "/#sec-safety") ]
+
+        ( Nothing, _ ) ->
+            idle ctx "Set hour 0 above and this becomes a clock — hours elapsed, the stage you are standing in, and what is next"
+
+        ( Just _, Nothing ) ->
+            idle ctx "Reading your device clock"
+
+
+idle : Context msg -> String -> List (Html msg)
+idle ctx message =
+    [ p [ class "plan-state u" ] [ text message ]
+    , Ruler.view { target = ctx.target, now = Nothing }
+    , Safety.abortSignals (Just "/#sec-safety")
+    ]
+
+
+clockHead : Context msg -> Posix -> Clock.Reading -> Html msg
+clockHead ctx start read =
+    div
+        [ class "clock"
+        , classList [ ( "is-live", Clock.inFlight read.stance ) ]
+        ]
+        [ span [ class "clock-figure mono" ] [ text (Clock.elapsedFigure read.elapsed) ]
+        , div [ class "clock-read" ]
+            [ span [ class "clock-stance u" ] [ text (Clock.stanceLabel read.stance) ]
+            , span [ class "clock-since u" ]
+                [ text
+                    ((if read.elapsed < 0 then
+                        "Until hour 0 · "
+
+                      else
+                        "Since hour 0 · "
+                     )
+                        ++ Civil.formatDate ctx.zone start
+                        ++ " "
+                        ++ Civil.formatTime ctx.zone start
+                    )
+                ]
+            ]
+        ]
+
+
+nextLine : Context msg -> Posix -> Clock.Reading -> Html msg
+nextLine ctx start read =
+    case read.next of
+        Just entry ->
+            p [ class "clock-next u" ]
+                [ text "Next — "
+                , b [] [ text entry.title ]
+                , text " in "
+                , span [ class "mono" ] [ text (Clock.countdown (entry.at - read.elapsed)) ]
+                , text " · "
+                , span [ class "mono" ]
+                    [ text (Civil.formatDate ctx.zone (Civil.shift entry.at start)) ]
+                ]
+
+        Nothing ->
+            p [ class "clock-next u" ]
+                [ text "Nothing scheduled after this — the cycle is behind you" ]
+
+
+{-| What the reader is in the middle of. A list, not a `Html`: before
+priming starts there is no such line, and an empty one would still
+take a `§N.M` clause mark — a number pointing at nothing.
+-}
+currentLine : Clock.Reading -> List (Html msg)
+currentLine read =
+    case read.current of
+        Just entry ->
+            [ div [ class "note" ]
+                [ b [] [ text entry.title ]
+                , text (" — " ++ entry.detail)
+                ]
+            ]
+
+        Nothing ->
+            []
 
 
 

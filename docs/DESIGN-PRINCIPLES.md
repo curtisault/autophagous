@@ -135,6 +135,31 @@ planner needed shared data, which the site had not had before.)*
 - `src/Page/Plan.elm` — the view, pure like every other page: it takes
   a `Context` and renders it.
 
+*(Amended 2026-08-18 — the live clock. Owner: the planner should tell
+a reader who is *inside* a fast where they are, not only where they
+will be.)*
+
+- `src/Clock.elm` — where the reader is, from a target and a number of
+  minutes. Pure, so every boundary it draws (priming opens, the switch
+  flips, the fast ends) is a test case rather than something you have
+  to fast for three days to see. It adds **no content**: the current
+  and next lines are looked up in `Cycle.plan`, so the clock cannot
+  disagree with the tables below it.
+- `src/Ruler.elm` — the 0–96 h clock, extracted from `Page.Protocol`
+  when the second reader appeared. The protocol draws it plain; the
+  planner draws it with a needle at the hour the reader has reached.
+- `src/Safety.elm` — safety content more than one surface renders. See
+  §3b: this is how the clock shows the abort signals **in full without
+  paraphrasing them** — they are the same values, not a restatement.
+- The shell's `now` is `Maybe Posix`, `Nothing` until `Time.now`
+  lands. One frame is long enough to render a reading counted from the
+  epoch ("−20682 d"), and §3a's rule is that nothing false is ever on
+  screen. The clock waits instead.
+- One subscription, `Time.every 60000`, only while the planner is the
+  route. The tick matches the coarsest unit displayed; see
+  DESIGN-REQUIREMENTS §1 (amended the same day) for why a changing
+  value is not motion.
+
 ## §3a. The planner's state
 
 *(Added 2026-08-18.)*
@@ -172,6 +197,18 @@ rather than part of it. The rule that makes that safe:
 - Whatever leaves the browser carries the link back too: every event
   in the exported `.ics` has the protocol section it came from in its
   description.
+
+*(Amended 2026-08-18 — the one exception, and its shape.)*
+
+- **The live clock may show safety content, because it cannot link
+  it.** A reader at hour 41 with a spreading numbness will not follow
+  a link. So the abort signals appear on the clock in full, at body
+  legibility, in every state the section can be in — which
+  `PlanViewTests` asserts, state by state.
+- The exception is *rendering the same values twice*, never restating
+  them: `Safety.elm` holds them once and both surfaces call it. A
+  derived surface that finds itself needing to reword a warning has
+  found the boundary, not a special case.
 
 ## §print — the print strategy
 

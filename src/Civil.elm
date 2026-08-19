@@ -7,6 +7,7 @@ module Civil exposing
     , fromPosix
     , icsDate
     , icsStamp
+    , minutesBetween
     , offsetMinutes
     , shift
     , toIso
@@ -270,6 +271,24 @@ daysInMonth year month =
 
         _ ->
             31
+
+
+{-| Whole minutes from one instant to another, negative if the second
+comes first. Floored rather than truncated: Elm's `//` rounds toward
+zero, which would put the minute before an instant and the minute
+after it the same distance away.
+-}
+minutesBetween : Posix -> Posix -> Int
+minutesBetween from to =
+    let
+        ms =
+            Time.posixToMillis to - Time.posixToMillis from
+    in
+    if ms < 0 then
+        -((-ms + 59999) // 60000)
+
+    else
+        ms // 60000
 
 
 {-| Move an instant by whole minutes. Negative goes back.
