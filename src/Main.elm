@@ -54,7 +54,7 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         , onUrlChange = UrlChanged
         , onUrlRequest = LinkClicked
         }
@@ -122,12 +122,12 @@ type alias Model =
     , route : Route
     , theme : Theme
 
-    -- the planner's state. `zone` and `now` are UTC and the epoch
-    -- until `Time.here`/`Time.now` land, which is one frame; the
-    -- planner renders its schedule in relative offsets until then,
-    -- so nothing false is ever on screen.
+    -- the planner's state. `zone` is UTC and `now` is Nothing until
+    -- `Time.here`/`Time.now` land, which is one frame; until then the
+    -- planner renders its schedule in relative offsets and its clock
+    -- not at all, so nothing false is ever on screen.
     , zone : Time.Zone
-    , now : Time.Posix
+    , now : Maybe Time.Posix
     , planStart : String
     , planTarget : Target
 
@@ -148,7 +148,7 @@ init flags url key =
       , route = Route.fromUrl url
       , theme = themeFromFlag flags.theme
       , zone = Time.utc
-      , now = Time.millisToPosix 0
+      , now = Nothing
       , planStart = Maybe.withDefault "" (Route.queryParam "start" url)
       , planTarget = Cycle.targetFromParam (Route.queryParam "target" url)
       , fragment = url.fragment
@@ -185,6 +185,7 @@ type Msg
     | GotContext Time.Zone Time.Posix
     | PlanStartChanged String
     | PlanTargetChanged Target
+    | Tick Time.Posix
     | NoOp
 
 
@@ -261,7 +262,7 @@ update msg model =
                 updated =
                     { model
                         | zone = zone
-                        , now = now
+                        , now = Just now
                         , planStart =
                             if model.planStart == "" then
                                 -- an empty planner is a worse teacher than a
@@ -296,8 +297,36 @@ update msg model =
             in
             ( updated, syncPlanUrl updated )
 
+        Tick now ->
+            ( { model | now = Just now }, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
+
+
+
+-- SUBSCRIPTIONS
+
+
+{-| The live clock, and the only subscription this site has.
+
+A minute, not a second: the clock reads in hours and minutes, so a
+faster tick would re-render the same string. Only while the planner is
+on screen — the protocol sheet has nothing that changes, and a
+background timer on a document is a battery cost with no reader.
+
+This is not motion. The figure does not travel from one value to the
+next, it is simply a different fact the next time the minute changes
+(DESIGN-REQUIREMENTS §1, amended 2026-08-18).
+
+-}
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    if model.route == Route.Plan then
+        Time.every 60000 Tick
+
+    else
+        Sub.none
 
 
 
@@ -456,6 +485,7 @@ planContext model =
     in
     { zone = model.zone
     , start = start
+    , now = model.now
     , startValue = model.planStart
     , target = model.planTarget
     , download = Maybe.map (calendarFile model) start
@@ -470,7 +500,11 @@ calendarFile model start =
         Ics.dataUri
             (Ics.calendar
                 { zone = model.zone
-                , now = model.now
+
+                -- DTSTAMP is when the file was produced; before the
+                -- clock lands, the start instant stands in. Never the
+                -- epoch — a 1970 stamp is a file some calendars bin
+                , now = Maybe.withDefault start model.now
                 , start = start
                 , target = model.planTarget
                 , origin = model.origin

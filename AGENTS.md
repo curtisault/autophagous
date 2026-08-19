@@ -53,6 +53,18 @@ typst.
   does not ship. Offsets are added in `Posix` because elapsed hours
   are elapsed; rendering goes back through the `Zone`.
 - `src/Ics.elm` — the calendar export as a string on a `data:` URL.
+- `src/Clock.elm` — where the reader is in the cycle, from a target
+  and elapsed minutes. Pure; adds no content, only which line of
+  `Cycle.plan` you are standing on.
+- `src/Ruler.elm` — the 0–96 h clock. Plain on the protocol, with a
+  needle on the planner.
+- `src/Safety.elm` — safety content two surfaces render. Rendering the
+  same values is how the clock shows the abort signals in full without
+  paraphrasing them (DESIGN-PRINCIPLES §3b).
+- One subscription exists: `Time.every 60000`, only on `/plan`. A
+  value that changes is not motion — DESIGN-REQUIREMENTS §1, amended
+  2026-08-18. There are no transitions or animations anywhere, and
+  that is a rule, not an accident.
 - Derived surfaces (the planner, anything generated from it) compress
   only what has a time attached, link back to the protocol section
   they compressed, and never paraphrase safety content —

@@ -17,7 +17,7 @@ sections → contents rail → disclaimer footer):
 | Route | Module | Contents |
 |---|---|---|
 | `/` | `src/Page/Protocol.elm` | The protocol broadsheet, Rev. 3 — 12 numbered sections: epistemic limits, the two switches (mTORC1/AMPK), safety, GLP-1, the cycle, priming, the fast, the five stages by the clock (0–96 h), the refeed, the rebuild, the cycle log, references |
-| `/plan` | `src/Page/Plan.elm` | The cycle planner — enter the moment your last meal ends and the protocol's elapsed hours become dates: priming D−3 to D−1, hour 0, every stage crossing, the refeed windows, the rebuild weeks, the earliest next cycle. Exports the schedule as an `.ics` calendar. The plan rides in the URL (`?start=&target=`), so it is shareable and nothing is stored |
+| `/plan` | `src/Page/Plan.elm` | The cycle planner — enter the moment your last meal ends and the protocol's elapsed hours become dates: priming D−3 to D−1, hour 0, every stage crossing, the refeed windows, the rebuild weeks, the earliest next cycle. §02 is a **live clock**: hours elapsed, the stage you are standing in, the countdown to the next line, a needle on the 0–96 h ruler, and the abort signals in full. Exports the schedule as an `.ics` calendar. The plan rides in the URL (`?start=&target=`), so it is shareable and nothing is stored |
 | `/resources` | `src/Page/Resources.elm` | The source index — 19 citations, each routed to the best copy a reader can legally reach; DOI + access state, nothing rehosted |
 | `/legal` | `src/Page/Legal.elm` | Terms and disclaimers — the long form of the footer warning: no medical advice, absolute exclusions, emergencies, assumption of risk, no warranty, liability, privacy, reuse |
 
@@ -55,6 +55,9 @@ src/
   Doc.elm            the document format: masthead, rail, § numbering, clause marks, footer
   Cycle.elm          the cycle as data: stage boundaries + the schedule, in offsets
   Civil.elm          wall clock <-> Posix, the direction elm/time doesn't ship
+  Clock.elm          where the reader is in the cycle right now — pure, from elapsed minutes
+  Ruler.elm          the 0-96 h clock; plain on the protocol, needled on the planner
+  Safety.elm         safety content two surfaces render — the same values, never a summary
   Ics.elm            the calendar export — a string on a data: URL, no port, no deps
   Page/*.elm         pure views, one per route
   theme.css          tokens only
@@ -88,6 +91,10 @@ These are load-bearing. Breaking one is a bug, not a style difference.
   (0/16/24/48/72/96 h) had been written three times over — the stage cards,
   the ruler's percentages, the planner. Three copies of one number is a
   number that will drift.
+- **No transitions, no animations, anywhere.** The live clock re-renders
+  once a minute; a value that changes is not motion (DESIGN-REQUIREMENTS
+  §1). `prefers-reduced-motion` has nothing to reduce, and if that stops
+  being true something was broken.
 - **A derived surface is not the protocol.** The planner compresses only
   what has a time attached, links back to the section it compressed, and
   never paraphrases a contraindication — it links to it, at full strength

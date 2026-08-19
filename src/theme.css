@@ -3,8 +3,8 @@
    Components consume ROLE tokens; raw hex in component styles is a
    bug, and so is consuming a primitive where a role exists (the
    theme-invariant volt-block motif — .tag-volt, the 72 h target,
-   .swatch.mark — is the sanctioned exception, it uses --ink/--acid-volt
-   directly).
+   .swatch.mark, .clock.is-live — is the sanctioned exception, it uses
+   --ink/--acid-volt directly).
 
    Two lightings, one language (theme plan §1):
    - LIGHT (default): the lit facility — frost surface, ink data,
