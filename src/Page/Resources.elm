@@ -58,8 +58,8 @@ reachableCount =
 -- VIEW
 
 
-view : Maybe String -> Html msg
-view active =
+view : Doc.Chrome msg -> Html msg
+view chrome =
     Doc.view
         { tag = "Source Index"
         , kicker = String.fromInt reachableCount ++ " of " ++ String.fromInt (List.length Citations.all) ++ " free to read"
@@ -81,7 +81,7 @@ view active =
               , body = Doc.Panel (List.map viewCitation Citations.all)
               }
             ]
-        , active = active
+        , chrome = chrome
         , footNote =
             -- the medical disclaimer ships on every content page
             -- (DESIGN-REQUIREMENTS §5), the index note after it

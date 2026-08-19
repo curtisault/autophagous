@@ -18,6 +18,7 @@ carry corrections.
 -}
 
 import Citations
+import Doc
 import Expect
 import Html.Attributes as Attr
 import Page.Protocol
@@ -27,14 +28,19 @@ import Test.Html.Query as Query
 import Test.Html.Selector as Selector
 
 
+chrome : Doc.Chrome ()
+chrome =
+    { active = Nothing, query = "", onQuery = always () }
+
+
 protocol : Query.Single ()
 protocol =
-    Query.fromHtml (Page.Protocol.view Nothing)
+    Query.fromHtml (Page.Protocol.view chrome)
 
 
 resources : Query.Single ()
 resources =
-    Query.fromHtml (Page.Resources.view Nothing)
+    Query.fromHtml (Page.Resources.view chrome)
 
 
 allIds : List Int
@@ -163,7 +169,7 @@ suite =
         , describe "the contents rail marks where you are"
             [ test "the active section's row is marked" <|
                 \_ ->
-                    Query.fromHtml (Page.Protocol.view (Just "sec-fast"))
+                    Query.fromHtml (Page.Protocol.view { chrome | active = Just "sec-fast" })
                         |> Query.findAll [ Selector.class "is-active" ]
                         |> Query.count (Expect.equal 1)
             , test "nothing is marked before the reader has been placed" <|
@@ -175,7 +181,7 @@ suite =
                 -- `sec-fast` exists on the planner too, which is why the
                 -- shell clears this on navigation
                 \_ ->
-                    Query.fromHtml (Page.Resources.view (Just "sec-fast"))
+                    Query.fromHtml (Page.Resources.view { chrome | active = Just "sec-fast" })
                         |> Query.findAll [ Selector.class "is-active" ]
                         |> Query.count (Expect.equal 0)
             ]

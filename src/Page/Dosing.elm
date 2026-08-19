@@ -31,7 +31,7 @@ import Safety
 type alias Context msg =
     { source : Source
     , servings : Int
-    , active : Maybe String
+    , chrome : Doc.Chrome msg
     , onSource : Source -> msg
     , onServings : Int -> msg
     }
@@ -78,7 +78,7 @@ view ctx =
               , body = Doc.Clauses (secWorking ctx)
               }
             ]
-        , active = ctx.active
+        , chrome = ctx.chrome
         , footNote =
             -- the medical disclaimer ships on every content page
             -- (DESIGN-REQUIREMENTS §5)
