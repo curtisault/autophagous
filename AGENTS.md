@@ -58,6 +58,12 @@ typst.
   `Cycle.plan` you are standing on.
 - `src/Ruler.elm` — the 0–96 h clock. Plain on the protocol, with a
   needle on the planner.
+- `src/Dose.elm` — §07's requirements as arithmetic (mg of an element
+  → g of the salt that carries it → divided doses). Invents no doses;
+  the teaspoon masses are chosen to reproduce §07's own tsp figures,
+  and `DoseTests` holds them there. A derived surface may tighten a
+  constraint (the three-dose floor) but must say the judgement is its
+  own — DESIGN-REQUIREMENTS §5.
 - `src/Safety.elm` — safety content two surfaces render. Rendering the
   same values is how the clock shows the abort signals in full without
   paraphrasing them (DESIGN-PRINCIPLES §3b).

@@ -1,4 +1,4 @@
-module Safety exposing (abortSignals)
+module Safety exposing (abortSignals, potassiumDose, saltedWater)
 
 {-| Safety content that more than one surface has to carry.
 
@@ -19,7 +19,7 @@ the point; it is also the thing to think about before adding.
 
 -}
 
-import Html exposing (Html, a, div, li, p, text, ul)
+import Html exposing (Html, a, b, div, li, p, text, ul)
 import Html.Attributes exposing (class, href)
 
 
@@ -65,3 +65,30 @@ abortSignals source =
 tightList : List String -> Html msg
 tightList items =
     ul [ class "tight" ] (List.map (\item -> li [] [ text item ]) items)
+
+
+{-| Rev. 3, §07 — the potassium warning. Rendered by `Page.Protocol`
+in the fast's requirements and by `Page.Dosing`, which converts the
+dose this warning is about and therefore cannot be read without it.
+
+"The one item here with a genuinely narrow margin" is the protocol's
+own assessment, and it is the reason the dosing sheet will not divide
+a day into fewer than three.
+
+-}
+potassiumDose : Html msg
+potassiumDose =
+    div [ class "note" ]
+        [ b [] [ text "Potassium warning." ]
+        , text " Never take potassium as a single large dose — it can trigger arrhythmia. Divide it across the day in water. Skip potassium supplementation entirely if you have any kidney impairment or take ACE inhibitors, ARBs, or potassium-sparing diuretics. This is the one item here with a genuinely narrow margin."
+        ]
+
+
+{-| Rev. 3, §07 — why the water is salted. An inline fragment rather
+than a block, because in the protocol it lives inside a table cell.
+-}
+saltedWater : List (Html msg)
+saltedWater =
+    [ b [] [ text "Salted." ]
+    , text " Drinking large volumes of plain water while sodium-depleted causes hyponatremia. Thirst plus salt, not volume for its own sake."
+    ]

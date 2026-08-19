@@ -11,13 +11,14 @@ and a printable cycle log.
 
 ## What's here
 
-Four routes, all worn as the same house document (masthead → numbered
+Five routes, all worn as the same house document (masthead → numbered
 sections → contents rail → disclaimer footer):
 
 | Route | Module | Contents |
 |---|---|---|
 | `/` | `src/Page/Protocol.elm` | The protocol broadsheet, Rev. 3 — 12 numbered sections: epistemic limits, the two switches (mTORC1/AMPK), safety, GLP-1, the cycle, priming, the fast, the five stages by the clock (0–96 h), the refeed, the rebuild, the cycle log, references |
 | `/plan` | `src/Page/Plan.elm` | The cycle planner — enter the moment your last meal ends and the protocol's elapsed hours become dates: priming D−3 to D−1, hour 0, every stage crossing, the refeed windows, the rebuild weeks, the earliest next cycle. §02 is a **live clock**: hours elapsed, the stage you are standing in, the countdown to the next line, a needle on the 0–96 h ruler, and the abort signals in full. Exports the schedule as an `.ics` calendar. The plan rides in the URL (`?start=&target=`), so it is shareable and nothing is stored |
+| `/dosing` | `src/Page/Dosing.elm` | The electrolyte sheet — §07's milligram targets converted into grams of salt, teaspoons, and the divided doses the protocol requires. Handles the trap that a "lite salt" is half table salt, so it takes twice the spoonfuls and brings sodium that has to come off the salt you were also going to add |
 | `/resources` | `src/Page/Resources.elm` | The source index — 19 citations, each routed to the best copy a reader can legally reach; DOI + access state, nothing rehosted. Every entry names the protocol sections that cite it |
 | `/legal` | `src/Page/Legal.elm` | Terms and disclaimers — the long form of the footer warning: no medical advice, absolute exclusions, emergencies, assumption of risk, no warranty, liability, privacy, reuse |
 
@@ -57,6 +58,7 @@ src/
   Cycle.elm          the cycle as data: stage boundaries + the schedule, in offsets
   Civil.elm          wall clock <-> Posix, the direction elm/time doesn't ship
   Clock.elm          where the reader is in the cycle right now — pure, from elapsed minutes
+  Dose.elm           §07's requirements as arithmetic — mg of an element to g of salt
   Ruler.elm          the 0-96 h clock; plain on the protocol, needled on the planner
   Safety.elm         safety content two surfaces render — the same values, never a summary
   Ics.elm            the calendar export — a string on a data: URL, no port, no deps
@@ -101,6 +103,10 @@ These are load-bearing. Breaking one is a bug, not a style difference.
   The backlink table (`sites`) is hand-maintained but checked against the
   rendered protocol in both directions — a marker without a table entry
   fails, and so does a table entry with no marker.
+- **A derived surface may tighten, never loosen.** The dosing sheet won't
+  divide a day into fewer than three doses; §07 gives no number. That floor
+  is the sheet's judgement and the page says so — adding your own number
+  silently, or attributing it to the protocol, is the failure this names.
 - **A derived surface is not the protocol.** The planner compresses only
   what has a time attached, links back to the section it compressed, and
   never paraphrases a contraindication — it links to it, at full strength

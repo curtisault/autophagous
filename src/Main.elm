@@ -31,10 +31,12 @@ import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Civil
 import Cycle exposing (Target)
+import Dose exposing (Source)
 import Html exposing (Html, a, button, div, nav, span, text)
 import Html.Attributes exposing (attribute, class, classList, href, id, type_)
 import Html.Events exposing (onClick)
 import Ics
+import Page.Dosing
 import Page.Legal
 import Page.Plan
 import Page.Protocol
@@ -143,6 +145,12 @@ type alias Model =
     , planStart : String
     , planTarget : Target
 
+    -- the dosing sheet's two preferences, carried in the URL like the
+    -- planner's: this site stores nothing, and the address bar is
+    -- where a reader keeps a setting they will come back to
+    , doseSource : Source
+    , doseServings : Int
+
     -- the section under the reader's eye, marked in the contents rail.
     -- Reported by boot.js through `sectionSeen`; cleared on navigation
     -- so a stale anchor cannot mark the wrong row on the next page —
@@ -169,6 +177,8 @@ init flags url key =
       , now = Nothing
       , planStart = Maybe.withDefault "" (Route.queryParam "start" url)
       , planTarget = Cycle.targetFromParam (Route.queryParam "target" url)
+      , doseSource = Dose.sourceFromParam (Route.queryParam "k" url)
+      , doseServings = Dose.servingsFromParam (Route.queryParam "per" url)
       , fragment = url.fragment
       , active = Nothing
       , origin = originOf url
@@ -204,6 +214,8 @@ type Msg
     | GotContext Time.Zone Time.Posix
     | PlanStartChanged String
     | PlanTargetChanged Target
+    | DoseSourceChanged Source
+    | DoseServingsChanged Int
     | Tick Time.Posix
     | SectionSeen String
     | NoOp
@@ -255,11 +267,17 @@ update msg model =
 
                         else
                             Cmd.none
-                , if arrived && route == Route.Plan then
-                    -- arriving from the nav carries no query, so put the
-                    -- form's own state back into the URL: the planner
-                    -- promises the address bar is the plan
+                , -- arriving from the nav carries no query, so put the
+                  -- page's own state back into the URL: both these
+                  -- pages promise the address bar is the state
+                  if not arrived then
+                    Cmd.none
+
+                  else if route == Route.Plan then
                     syncPlanUrl updated
+
+                  else if route == Route.Dosing then
+                    syncDosingUrl updated
 
                   else
                     Cmd.none
@@ -326,6 +344,20 @@ update msg model =
             in
             ( updated, syncPlanUrl updated )
 
+        DoseSourceChanged source ->
+            let
+                updated =
+                    { model | doseSource = source }
+            in
+            ( updated, syncDosingUrl updated )
+
+        DoseServingsChanged servings ->
+            let
+                updated =
+                    { model | doseServings = Dose.clampServings servings }
+            in
+            ( updated, syncDosingUrl updated )
+
         Tick now ->
             ( { model | now = Just now }, Cmd.none )
 
@@ -384,7 +416,21 @@ reader has already filled in; a shared link carries both and must win.
 applyQuery : Url -> Model -> Model
 applyQuery url model =
     { model
-        | planStart = Maybe.withDefault model.planStart (Route.queryParam "start" url)
+        | doseSource =
+            case Route.queryParam "k" url of
+                Just raw ->
+                    Dose.sourceFromParam (Just raw)
+
+                Nothing ->
+                    model.doseSource
+        , doseServings =
+            case Route.queryParam "per" url of
+                Just raw ->
+                    Dose.servingsFromParam (Just raw)
+
+                Nothing ->
+                    model.doseServings
+        , planStart = Maybe.withDefault model.planStart (Route.queryParam "start" url)
         , planTarget =
             case Route.queryParam "target" url of
                 Just raw ->
@@ -405,6 +451,23 @@ syncPlanUrl model =
         (Route.withQuery Route.Plan
             [ ( "start", model.planStart )
             , ( "target", Cycle.targetParam model.planTarget )
+            ]
+            ++ (case model.fragment of
+                    Just anchor ->
+                        "#" ++ anchor
+
+                    Nothing ->
+                        ""
+               )
+        )
+
+
+syncDosingUrl : Model -> Cmd Msg
+syncDosingUrl model =
+    Nav.replaceUrl model.key
+        (Route.withQuery Route.Dosing
+            [ ( "k", Dose.sourceParam model.doseSource )
+            , ( "per", String.fromInt model.doseServings )
             ]
             ++ (case model.fragment of
                     Just anchor ->
@@ -506,6 +569,9 @@ view model =
             Route.Plan ->
                 Page.Plan.view (planContext model)
 
+            Route.Dosing ->
+                Page.Dosing.view (dosingContext model)
+
             Route.Resources ->
                 Page.Resources.view model.active
 
@@ -539,6 +605,16 @@ planContext model =
     }
 
 
+dosingContext : Model -> Page.Dosing.Context Msg
+dosingContext model =
+    { source = model.doseSource
+    , servings = model.doseServings
+    , active = model.active
+    , onSource = DoseSourceChanged
+    , onServings = DoseServingsChanged
+    }
+
+
 calendarFile : Model -> Time.Posix -> { href : String, name : String }
 calendarFile model start =
     { href =
@@ -567,6 +643,7 @@ siteNav model =
             [ div [ class "nav-links u" ]
                 [ navLink model.route Route.Protocol "Protocol"
                 , navLink model.route Route.Plan "Plan"
+                , navLink model.route Route.Dosing "Dosing"
                 , navLink model.route Route.Resources "Resources"
                 , navLink model.route Route.Legal "Legal"
                 ]
