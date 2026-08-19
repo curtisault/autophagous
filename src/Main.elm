@@ -31,6 +31,7 @@ import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Civil
 import Cycle exposing (Target)
+import Doc
 import Dose exposing (Source)
 import Html exposing (Html, a, button, div, nav, span, text)
 import Html.Attributes exposing (attribute, class, classList, href, id, type_)
@@ -146,6 +147,11 @@ type alias Model =
     , planStart : String
     , planTarget : Target
 
+    -- what the reader has typed into the rail's search box. Not in the
+    -- URL: a plan is a document you keep, a search is a way of looking
+    -- at one, and it should not survive the back button
+    , query : String
+
     -- the dosing sheet's two preferences, carried in the URL like the
     -- planner's: this site stores nothing, and the address bar is
     -- where a reader keeps a setting they will come back to
@@ -188,6 +194,7 @@ init flags url key =
       , fragment = url.fragment
       , mirroring = False
       , active = Nothing
+      , query = ""
       , origin = originOf url
       }
     , Cmd.batch
@@ -225,6 +232,7 @@ type Msg
     | DoseServingsChanged Int
     | Tick Time.Posix
     | SectionSeen String
+    | QueryChanged String
     | NoOp
 
 
@@ -246,6 +254,19 @@ update msg model =
                     { model
                         | route = route
                         , fragment = url.fragment
+
+                        -- any real navigation ends the search: the
+                        -- reader has chosen where to go, and leaving
+                        -- the query set would render the page they
+                        -- arrived at as a result list too — with its
+                        -- sections gone and the anchor they followed
+                        -- pointing at nothing
+                        , query =
+                            if model.mirroring then
+                                model.query
+
+                            else
+                                ""
                         , active =
                             if route /= model.route then
                                 Nothing
@@ -374,6 +395,9 @@ update msg model =
 
         Tick now ->
             ( { model | now = Just now }, Cmd.none )
+
+        QueryChanged query ->
+            ( { model | query = query }, Cmd.none )
 
         SectionSeen anchor ->
             ( { model
@@ -523,7 +547,7 @@ underneath it. A missing anchor resolves to a no-op, not a crash.
 -}
 jumpTo : String -> Cmd Msg
 jumpTo anchor =
-    Task.map2 (\info chrome -> info.element.y - chrome - jumpGap)
+    Task.map2 (\info covered -> info.element.y - covered - jumpGap)
         (Dom.getElement anchor)
         stickyChromeHeight
         |> Task.andThen (Dom.setViewport 0)
@@ -586,7 +610,7 @@ view model =
         [ siteNav model
         , case model.route of
             Route.Protocol ->
-                Page.Protocol.view model.active
+                Page.Protocol.view (chrome model)
 
             Route.Plan ->
                 Page.Plan.view (planContext model)
@@ -595,10 +619,10 @@ view model =
                 Page.Dosing.view (dosingContext model)
 
             Route.Resources ->
-                Page.Resources.view model.active
+                Page.Resources.view (chrome model)
 
             Route.Legal ->
-                Page.Legal.view model.active
+                Page.Legal.view (chrome model)
         ]
     }
 
@@ -621,9 +645,17 @@ planContext model =
     , startValue = model.planStart
     , target = model.planTarget
     , download = Maybe.map (calendarFile model) start
-    , active = model.active
+    , chrome = chrome model
     , onStart = PlanStartChanged
     , onTarget = PlanTargetChanged
+    }
+
+
+chrome : Model -> Doc.Chrome Msg
+chrome model =
+    { active = model.active
+    , query = model.query
+    , onQuery = QueryChanged
     }
 
 
@@ -631,7 +663,7 @@ dosingContext : Model -> Page.Dosing.Context Msg
 dosingContext model =
     { source = model.doseSource
     , servings = model.doseServings
-    , active = model.active
+    , chrome = chrome model
     , onSource = DoseSourceChanged
     , onServings = DoseServingsChanged
     }

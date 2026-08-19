@@ -58,6 +58,7 @@ src/
   Cycle.elm          the cycle as data: stage boundaries + the schedule, in offsets
   Civil.elm          wall clock <-> Posix, the direction elm/time doesn't ship
   Clock.elm          where the reader is in the cycle right now — pure, from elapsed minutes
+  Search.elm         the site index — hand-written, checked against the prose both ways
   Dose.elm           §07's requirements as arithmetic — mg of an element to g of salt
   Ruler.elm          the 0-96 h clock; plain on the protocol, needled on the planner
   Safety.elm         safety content two surfaces render — the same values, never a summary
@@ -98,6 +99,11 @@ These are load-bearing. Breaking one is a bug, not a style difference.
   once a minute; a value that changes is not motion (DESIGN-REQUIREMENTS
   §1). `prefers-reduced-motion` has nothing to reduce, and if that stops
   being true something was broken.
+- **Search is in the rail, and results replace the sheet.** The index is
+  hand-written but checked against the rendered pages in both directions:
+  a `term` must appear in the section it claims, an `alias` must not. The
+  query lives in the model, not the URL — a plan is a document you keep, a
+  search is a way of looking at one.
 - **Citations are one system.** `Citations.elm` holds the sources; the
   protocol's §12 list and the source index both render `Citations.line`.
   The backlink table (`sites`) is hand-maintained but checked against the

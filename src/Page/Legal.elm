@@ -50,8 +50,8 @@ tightList items =
 -- VIEW
 
 
-view : Maybe String -> Html msg
-view active =
+view : Doc.Chrome msg -> Html msg
+view chrome =
     Doc.view
         { tag = "Legal Notices"
         , kicker = "Read in full"
@@ -127,7 +127,7 @@ view active =
               , body = Doc.Clauses secChanges
               }
             ]
-        , active = active
+        , chrome = chrome
         , footNote =
             [ p [ style "margin" "0" ]
                 [ bT "This is general information, not medical advice, and I'm not a doctor."

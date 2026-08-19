@@ -45,6 +45,13 @@ typst.
   the URL: the planner mirrors its form into `?start=&target=` with
   `replaceUrl`, and that echo must not scroll or reset the form
   (DESIGN-PRINCIPLES §3a).
+- `src/Search.elm` — the site index. Hand-written, machine-checked:
+  `terms` must appear in the section they claim, `aliases` must not
+  (DESIGN-PRINCIPLES §5a). Citations are derived from `Citations.all`,
+  not written. The query lives in the model, never the URL, and any
+  real navigation clears it.
+- `src/Doc.elm` takes a `Chrome` (active section + query + handler);
+  a non-empty query replaces the sheet's sections with results.
 - `src/Viewport.elm` — whether a URL change moves the reader, as one
   pure tested function. Do not inline this decision again: it has been
   got wrong twice, most recently by guarding the scroll-to-top and

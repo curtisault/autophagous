@@ -49,8 +49,9 @@ type alias Context msg =
     , target : Target
     , download : Maybe { href : String, name : String }
 
-    -- the section the reader is in, for the contents rail
-    , active : Maybe String
+    -- the rail's state: where the reader is, and what they are
+    -- searching for. The shell owns both
+    , chrome : Doc.Chrome msg
     , onStart : String -> msg
     , onTarget : Target -> msg
     }
@@ -86,7 +87,7 @@ view ctx =
                      , body = Doc.Clauses (secCarry ctx)
                      }
                    ]
-        , active = ctx.active
+        , chrome = ctx.chrome
         , footNote =
             -- the medical disclaimer ships on every content page
             -- (DESIGN-REQUIREMENTS §5)

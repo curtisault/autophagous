@@ -40,7 +40,7 @@ context now target =
     , startValue = "2026-09-01T20:00"
     , target = target
     , download = Just { href = "data:text/calendar,x", name = "cycle.ics" }
-    , active = Nothing
+    , chrome = { active = Nothing, query = "", onQuery = always () }
     , onStart = always ()
     , onTarget = always ()
     }

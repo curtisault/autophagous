@@ -89,6 +89,55 @@ their own addresses.)*
   both the protocol and the planner, so a stale anchor would mark the
   wrong row.
 
+*(Amended 2026-08-19 — search, in the rail.)*
+
+- **The box is in the contents rail** because searching is navigation
+  and the rail is where navigation lives. It also costs no site-nav
+  space, which five routes had already used up.
+- **Results replace the sheet's sections rather than floating over
+  them.** The document is what is being searched, so the document
+  becomes the answer — and the results get the full measure instead of
+  the rail's 13rem. While searching, the rail shows a count rather
+  than repeating the same list at a quarter of the width.
+- **The query is not in the URL**, unlike the planner's start date and
+  the dosing sheet's settings. A plan is a document you keep; a search
+  is a way of looking at one, and it should not survive the back
+  button. It is also why the search needs no mirroring, and cannot
+  produce the echo bug in §3a.
+- **Any real navigation clears it.** Following a result with the query
+  still set would render the destination as a result list too, with
+  its sections gone and the anchor you followed pointing at nothing.
+  A mirroring echo does not clear it, for the same reason it does not
+  move the reader.
+
+## §5a. The index
+
+*(Added 2026-08-19.)*
+
+`src/Search.elm` is hand-written and machine-checked, the same
+arrangement as the citation backlinks in §3b — and for the same
+reason: the prose lives in `Html msg`, which is opaque. Reading the
+words back out would mean parsing Elm source at build time or
+restructuring the document into a content model, and neither is worth
+what it costs.
+
+- Each entry carries **`terms`** (words that are in that section) and
+  **`aliases`** (words that are not). `SearchTests` renders every page
+  and checks both directions: a term must appear in the section it
+  claims, an alias must not.
+- The alias check is the one that matters. An alias is what a reader
+  types when the document uses a different word — "ozempic" for a §04
+  that names semaglutide, "salt" for a §07 that says sodium. The
+  moment an alias turns out to be in the prose it is a term, and the
+  distinction has stopped meaning anything. Writing the index the
+  first time, that check caught fifteen of them.
+- **Citations are not in the index.** They are derived from
+  `Citations.all`, so an author, a journal or a title is searchable
+  with nothing to maintain.
+- `Selector.text` matches a substring of a single text node,
+  case-sensitively, which is what makes the check possible at all —
+  and what limits it to words rather than phrases spanning tags.
+
 *(Amended 2026-08-16 — the sticky chrome. Owner: navigation must be
 reachable at any scroll depth.)*
 
