@@ -731,6 +731,163 @@ ol.refs li {
   border: 1px solid var(--warn-tx);
 }
 
+/* ---------- the planner (Page.Plan) ----------
+   The site's only input surface, and it stays in the document
+   language: a field is a ruled cell, the chosen target is an inked
+   block, nothing rounds and nothing moves (DESIGN-REQUIREMENTS §1).
+   Role tokens only — the form borrows the same --rule the tables and
+   section heads are drawn with, so it reads as part of the sheet
+   rather than a widget dropped onto it. */
+.plan-set {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1.1rem 2rem;
+  border-top: 1.5px solid var(--rule);
+  border-bottom: 1.5px solid var(--rule);
+  padding: 0.9rem 0;
+  margin: 0 0 0.7rem;
+}
+.plan-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.plan-field > .u,
+.plan-field > label {
+  font-size: 0.58rem;
+  color: var(--tx-dim);
+}
+#plan-start {
+  font-size: 0.95rem;
+  color: var(--tx);
+  background: var(--surface);
+  border: 1.5px solid var(--rule);
+  border-radius: 0;
+  padding: 0.35rem 0.5rem;
+  /* the calendar indicator is the browser's own glyph: this is what
+     tells it which lighting it is drawing on */
+  color-scheme: light dark;
+}
+#plan-start:focus-visible {
+  outline: 3px solid var(--data-accent);
+  outline-offset: 1px;
+}
+.plan-seg {
+  display: flex;
+}
+.plan-btn {
+  font-size: 0.6rem;
+  color: var(--tx);
+  background: transparent;
+  border: 1.5px solid var(--rule);
+  border-left-width: 0;
+  border-radius: 0;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+}
+.plan-btn:first-child {
+  border-left-width: 1.5px;
+}
+.plan-btn:hover {
+  background: var(--tint);
+}
+/* the selected target is stencilled, the same inversion the site nav
+   and slab titles use for "this is the state you are in" */
+.plan-btn.active {
+  background: var(--stencil-bg);
+  color: var(--stencil-tx);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.plan-state {
+  font-size: 0.58rem;
+  color: var(--tx-dim);
+  margin: 0 0 1.1rem;
+}
+.plan-state .mono {
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  color: var(--tx);
+}
+.plan-state.is-bad {
+  color: var(--warn-tx);
+}
+
+/* the schedule itself is an ordinary document table; only the dated
+   column and the row titles need anything of their own */
+.plan-when {
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.plan-d,
+.plan-h,
+.plan-rel {
+  display: block;
+}
+.plan-h,
+.plan-rel {
+  color: var(--tx-dim);
+}
+.plan-t {
+  display: block;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.64rem;
+  margin-bottom: 0.2rem;
+}
+/* a hero row here carries a whole clause, not a two-word cell: the
+   tint marks it and the display-voice title carries the weight, so
+   the prose is not set in three bold lines */
+.sheet table.plan tr.hero td {
+  font-weight: normal;
+}
+.plan-source {
+  font-size: 0.55rem;
+  margin: 0.3rem 0 0;
+}
+.plan-source a {
+  color: var(--tx-dim);
+}
+.plan-source a::after {
+  content: ' →';
+}
+
+.plan-carry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0 0 1.1rem;
+}
+.plan-dl {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  border: 1.5px solid var(--rule);
+  padding: 0.65rem 0.9rem;
+  font-size: 0.62rem;
+  color: var(--tx);
+  text-decoration: none;
+}
+.plan-dl:hover {
+  background: var(--stencil-bg);
+  color: var(--stencil-tx);
+}
+.plan-dl .mono {
+  font-size: 0.6rem;
+  letter-spacing: 0;
+  color: var(--tx-dim);
+}
+.plan-dl:hover .mono {
+  color: var(--stencil-tx);
+}
+/* nothing to export yet — dashed, dimmed, and not a link */
+.plan-dl.is-off {
+  color: var(--tx-dim);
+  border-style: dashed;
+}
+
 /* ---------- footer ---------- */
 .sheet footer {
   margin-top: 2.5rem;
@@ -860,6 +1017,13 @@ ol.refs li {
   .site-nav {
     padding: 0 1.25rem;
   }
+  /* the brand goes: on a phone the bar is a fourth route wider than it
+     was, and the masthead below already names the document. Note the
+     bar is still tight at ~360px — a proper small-screen nav is an
+     owner call, not something this rule pretends to have solved. */
+  .site-nav .brand {
+    display: none;
+  }
   .site-nav .nav-right {
     gap: 1rem;
   }
@@ -914,5 +1078,11 @@ ol.refs li {
   .resource {
     grid-template-columns: 1fr;
     gap: 0.2rem;
+  }
+  .plan-set {
+    gap: 0.8rem 1.2rem;
+  }
+  .plan-when {
+    font-size: 0.66rem;
   }
 }
