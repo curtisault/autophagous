@@ -4,6 +4,23 @@ How AUTOPHAGOUS ships. Deploy target is **Cloudflare Pages**, project
 name **`autophagous`**, live at `autophagous.pages.dev` plus any custom
 domain attached later.
 
+## Pull requests
+
+Every pull request runs `.github/workflows/test.yml`, which is the same
+suite the deploy gates on — `npm ci`, the Elm install, `npm test` — and
+nothing else. It exists so a failing test is visible on the branch
+rather than on `main` after the fact.
+
+Deliberately **not** on `push`: `deploy.yml` already runs the suite for
+`main`, so a push trigger here would double every run for no extra
+signal. Superseded runs on the same PR are cancelled
+(`concurrency.cancel-in-progress`), and the job asks for
+`contents: read` and nothing more.
+
+It does not build or assert the 404 contract — those live in the deploy
+job, where they gate the thing they protect. If a PR needs to prove the
+build too, add the steps here rather than moving them.
+
 ## The pipeline
 
 Every push to `main` runs `.github/workflows/deploy.yml`:
