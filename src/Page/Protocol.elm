@@ -76,8 +76,8 @@ tightList items =
 -- VIEW
 
 
-view : Maybe String -> Html msg
-view active =
+view : Doc.Chrome msg -> Html msg
+view chrome =
     Doc.view
         { tag = "Autophagy Protocol"
         , kicker = "Cyclic · 72–96 h"
@@ -159,7 +159,7 @@ view active =
               , body = Doc.Panel secRefs
               }
             ]
-        , active = active
+        , chrome = chrome
         , footNote =
             [ p [ style "margin" "0" ]
                 [ bT "This is general information, not medical advice, and I'm not a doctor."

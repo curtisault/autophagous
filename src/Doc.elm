@@ -1,4 +1,4 @@
-module Doc exposing (Body(..), Config, Section, view)
+module Doc exposing (Body(..), Chrome, Config, Section, view)
 
 {-| The document format (DESIGN-PRINCIPLES §2a): the shared chrome
 every broadsheet page wears — the
@@ -24,8 +24,10 @@ are carried out by the shell (`Main.elm` owns the viewport, because
 
 -}
 
-import Html exposing (Html, a, br, div, footer, h1, h2, header, nav, p, section, span, text)
-import Html.Attributes exposing (attribute, class, classList, href, id, title)
+import Html exposing (Html, a, br, button, div, footer, h1, h2, header, input, nav, p, section, span, text)
+import Html.Attributes exposing (attribute, class, classList, href, id, placeholder, title, type_, value)
+import Html.Events exposing (onClick, onInput)
+import Search
 
 
 type alias Config msg =
@@ -37,11 +39,23 @@ type alias Config msg =
     , standfirst : String
     , sections : List (Section msg)
     , footNote : List (Html msg) -- the footer (the disclaimer, on content pages)
+    , chrome : Chrome msg
+    }
 
-    -- the section the reader is currently in, marked in the rail. The
-    -- shell owns it: Elm has no scroll subscription, so it arrives
-    -- from boot.js through a port (DESIGN-PRINCIPLES §2a)
-    , active : Maybe String
+
+{-| The state the shell owns and every page wears: which section the
+reader is in, and what they are searching for.
+
+`active` arrives from boot.js through a port — Elm has no scroll
+subscription. `query` turns the sheet into a result list, which is why
+it lives here rather than on any one page: search is chrome, the same
+as the contents rail it sits in.
+
+-}
+type alias Chrome msg =
+    { active : Maybe String
+    , query : String
+    , onQuery : String -> msg
     }
 
 
@@ -75,13 +89,69 @@ type Body msg
 
 view : Config msg -> Html msg
 view config =
+    let
+        searching =
+            String.trim config.chrome.query /= ""
+
+        hits =
+            Search.run config.chrome.query
+    in
     div [ class "doc-layout" ]
-        [ viewToc config
+        [ viewToc config searching (List.length hits)
         , div [ class "sheet" ]
             (viewMasthead config
-                :: List.indexedMap viewSection config.sections
+                :: (if searching then
+                        [ viewResults hits ]
+
+                    else
+                        List.indexedMap viewSection config.sections
+                   )
                 ++ [ footer [] config.footNote ]
             )
+        ]
+
+
+{-| Searching replaces the sheet's sections rather than floating a
+panel over them. The document is what is being searched, so the
+document becomes the answer — and the results get the full measure
+instead of the rail's 13rem.
+-}
+viewResults : List Search.Entry -> Html msg
+viewResults hits =
+    section [ id "sec-results" ]
+        (div [ class "sec-head" ]
+            [ span [ class "sec-num u" ]
+                [ text (String.padLeft 2 '0' (String.fromInt (List.length hits))) ]
+            , h2 []
+                [ text
+                    (if List.isEmpty hits then
+                        "Nothing found"
+
+                     else
+                        "Results"
+                    )
+                ]
+            , span [ class "sec-intent u" ] [ text "Across every page" ]
+            ]
+            :: (if List.isEmpty hits then
+                    [ p [ class "hit-none" ]
+                        [ text "No section, instrument or source matches that. The contents rail comes back when the box is empty." ]
+                    ]
+
+                else
+                    List.map viewHit hits
+               )
+        )
+
+
+viewHit : Search.Entry -> Html msg
+viewHit hit =
+    a [ class "hit", href (Search.address hit) ]
+        [ span [ class "hit-page u" ] [ text hit.page ]
+        , div []
+            [ span [ class "hit-label" ] [ text hit.label ]
+            , span [ class "hit-blurb" ] [ text hit.blurb ]
+            ]
         ]
 
 
@@ -178,13 +248,53 @@ viewClause anchor n i item =
 -- THE CONTENTS RAIL
 
 
-viewToc : Config msg -> Html msg
-viewToc config =
+viewToc : Config msg -> Bool -> Int -> Html msg
+viewToc config searching found =
     nav [ id "doc-toc", class "doc-toc", attribute "aria-label" "Contents" ]
         [ div [ class "doc-toc-inner" ]
-            (span [ class "doc-toc-head u" ] [ text "Contents" ]
-                :: List.indexedMap (tocLink config.active) config.sections
+            (viewSearch config.chrome
+                :: (if searching then
+                        -- the results are in the sheet, at full width;
+                        -- repeating them here would be the same list twice
+                        [ span [ class "doc-toc-head u" ]
+                            [ text (String.fromInt found ++ " found") ]
+                        ]
+
+                    else
+                        span [ class "doc-toc-head u" ] [ text "Contents" ]
+                            :: List.indexedMap (tocLink config.chrome.active) config.sections
+                   )
             )
+        ]
+
+
+{-| The box, in the rail, because searching is navigation and the rail
+is where navigation lives. It is a ruled cell like every other control
+here (DESIGN-REQUIREMENTS §1).
+-}
+viewSearch : Chrome msg -> Html msg
+viewSearch chrome =
+    div [ class "doc-search" ]
+        [ input
+            [ type_ "search"
+            , class "doc-search-input"
+            , value chrome.query
+            , placeholder "Search"
+            , attribute "aria-label" "Search the document"
+            , onInput chrome.onQuery
+            ]
+            []
+        , if String.trim chrome.query == "" then
+            text ""
+
+          else
+            button
+                [ type_ "button"
+                , class "doc-search-clear u"
+                , attribute "aria-label" "Clear the search"
+                , onClick (chrome.onQuery "")
+                ]
+                [ text "Clear" ]
         ]
 
 
