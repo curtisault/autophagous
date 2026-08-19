@@ -29,6 +29,21 @@ light is the only shipped theme.)*
 - Motion: none by default. Any future motion must be justified in a
   dated amendment here.
 
+*(Amended 2026-08-18 — the first input surface. Owner: the cycle
+planner (`/plan`) takes a start date and a target, which the site had
+never had to ask for. It does not introduce a widget language.)*
+
+- **A control is drawn the way the document is drawn.** A field is a
+  ruled cell — 1.5px `--rule`, square corners, the data voice inside
+  it. A chosen option is *stencilled*: the same ink-block inversion
+  the site nav and slab titles already use to say "this is the state
+  you are in". No fills that aren't tokens, no borders that aren't
+  rules, no rounding, no transitions.
+- **Focus is visible and it is ink**, not a browser default halo: a
+  3px `--data-accent` outline, offset 1px.
+- Still no motion. A control that responds to a click by *being*
+  different is in the language; one that animates into it is not.
+
 ## 2. Color — two lightings, one language
 
 *(Rewritten 2026-08-16, theme plan Phases 1–2: role tokens split from
@@ -142,6 +157,13 @@ content is never softened for tone.
 - Safety-critical content (contraindications, abort signals, the
   potassium warning, refeeding syndrome) is never truncated,
   collapsed behind interaction, or restyled below body legibility.
+  *(Amended 2026-08-18: this now also governs **derived surfaces** —
+  anything that compresses the protocol, like the planner's schedule
+  or a calendar file generated from it. A derived surface may not
+  paraphrase a contraindication: it links to the section, in full
+  strength, and says outright that it is not the protocol. The
+  planner's §01 slab is the pattern. A summarised warning is a way of
+  missing one.)*
 - The medical disclaimer ships on every content page footer, and links
   to `/legal` for the long form. *(Amended 2026-08-16: `Page.Legal` is
   that long form — no-medical-advice, the absolute exclusions,

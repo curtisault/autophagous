@@ -11,6 +11,7 @@ means grepping this file for `§`.
 
 -}
 
+import Cycle
 import Doc
 import Html exposing (Html, a, b, div, em, h3, h4, i, li, ol, p, span, sup, table, tbody, td, text, th, thead, tr, ul)
 import Html.Attributes exposing (class, download, href, style)
@@ -486,6 +487,12 @@ secCycle =
             [ text "Repeat monthly · do not stack cycles back to back" ]
         ]
     , note
+        [ bT "Working in dates rather than hours?"
+        , text " The "
+        , a [ href "/plan" ] [ text "cycle planner" ]
+        , text " takes the moment your last meal ends and returns this cycle dated — the priming days, every stage crossing, the refeed windows, the rebuild — with a calendar file to carry. It is a schedule, and it does not replace anything on this page."
+        ]
+    , note
         [ bT "Autophagy is only the demolition half."
         , text " The rebuild — stem-cell repopulation, mitochondrial biogenesis — happens on "
         , emT "refeeding"
@@ -661,107 +668,124 @@ secFast =
 -- §08 BY THE CLOCK
 
 
+{-| The stage cards and the ruler above them are both drawn from
+`Cycle.stages` — the boundaries are one list, not three copies that
+can drift apart (the planner is the third reader). This module keeps
+what is genuinely its own: the prose.
+-}
 secStages : List (Html msg)
 secStages =
-    [ ruler
-    , stage "I" "0–16 h" "Glycogen draw-down" <|
-        [ p []
-            [ text "Insulin falls, the liver releases stored glucose. Roughly 100 g of glycogen is spent. Autophagy remains at baseline — nutrient sensors still read \u{201C}fed.\u{201D}" ]
-        , p [ class "feel" ]
-            [ bT "Autophagy"
-            , text " — Baseline. Nothing yet. "
-            , bT "This is the stage your priming phase shortens"
-            , text ", potentially to a few hours."
-            ]
-        ]
-    , stage "II" "16–24 h" "The switch" <|
-        [ p []
-            [ text "Glycogen runs out. Lipolysis accelerates, ketogenesis begins, and as insulin, IGF-1 and amino acid availability all fall together, mTORC1 goes quiet and AMPK activates."
-            , ref "[16]"
-            ]
-        , p [ class "feel" ]
-            [ bT "Autophagy", text " — Upregulation begins here. This is the entry point, not hour 72." ]
-        , p [ class "feel" ]
-            [ bT "How it feels", text " — The worst stretch. Hunger waves, irritability, headache. Salt now." ]
-        ]
-    , stage "III" "24–48 h" "Climbing" <|
-        [ p []
-            [ text "Ketones rise from roughly 0.5 toward 2–3 mmol/L. Gluconeogenesis supplies what glucose is still needed from glycerol, lactate and amino acids. Insulin and IGF-1 reach their floor — and it is the IGF-1 drop that drives the regenerative signalling downstream."
-            , ref "[8]"
-            ]
-        , p [ class "feel" ]
-            [ bT "Autophagy", text " — Sustained induction. Every hour here is doing work." ]
-        , p [ class "feel" ]
-            [ bT "How it feels", text " — Hunger usually fades around hour 36–48, often abruptly. Clarity frequently improves." ]
-        ]
-    , stage "IV" "48–72 h" "Sustained" <|
-        [ p []
-            [ text "Deep ketosis, near-exclusive fat oxidation, nitrogen loss falling as protein sparing engages."
-            , ref "[17]"
-            , text " Growth hormone is markedly elevated. All the upstream conditions for autophagy are maximally satisfied and stay that way."
-            ]
-        , p [ class "feel" ]
-            [ bT "Autophagy", text " — Held at the induced state. The plateau you came for." ]
-        , p [ class "feel" ]
-            [ bT "How it feels", text " — Weaker, cold, low stamina. Standing fast will grey your vision." ]
-        ]
-    , stage "V" "72–96 h" "Optional extension" <|
-        [ p []
-            [ text "A steady state; little changes mechanistically. Take this day if the fast has gone smoothly and you're experienced, skip it freely if not." ]
-        , p [ class "feel" ]
-            [ bT "Autophagy", text " — No clear additional induction, just more time at the plateau. Diminishing returns begin." ]
-        , p [ class "feel" ]
-            [ bT "Stop here."
-            , text " Past roughly day five, refeeding syndrome risk climbs steeply while the mechanistic case flattens. That trade is the reason this protocol caps at four days."
-            ]
-        ]
-    ]
+    ruler :: List.map stageCard Cycle.stages
 
 
-stage : String -> String -> String -> List (Html msg) -> Html msg
-stage numeral hours title body =
+stageCard : Cycle.Stage -> Html msg
+stageCard s =
     div [ class "stage" ]
         [ div [ class "stage-meta" ]
-            [ span [ class "no" ] [ text numeral ]
-            , span [ class "hrs" ] [ text hours ]
+            [ span [ class "no" ] [ text s.numeral ]
+            , span [ class "hrs" ] [ text (Cycle.stageHours s) ]
             ]
-        , div [] (h3 [] [ text title ] :: body)
+        , div [] (h3 [] [ text s.title ] :: stageProse s.numeral)
         ]
 
 
+{-| One block per stage, keyed by numeral. A stage added to
+`Cycle.stages` without a clause here renders as a bare heading — which
+is the failure you want, loud and in the right place, rather than a
+silently dropped stage.
+-}
+stageProse : String -> List (Html msg)
+stageProse numeral =
+    case numeral of
+        "I" ->
+            [ p []
+                [ text "Insulin falls, the liver releases stored glucose. Roughly 100 g of glycogen is spent. Autophagy remains at baseline — nutrient sensors still read \u{201C}fed.\u{201D}" ]
+            , p [ class "feel" ]
+                [ bT "Autophagy"
+                , text " — Baseline. Nothing yet. "
+                , bT "This is the stage your priming phase shortens"
+                , text ", potentially to a few hours."
+                ]
+            ]
+
+        "II" ->
+            [ p []
+                [ text "Glycogen runs out. Lipolysis accelerates, ketogenesis begins, and as insulin, IGF-1 and amino acid availability all fall together, mTORC1 goes quiet and AMPK activates."
+                , ref "[16]"
+                ]
+            , p [ class "feel" ]
+                [ bT "Autophagy", text " — Upregulation begins here. This is the entry point, not hour 72." ]
+            , p [ class "feel" ]
+                [ bT "How it feels", text " — The worst stretch. Hunger waves, irritability, headache. Salt now." ]
+            ]
+
+        "III" ->
+            [ p []
+                [ text "Ketones rise from roughly 0.5 toward 2–3 mmol/L. Gluconeogenesis supplies what glucose is still needed from glycerol, lactate and amino acids. Insulin and IGF-1 reach their floor — and it is the IGF-1 drop that drives the regenerative signalling downstream."
+                , ref "[8]"
+                ]
+            , p [ class "feel" ]
+                [ bT "Autophagy", text " — Sustained induction. Every hour here is doing work." ]
+            , p [ class "feel" ]
+                [ bT "How it feels", text " — Hunger usually fades around hour 36–48, often abruptly. Clarity frequently improves." ]
+            ]
+
+        "IV" ->
+            [ p []
+                [ text "Deep ketosis, near-exclusive fat oxidation, nitrogen loss falling as protein sparing engages."
+                , ref "[17]"
+                , text " Growth hormone is markedly elevated. All the upstream conditions for autophagy are maximally satisfied and stay that way."
+                ]
+            , p [ class "feel" ]
+                [ bT "Autophagy", text " — Held at the induced state. The plateau you came for." ]
+            , p [ class "feel" ]
+                [ bT "How it feels", text " — Weaker, cold, low stamina. Standing fast will grey your vision." ]
+            ]
+
+        "V" ->
+            [ p []
+                [ text "A steady state; little changes mechanistically. Take this day if the fast has gone smoothly and you're experienced, skip it freely if not." ]
+            , p [ class "feel" ]
+                [ bT "Autophagy", text " — No clear additional induction, just more time at the plateau. Diminishing returns begin." ]
+            , p [ class "feel" ]
+                [ bT "Stop here."
+                , text " Past roughly day five, refeeding syndrome risk climbs steeply while the mechanistic case flattens. That trade is the reason this protocol caps at four days."
+                ]
+            ]
+
+        _ ->
+            []
+
+
+{-| The clock the stage cards sit on, drawn from `Cycle.stages`: every
+left and width below is that list divided by its own scale, so the
+bands cannot say one thing while the cards say another. The flag and
+the volt mark sit at the 72 h target — the minimum the protocol asks
+for, and the shorter of the planner's two.
+-}
 ruler : Html msg
 ruler =
+    let
+        target =
+            Cycle.targetHours Cycle.T72
+    in
     div [ class "ruler-wrap" ]
         [ div [ class "flagrow" ]
-            [ span [ style "left" "75%" ] [ text "▼ 72 h — target" ] ]
+            [ span [ style "left" (pct target) ]
+                [ text ("▼ " ++ String.fromInt target ++ " h — target") ]
+            ]
         , div [ class "ruler" ]
-            [ div [ class "zone tint", style "left" "75%", style "width" "25%" ] []
-            , div [ class "zone hatch", style "left" "0", style "width" "16.667%" ] []
-            , div [ class "vdiv", style "left" "16.667%" ] []
-            , div [ class "vdiv", style "left" "25%" ] []
-            , div [ class "vdiv", style "left" "50%" ] []
-            , div [ class "rlbl", style "left" "0", style "width" "16.667%" ] [ b [] [ text "I" ] ]
-            , div [ class "rlbl", style "left" "16.667%", style "width" "8.333%" ] [ b [] [ text "II" ] ]
-            , div [ class "rlbl", style "left" "25%", style "width" "25%" ] [ b [] [ text "III" ] ]
-            , div [ class "rlbl", style "left" "50%", style "width" "25%" ] [ b [] [ text "IV" ] ]
-            , div [ class "rlbl", style "left" "75%", style "width" "25%" ] [ b [] [ text "V" ] ]
-            , div [ class "target", style "left" "75%" ] []
-            ]
-        , div [ class "ticks" ]
-            [ div [ class "tick first", style "left" "0" ] [ text "0h" ]
-            , div [ class "tick", style "left" "16.667%" ] [ text "16" ]
-            , div [ class "tick", style "left" "25%" ] [ text "24" ]
-            , div [ class "tick", style "left" "50%" ] [ text "48" ]
-            , div [ class "tick", style "left" "75%" ] [ text "72" ]
-            , div [ class "tick last", style "left" "100%" ] [ text "96" ]
-            ]
-        , div [ class "names" ]
-            [ div [ class "nm", style "left" "0", style "width" "16.667%" ] [ text "Draw-down" ]
-            , div [ class "nm low", style "left" "16.667%", style "width" "8.333%" ] [ text "Switch" ]
-            , div [ class "nm", style "left" "25%", style "width" "25%" ] [ text "Climbing" ]
-            , div [ class "nm", style "left" "50%", style "width" "25%" ] [ text "Sustained" ]
-            , div [ class "nm", style "left" "75%", style "width" "25%" ] [ text "Optional extension" ]
-            ]
+            -- the optional fourth day, then the stretch priming
+            -- shortens, then the boundaries, then the cells that
+            -- name them: painting order, back to front
+            (band "zone tint" target Cycle.scaleHours
+                :: List.map (\s -> band "zone hatch" s.from s.to) (openingStage Cycle.stages)
+                ++ List.map divider (dividedAt target Cycle.stages)
+                ++ List.map rulerCell Cycle.stages
+                ++ [ div [ class "target", style "left" (pct target) ] [] ]
+            )
+        , div [ class "ticks" ] (List.indexedMap tick ticks)
+        , div [ class "names" ] (List.map rulerName Cycle.stages)
         , div [ class "legend" ]
             [ span [] [ i [ class "swatch hatched" ] [], text "Shortened by priming" ]
             , span [] [ i [ class "swatch mark" ] [], text "Minimum target" ]
@@ -770,6 +794,109 @@ ruler =
         , p [ class "u", style "font-size" ".6rem", style "margin" ".5rem 0 0" ]
             [ text "Linear scale · band width is true to duration" ]
         ]
+
+
+{-| Hours as a position on the track. Rounded to three places: the
+thirds (16 h of 96) are otherwise seventeen digits of noise in the
+DOM, and a thousandth of this track is a fifth of a pixel.
+-}
+pct : Int -> String
+pct hours =
+    String.fromFloat
+        (toFloat (round (toFloat hours / toFloat Cycle.scaleHours * 100000)) / 1000)
+        ++ "%"
+
+
+band : String -> Int -> Int -> Html msg
+band cls from to =
+    div
+        [ class cls
+        , style "left" (pct from)
+        , style "width" (pct (to - from))
+        ]
+        []
+
+
+{-| The stage that opens the clock — the one the hatch marks, because
+it is the stretch priming shortens.
+-}
+openingStage : List Cycle.Stage -> List Cycle.Stage
+openingStage =
+    List.filter (\s -> s.from == 0)
+
+
+{-| The boundaries that need a rule drawn. Not hour 0 — the ruler's own
+border is that line — and not the target, where the volt mark already
+is: a divider under it would be a rule nobody can see.
+-}
+dividedAt : Int -> List Cycle.Stage -> List Int
+dividedAt target =
+    List.map .from >> List.filter (\from -> from > 0 && from /= target)
+
+
+divider : Int -> Html msg
+divider from =
+    div [ class "vdiv", style "left" (pct from) ] []
+
+
+rulerCell : Cycle.Stage -> Html msg
+rulerCell s =
+    div
+        [ class "rlbl"
+        , style "left" (pct s.from)
+        , style "width" (pct (s.to - s.from))
+        ]
+        [ b [] [ text s.numeral ] ]
+
+
+{-| Every boundary, once: hour 0, then each stage's end.
+-}
+ticks : List Int
+ticks =
+    0 :: List.map .to Cycle.stages
+
+
+tick : Int -> Int -> Html msg
+tick i hours =
+    div
+        [ class
+            (if i == 0 then
+                "tick first"
+
+             else if hours == Cycle.scaleHours then
+                "tick last"
+
+             else
+                "tick"
+            )
+        , style "left" (pct hours)
+        ]
+        [ text
+            (if i == 0 then
+                "0h"
+
+             else
+                String.fromInt hours
+            )
+        ]
+
+
+rulerName : Cycle.Stage -> Html msg
+rulerName s =
+    div
+        [ class
+            -- the narrow cells drop to a second row rather than
+            -- colliding with their neighbours (protocol.css, .nm.low)
+            (if s.to - s.from <= 8 then
+                "nm low"
+
+             else
+                "nm"
+            )
+        , style "left" (pct s.from)
+        , style "width" (pct (s.to - s.from))
+        ]
+        [ text s.label ]
 
 
 

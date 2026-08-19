@@ -1,7 +1,7 @@
 # autophagous
 
 A field manual for achieving autophagy through cyclic prolonged fasting —
-published as a single-page Elm document with a companion source index
+published as an Elm document with a cycle planner, a companion source index
 and a printable cycle log.
 
 > **Not medical advice.** The protocol carries contraindications, abort
@@ -11,12 +11,13 @@ and a printable cycle log.
 
 ## What's here
 
-Three routes, all worn as the same house document (masthead → numbered
+Four routes, all worn as the same house document (masthead → numbered
 sections → contents rail → disclaimer footer):
 
 | Route | Module | Contents |
 |---|---|---|
 | `/` | `src/Page/Protocol.elm` | The protocol broadsheet, Rev. 3 — 12 numbered sections: epistemic limits, the two switches (mTORC1/AMPK), safety, GLP-1, the cycle, priming, the fast, the five stages by the clock (0–96 h), the refeed, the rebuild, the cycle log, references |
+| `/plan` | `src/Page/Plan.elm` | The cycle planner — enter the moment your last meal ends and the protocol's elapsed hours become dates: priming D−3 to D−1, hour 0, every stage crossing, the refeed windows, the rebuild weeks, the earliest next cycle. Exports the schedule as an `.ics` calendar. The plan rides in the URL (`?start=&target=`), so it is shareable and nothing is stored |
 | `/resources` | `src/Page/Resources.elm` | The source index — 19 citations, each routed to the best copy a reader can legally reach; DOI + access state, nothing rehosted |
 | `/legal` | `src/Page/Legal.elm` | Terms and disclaimers — the long form of the footer warning: no medical advice, absolute exclusions, emergencies, assumption of risk, no warranty, liability, privacy, reuse |
 
@@ -40,7 +41,7 @@ npm run dev
 | `npm run dev` | Vite dev server |
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Serve the built output |
-| `npm test` | elm-test (`tests/RouteTests.elm`) |
+| `npm test` | elm-test (routing, wall-clock conversion, the schedule, the calendar export) |
 | `npm run deploy` | Build and push `dist/` to Cloudflare Pages (skips the test gate — prefer pushing to `main`) |
 | `npm run print` | Compile `typst/cycle-log.typ` → `public/downloads/cycle-log.pdf` — **commit the PDF**, the site links to it |
 
@@ -50,8 +51,11 @@ npm run dev
 src/
   boot.js            styles, then Elm; applies the stored theme pre-boot
   Main.elm           the TEA shell — all state, URL wiring, #anchor scrolling, theme
-  Route.elm          pure routing (no Cmd, no ports), unit-tested
+  Route.elm          pure routing + query params (no Cmd, no ports), unit-tested
   Doc.elm            the document format: masthead, rail, § numbering, clause marks, footer
+  Cycle.elm          the cycle as data: stage boundaries + the schedule, in offsets
+  Civil.elm          wall clock <-> Posix, the direction elm/time doesn't ship
+  Ics.elm            the calendar export — a string on a data: URL, no port, no deps
   Page/*.elm         pure views, one per route
   theme.css          tokens only
   fonts.css          @font-face only (hand-maintained)
@@ -80,6 +84,19 @@ These are load-bearing. Breaking one is a bug, not a style difference.
   one hand-maintained thing — reordering sections means grepping for `§`.
 - **Adding a route means adding a line to `public/_redirects`.** Scoped
   redirects, no wildcard. The friction is deliberate.
+- **The cycle's numbers live in `Cycle.elm`, once.** The stage boundaries
+  (0/16/24/48/72/96 h) had been written three times over — the stage cards,
+  the ruler's percentages, the planner. Three copies of one number is a
+  number that will drift.
+- **A derived surface is not the protocol.** The planner compresses only
+  what has a time attached, links back to the section it compressed, and
+  never paraphrases a contraindication — it links to it, at full strength
+  (DESIGN-PRINCIPLES §3b). That holds for anything generated from it: every
+  event in the exported calendar carries its protocol link too.
+- **The planner's plan lives in the URL**, mirrored with `replaceUrl` — no
+  storage, no port, and `UrlChanged` branches on the route changing rather
+  than the URL changing so that echo doesn't reset the form
+  (DESIGN-PRINCIPLES §3a).
 - **`theme.css` is tokens; `protocol.css` is components.** Raw hex outside
   `theme.css` is a bug, and so is consuming a primitive where a role token
   exists.

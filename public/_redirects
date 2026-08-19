@@ -6,5 +6,6 @@
 # here by name, and that friction is the point. CI fails the build if a
 # wildcard appears.
 
+/plan /index.html 200
 /resources /index.html 200
 /legal /index.html 200

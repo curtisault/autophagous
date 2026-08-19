@@ -115,6 +115,64 @@ reachable at any scroll depth.)*
 - Content lives in Elm view code for now. If a second long-form page
   appears, revisit extracting a content model — not before.
 
+*(Amended 2026-08-18 — the planner's three modules. Owner: the cycle
+planner needed shared data, which the site had not had before.)*
+
+- `src/Cycle.elm` — **the cycle as data**: the stage boundaries and
+  the schedule, as offsets in minutes from hour 0 and plain text. No
+  `Posix`, no `Zone`, no `Html`. The boundaries had been written three
+  times over (stage cards, ruler percentages, planner); they live here
+  once and `Page.Protocol` and `Page.Plan` both read them. Same
+  argument as the sticky-chrome offsets above: a number duplicated
+  across modules is a number that will drift.
+- `src/Civil.elm` — wall clock ↔ `Posix`. `elm/time` only goes one
+  way, and a `datetime-local` input is a local wall clock with no
+  offset attached. Offsets are added in `Posix` (hour 48 is 48 *real*
+  hours, which across a DST change is not the same clock time) and
+  every rendering goes back through the `Zone`.
+- `src/Ics.elm` — the calendar export, a string built in Elm and
+  handed over as a `data:` URL. No port, no dependency, no server.
+- `src/Page/Plan.elm` — the view, pure like every other page: it takes
+  a `Context` and renders it.
+
+## §3a. The planner's state
+
+*(Added 2026-08-18.)*
+
+- **The URL is where the plan lives.** `Nav.replaceUrl` mirrors the
+  form into `?start=&target=` on every change, so the address bar is a
+  shareable plan and nothing is stored — no `localStorage`, no port,
+  no persistence question. `replaceUrl`, never `pushUrl`: typing a
+  date must not fill the back button with keystrokes.
+- **`UrlChanged` therefore asks whether the *route* changed**, not
+  whether the URL did. A replaced query on the page you are already
+  reading is the shell hearing its own echo: it must not scroll to the
+  top and must not re-read the form out from under the reader. Only a
+  real arrival applies the query — and an arrival keeps whatever the
+  URL does not mention, so a nav click cannot wipe a filled-in form.
+- **The start instant is derived, never stored.** The model holds the
+  raw field string; `Page.Plan` receives `Maybe Posix`. A half-typed
+  date is `Nothing`, which the page states plainly and falls back to
+  relative offsets for — not a stale instant left on screen.
+- The zone arrives one frame late (`Time.here`). Until it does the
+  planner renders in elapsed hours, so nothing false is ever shown.
+
+## §3b. Derived surfaces
+
+*(Added 2026-08-18.)*
+
+The planner is the first thing here that is *about* the protocol
+rather than part of it. The rule that makes that safe:
+
+- A derived surface compresses only what has a time attached, links
+  back to the section it compressed (`Cycle.Phase.source`), and says
+  in its own first section that it is not the protocol.
+- It never paraphrases safety content. It links to it — see
+  DESIGN-REQUIREMENTS §5, amended the same day for exactly this.
+- Whatever leaves the browser carries the link back too: every event
+  in the exported `.ics` has the protocol section it came from in its
+  description.
+
 ## §print — the print strategy
 
 Priority artifact: **the cycle log.**

@@ -1,4 +1,4 @@
-module Route exposing (Route(..), fromUrl, parse, title, toPath)
+module Route exposing (Route(..), fromUrl, parse, queryParam, title, toPath, withQuery)
 
 {-| Client routes. Pure: no Cmd, no ports — fully unit-testable
 (`tests/RouteTests.elm`).
@@ -16,6 +16,8 @@ import Url.Parser as Parser exposing (Parser, oneOf, s, top)
 type Route
     = -- the protocol broadsheet (`Page.Protocol`) — the home page
       Protocol
+      -- the cycle planner (`Page.Plan`), dated from `?start=`
+    | Plan
       -- the source index (`Page.Resources`)
     | Resources
       -- the terms and disclaimers (`Page.Legal`)
@@ -29,6 +31,9 @@ toPath route =
     case route of
         Protocol ->
             "/"
+
+        Plan ->
+            "/plan"
 
         Resources ->
             "/resources"
@@ -47,6 +52,9 @@ title route =
         Protocol ->
             "AUTOPHAGOUS — DEMOLITION AND REBUILD"
 
+        Plan ->
+            "AUTOPHAGOUS — CYCLE PLANNER"
+
         Resources ->
             "AUTOPHAGOUS — SOURCE INDEX"
 
@@ -58,6 +66,7 @@ parser : Parser (Route -> a) a
 parser =
     oneOf
         [ Parser.map Protocol top
+        , Parser.map Plan (s "plan")
         , Parser.map Resources (s "resources")
         , Parser.map Legal (s "legal")
         ]
@@ -67,7 +76,7 @@ parser =
 ours.
 
 The shell needs the honest answer, not the fallback: a same-origin link
-that is *not* a route is a static asset (`/downloads/cycle-log.pdf`),
+that is _not_ a route is a static asset (`/downloads/cycle-log.pdf`),
 and `Browser.application` intercepts its click like any other. Told
 `Nothing`, the shell hands the click back to the browser instead of
 pushing a URL that would silently re-render the protocol sheet.
@@ -86,3 +95,53 @@ fromUrl : Url -> Route
 fromUrl url =
     parse url
         |> Maybe.withDefault Protocol
+
+
+{-| One query parameter, decoded — the planner's `?start=` and
+`?target=`, which is what makes a plan a shareable address rather
+than a thing living in one browser's storage.
+
+Hand-rolled rather than `Url.Parser.Query`, which only reads a query
+as part of parsing a whole URL: the shell needs the parameters off a
+URL it has already routed. The last `=` is not special (values are
+rejoined), and a value that fails to decode reads as empty rather
+than absent — either way the planner falls back to its own default.
+
+-}
+queryParam : String -> Url -> Maybe String
+queryParam key url =
+    url.query
+        |> Maybe.map (String.split "&")
+        |> Maybe.withDefault []
+        |> List.filterMap (matchParam key)
+        |> List.head
+
+
+matchParam : String -> String -> Maybe String
+matchParam key raw =
+    case String.split "=" raw of
+        k :: rest ->
+            if k == key then
+                Just (Maybe.withDefault "" (Url.percentDecode (String.join "=" rest)))
+
+            else
+                Nothing
+
+        [] ->
+            Nothing
+
+
+{-| A route's address carrying state. Empty values are dropped, so a
+half-filled form produces a clean URL rather than `?start=&target=`.
+-}
+withQuery : Route -> List ( String, String ) -> String
+withQuery route params =
+    case List.filter (\( _, v ) -> v /= "") params of
+        [] ->
+            toPath route
+
+        kept ->
+            toPath route
+                ++ "?"
+                ++ String.join "&"
+                    (List.map (\( k, v ) -> k ++ "=" ++ Url.percentEncode v) kept)

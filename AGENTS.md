@@ -38,9 +38,25 @@ typst.
   one ordered section list (the rail and numbering derive from it).
 - `src/Main.elm` — the TEA shell; all state lives here, including
   `#anchor` scrolling (`jumpTo`) — Browser.application swallows the
-  browser's own fragment jumps — and the theme preference
+  browser's own fragment jumps — the theme preference
   (System/Light/Dark), applied to `<html>` by boot.js via the
-  `saveTheme` port because Elm owns only `<body>`.
+  `saveTheme` port because Elm owns only `<body>`, and the planner's
+  form. `UrlChanged` branches on whether the **route** changed, not
+  the URL: the planner mirrors its form into `?start=&target=` with
+  `replaceUrl`, and that echo must not scroll or reset the form
+  (DESIGN-PRINCIPLES §3a).
+- `src/Cycle.elm` — the cycle as data: stage boundaries and the
+  schedule, offsets in minutes from hour 0. No `Posix`, no `Html`.
+  `Page.Protocol` (stage cards, ruler) and `Page.Plan` both read it —
+  the boundaries are one list, not three copies (DESIGN-PRINCIPLES §3).
+- `src/Civil.elm` — wall clock ↔ `Posix`, the direction `elm/time`
+  does not ship. Offsets are added in `Posix` because elapsed hours
+  are elapsed; rendering goes back through the `Zone`.
+- `src/Ics.elm` — the calendar export as a string on a `data:` URL.
+- Derived surfaces (the planner, anything generated from it) compress
+  only what has a time attached, link back to the protocol section
+  they compressed, and never paraphrase safety content —
+  DESIGN-PRINCIPLES §3b, DESIGN-REQUIREMENTS §5.
 - CSS: `theme.css` = tokens only; `fonts.css` = `@font-face` only;
   `protocol.css` = components. Raw hex outside theme.css is a bug, and
   so is `font-stretch` or `font-weight: 800` on the display voice —
