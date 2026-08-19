@@ -18,6 +18,8 @@ type Route
       Protocol
       -- the cycle planner (`Page.Plan`), dated from `?start=`
     | Plan
+      -- §07's requirements converted into grams (`Page.Dosing`)
+    | Dosing
       -- the source index (`Page.Resources`)
     | Resources
       -- the terms and disclaimers (`Page.Legal`)
@@ -34,6 +36,9 @@ toPath route =
 
         Plan ->
             "/plan"
+
+        Dosing ->
+            "/dosing"
 
         Resources ->
             "/resources"
@@ -55,6 +60,9 @@ title route =
         Plan ->
             "AUTOPHAGOUS — CYCLE PLANNER"
 
+        Dosing ->
+            "AUTOPHAGOUS — ELECTROLYTE DOSING"
+
         Resources ->
             "AUTOPHAGOUS — SOURCE INDEX"
 
@@ -67,6 +75,7 @@ parser =
     oneOf
         [ Parser.map Protocol top
         , Parser.map Plan (s "plan")
+        , Parser.map Dosing (s "dosing")
         , Parser.map Resources (s "resources")
         , Parser.map Legal (s "legal")
         ]

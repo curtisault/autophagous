@@ -177,6 +177,14 @@ will be.)*
 - `src/Ruler.elm` — the 0–96 h clock, extracted from `Page.Protocol`
   when the second reader appeared. The protocol draws it plain; the
   planner draws it with a needle at the hour the reader has reached.
+- `src/Dose.elm` — §07's daily requirements as arithmetic: milligrams
+  of an element into grams of the salt that carries it, and a day into
+  the divided doses the protocol requires. **It invents no doses.**
+  The teaspoon masses (6.0 g fine salt, 5.7 g potassium chloride) are
+  chosen so the conversion reproduces §07's own "1¼–2 tsp" and
+  "⅓–1 tsp" — `DoseTests` runs the protocol's milligram targets
+  through it and checks they come back as the protocol's teaspoons, so
+  the sheet cannot contradict the section it converts.
 - `src/Safety.elm` — safety content more than one surface renders. See
   §3b: this is how the clock shows the abort signals **in full without
   paraphrasing them** — they are the same values, not a restatement.
@@ -238,6 +246,23 @@ rather than part of it. The rule that makes that safe:
   them: `Safety.elm` holds them once and both surfaces call it. A
   derived surface that finds itself needing to reword a warning has
   found the boundary, not a special case.
+
+*(Amended 2026-08-18 — the dosing sheet, and adding constraints.)*
+
+- The dosing sheet (`/dosing`) is the third derived surface and takes
+  the same shape: it converts §07 and links back to it, and it renders
+  `Safety.potassiumDose` and `Safety.saltedWater` — the protocol's own
+  values, now shared rather than duplicated.
+- **A derived surface may tighten, never loosen.** The sheet refuses
+  to divide a day into fewer than three doses; §07 says "divided into
+  small doses across the day" and gives no number. That floor is the
+  sheet's judgement and the page says so in as many words
+  (DESIGN-REQUIREMENTS §5). Adding your own number silently, or
+  attributing it to the protocol, is the failure this rule names.
+- **It shows its working.** §04 of that page lists every constant and
+  where it came from, including which ones were chosen to agree with
+  §07 rather than looked up. A converter a reader cannot check is a
+  converter they have to trust.
 
 ## §print — the print strategy
 
