@@ -73,9 +73,22 @@ typst.
   `protocol.css` = components. Raw hex outside theme.css is a bug, and
   so is `font-stretch` or `font-weight: 800` on the display voice —
   only one 700 cut ships (DESIGN-REQUIREMENTS §3).
-- The manifest in `src/Page/Resources.elm` is the single source of
-  truth for citation metadata and access state; nothing is rehosted —
-  link-first policy in RESOURCES-POLICY.md.
+- `src/Citations.elm` is the single source of truth for citation
+  metadata and access state; nothing is rehosted — link-first policy
+  in RESOURCES-POLICY.md. Both the protocol's §12 list and the source
+  index render `Citations.line`, so they cannot drift apart (they had:
+  the corrigendum notes disagreed). It also holds `sites`, the
+  hand-maintained table of which section cites what — checked in both
+  directions by `CitationTests` against the rendered protocol.
+- Citation markers are links (`Citations.href`), clause marks are
+  links to their own clause (id built from the **anchor**, not the §
+  number — reordering must not repoint a shared link), and the
+  contents rail marks the active section.
+- Two ports exist: `saveTheme` (out) and `sectionSeen` (in). The
+  second is a port because `elm/browser` has no scroll subscription;
+  boot.js reads the active section on scroll, resize and DOM mutation,
+  rAF-throttled. The active style must never affect layout, or marking
+  a section could move it.
 - Safety content (contraindications, abort signals, potassium warning,
   refeeding syndrome, the disclaimer footer) is never cut, collapsed,
   or softened — DESIGN-REQUIREMENTS §5.

@@ -15,7 +15,7 @@ does.)*
 one) and, where a free copy exists somewhere other than the DOI target,
 a direct link to it. No PDF is served from this repository.
 
-The manifest in `src/Page/Resources.elm` is the single source of truth
+The manifest in `src/Citations.elm` is the single source of truth
 for citation metadata and access state.
 
 ## Why not an archive

@@ -48,6 +48,18 @@ import Url exposing (Url)
 port saveTheme : String -> Cmd msg
 
 
+{-| Which section the reader is currently inside, reported by boot.js.
+
+This is a port because `elm/browser` has no scroll subscription — it
+offers resize, visibility, keys, clicks and animation frames, and
+nothing for the one event a contents rail needs. The alternative was
+polling `Browser.Dom.getViewport` every animation frame to answer a
+question that changes a few times a minute.
+
+-}
+port sectionSeen : (String -> msg) -> Sub msg
+
+
 main : Program Flags Model Msg
 main =
     Browser.application
@@ -131,6 +143,12 @@ type alias Model =
     , planStart : String
     , planTarget : Target
 
+    -- the section under the reader's eye, marked in the contents rail.
+    -- Reported by boot.js through `sectionSeen`; cleared on navigation
+    -- so a stale anchor cannot mark the wrong row on the next page —
+    -- `sec-fast` exists on both the protocol and the planner
+    , active : Maybe String
+
     -- the section the reader is parked on, so mirroring the form into
     -- the URL cannot silently drop their `#anchor`
     , fragment : Maybe String
@@ -152,6 +170,7 @@ init flags url key =
       , planStart = Maybe.withDefault "" (Route.queryParam "start" url)
       , planTarget = Cycle.targetFromParam (Route.queryParam "target" url)
       , fragment = url.fragment
+      , active = Nothing
       , origin = originOf url
       }
     , Cmd.batch
@@ -186,6 +205,7 @@ type Msg
     | PlanStartChanged String
     | PlanTargetChanged Target
     | Tick Time.Posix
+    | SectionSeen String
     | NoOp
 
 
@@ -204,7 +224,16 @@ update msg model =
                     route /= model.route
 
                 landed =
-                    { model | route = route, fragment = url.fragment }
+                    { model
+                        | route = route
+                        , fragment = url.fragment
+                        , active =
+                            if route /= model.route then
+                                Nothing
+
+                            else
+                                model.active
+                    }
 
                 updated =
                     if arrived then
@@ -300,6 +329,18 @@ update msg model =
         Tick now ->
             ( { model | now = Just now }, Cmd.none )
 
+        SectionSeen anchor ->
+            ( { model
+                | active =
+                    if anchor == "" then
+                        Nothing
+
+                    else
+                        Just anchor
+              }
+            , Cmd.none
+            )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -322,11 +363,14 @@ next, it is simply a different fact the next time the minute changes
 -}
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    if model.route == Route.Plan then
-        Time.every 60000 Tick
+    Sub.batch
+        [ sectionSeen SectionSeen
+        , if model.route == Route.Plan then
+            Time.every 60000 Tick
 
-    else
-        Sub.none
+          else
+            Sub.none
+        ]
 
 
 
@@ -457,16 +501,16 @@ view model =
         [ siteNav model
         , case model.route of
             Route.Protocol ->
-                Page.Protocol.view
+                Page.Protocol.view model.active
 
             Route.Plan ->
                 Page.Plan.view (planContext model)
 
             Route.Resources ->
-                Page.Resources.view
+                Page.Resources.view model.active
 
             Route.Legal ->
-                Page.Legal.view
+                Page.Legal.view model.active
         ]
     }
 
@@ -489,6 +533,7 @@ planContext model =
     , startValue = model.planStart
     , target = model.planTarget
     , download = Maybe.map (calendarFile model) start
+    , active = model.active
     , onStart = PlanStartChanged
     , onTarget = PlanTargetChanged
     }

@@ -18,7 +18,7 @@ sections → contents rail → disclaimer footer):
 |---|---|---|
 | `/` | `src/Page/Protocol.elm` | The protocol broadsheet, Rev. 3 — 12 numbered sections: epistemic limits, the two switches (mTORC1/AMPK), safety, GLP-1, the cycle, priming, the fast, the five stages by the clock (0–96 h), the refeed, the rebuild, the cycle log, references |
 | `/plan` | `src/Page/Plan.elm` | The cycle planner — enter the moment your last meal ends and the protocol's elapsed hours become dates: priming D−3 to D−1, hour 0, every stage crossing, the refeed windows, the rebuild weeks, the earliest next cycle. §02 is a **live clock**: hours elapsed, the stage you are standing in, the countdown to the next line, a needle on the 0–96 h ruler, and the abort signals in full. Exports the schedule as an `.ics` calendar. The plan rides in the URL (`?start=&target=`), so it is shareable and nothing is stored |
-| `/resources` | `src/Page/Resources.elm` | The source index — 19 citations, each routed to the best copy a reader can legally reach; DOI + access state, nothing rehosted |
+| `/resources` | `src/Page/Resources.elm` | The source index — 19 citations, each routed to the best copy a reader can legally reach; DOI + access state, nothing rehosted. Every entry names the protocol sections that cite it |
 | `/legal` | `src/Page/Legal.elm` | Terms and disclaimers — the long form of the footer warning: no medical advice, absolute exclusions, emergencies, assumption of risk, no warranty, liability, privacy, reuse |
 
 Plus one print artifact: `typst/cycle-log.typ` → `/downloads/cycle-log.pdf`,
@@ -53,6 +53,7 @@ src/
   Main.elm           the TEA shell — all state, URL wiring, #anchor scrolling, theme
   Route.elm          pure routing + query params (no Cmd, no ports), unit-tested
   Doc.elm            the document format: masthead, rail, § numbering, clause marks, footer
+  Citations.elm      the sources, once — manifest, addresses, and who cites what
   Cycle.elm          the cycle as data: stage boundaries + the schedule, in offsets
   Civil.elm          wall clock <-> Posix, the direction elm/time doesn't ship
   Clock.elm          where the reader is in the cycle right now — pure, from elapsed minutes
@@ -95,6 +96,11 @@ These are load-bearing. Breaking one is a bug, not a style difference.
   once a minute; a value that changes is not motion (DESIGN-REQUIREMENTS
   §1). `prefers-reduced-motion` has nothing to reduce, and if that stops
   being true something was broken.
+- **Citations are one system.** `Citations.elm` holds the sources; the
+  protocol's §12 list and the source index both render `Citations.line`.
+  The backlink table (`sites`) is hand-maintained but checked against the
+  rendered protocol in both directions — a marker without a table entry
+  fails, and so does a table entry with no marker.
 - **A derived surface is not the protocol.** The planner compresses only
   what has a time attached, links back to the section it compressed, and
   never paraphrases a contraindication — it links to it, at full strength
@@ -122,7 +128,7 @@ These are load-bearing. Breaking one is a bug, not a style difference.
 
 ## The source index
 
-`src/Page/Resources.elm` is the single source of truth for citation metadata
+`src/Citations.elm` is the single source of truth for citation metadata
 and access state. **Link-first: nothing is rehosted.** Every entry carries a
 CrossRef-verified DOI (17 of 19 — the Nobel citation and the ASA guidance
 aren't journal articles and have none) plus an `Access` state from Unpaywall,
@@ -137,7 +143,13 @@ table, and the per-entry procedure for adding one are in
 `docs/RESOURCES-POLICY.md`.
 
 Slugs survive as anchors: `/resources#<slug>` is a permanent address for a
-single citation.
+single citation — and since 2026-08-18 that is where every `[13]` in the
+protocol points. The index points back: each entry names the sections that
+cite it, so you can see what a source is holding up rather than only that it
+was read. The manifest moved out of the page into `src/Citations.elm` at the
+same time, because §12's reference list had been a second hand-written copy
+of the same nineteen entries and the two had drifted on which papers carry
+corrections.
 
 ## Docs
 
