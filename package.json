@@ -1,31 +1,10 @@
 {
-  "name": "autophagous",
+  "_comment": "DO NOT DELETE, and do not grow this file. This project has no Node and no npm — dependencies and tasks live in deno.json. This file exists for exactly one reason: `overrides` is the only mechanism that can force a transitive npm dependency's version, and deno.json has no equivalent. Deno does read it (verified: without this file, cross-spawn resolves to 6.0.5). Delete it the day vite-plugin-elm stops pinning a vulnerable node-elm-compiler, and not before.",
   "private": true,
-  "version": "0.0.0",
-  "description": "autophagous — a field manual for cyclic prolonged fasting and autophagic signalling",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "elm-test",
-    "print": "typst compile typst/cycle-log.typ public/downloads/cycle-log.pdf",
-    "deploy": "npm run build && wrangler pages deploy dist --project-name=autophagous"
-  },
-  "_comment_overrides": "vite-plugin-elm (3.0.1, latest) hard-pins node-elm-compiler@5.0.6, which hard-pins cross-spawn@6.0.5 — carrying the ReDoS advisory with no upstream release to move to. 6.0.6 is the patch for exactly that, same major, so force it here.",
+  "_comment_overrides": "vite-plugin-elm (3.0.1, latest) hard-pins node-elm-compiler@5.0.6, which hard-pins cross-spawn@6.0.5 exactly — carrying the ReDoS advisory with no upstream release to move to. 6.0.6 is the patch for exactly that, same major, so force it here.",
   "overrides": {
     "node-elm-compiler": {
       "cross-spawn": "^6.0.6"
     }
-  },
-  "devDependencies": {
-    "elm": "0.19.1",
-    "elm-test": "0.19.1-revision17",
-    "vite": "^8.2.0",
-    "vite-plugin-elm": "^3.0.1",
-    "wrangler": "^4.122.0"
-  },
-  "allowScripts": {
-    "elm@0.19.1": true
   }
 }
