@@ -85,6 +85,34 @@ the legend's mark swatch, and — from 2026-08-18 — the live clock's
 `.clock.is-live` rule) uses `--acid-volt` + `--ink` directly and
 renders identically in both themes.
 
+**Amended 2026-08-21 — the block motif takes two more acids.** The
+planner's two countdowns (`.clock-when .clock-next`) are applied
+blocks under the same rules as the volt block: acid field, `--ink`
+text, theme-invariant.
+
+| Block | Field | vs `--ink` | Means |
+|---|---|---|---|
+| `.is-next` | `--acid-cyan` | 12.76:1 | what the schedule reaches next |
+| `.is-break` | `--acid-orange` | 7.19:1 | the number the reader is waiting for |
+
+Both are firsts: orange had been text-only (`--warn-tx`), and cyan had
+appeared only as `--wash`, its pale tint. Ink and never frost — frost
+is 2.29:1 on orange and 1.29:1 on cyan, both failing.
+
+**Why cyan and not volt for the pair.** Volt is the higher contrast
+against ink (15.85:1) and is THE acid, so it is the obvious second
+block and the wrong one: volt sits beside orange on the wheel, and
+stacked they read as one family. Cyan is orange's complement, the
+widest hue separation this palette holds. When two acid blocks are
+adjacent, **separation of hue outranks contrast against the text** —
+each field already clears AA on its own.
+
+**Hierarchy is carried by size, not by adding hues.** The break block
+is louder than the next block because its figure is set larger, not
+because a third colour entered. A screen gets one orange field: the
+number you are waiting for while you are inside the cycle. Orange is
+not a general highlight.
+
 Primitives (never swapped): `--ink #111214`, `--frost #edf1f2`,
 `--ground #a6afb2` (reserved), `--acid-volt #c8ff00`,
 `--acid-cyan #4de8ff`, `--acid-orange #ff7a1a`,

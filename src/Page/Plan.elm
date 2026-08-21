@@ -225,7 +225,7 @@ secNow ctx =
             in
             [ clockHead ctx start read
             , Ruler.view { target = ctx.target, now = Just read.elapsed }
-            , nextLine ctx start read
+            , countdowns ctx start read
             ]
                 ++ currentLine read
                 ++ [ Safety.abortSignals (Just "/#sec-safety") ]
@@ -262,20 +262,59 @@ clockHead ctx start read =
                       else
                         "Since hour 0 · "
                      )
-                        ++ Civil.formatDate ctx.zone start
-                        ++ " "
-                        ++ Civil.formatTime ctx.zone start
+                        ++ stamp ctx start
                     )
                 ]
             ]
         ]
 
 
+{-| What is coming, as one clause: the line the schedule reaches next,
+and — through the fast — the number the reader is actually waiting
+for. One clause and not two, because a `§N.M` mark should address a
+piece of apparatus, not each line of one.
+-}
+countdowns : Context msg -> Posix -> Clock.Reading -> Html msg
+countdowns ctx start read =
+    div [ class "clock-when" ]
+        (nextLine ctx start read :: breakLine ctx start read)
+
+
+{-| The break, held from hour 0 until it arrives.
+
+The instant is `read.elapsed + minutes` — the countdown's own two ends
+added back together. The target's offset is not re-derived here: it is
+`Cycle`'s, and the view knowing it a second time is how the numbers
+come apart.
+
+-}
+breakLine : Context msg -> Posix -> Clock.Reading -> List (Html msg)
+breakLine ctx start read =
+    case read.toBreak of
+        Just minutes ->
+            [ p [ class "clock-next is-break u" ]
+                [ text "Break the fast in "
+                , span [ class "mono" ] [ text (Clock.countdown minutes) ]
+                , text " · "
+                , span [ class "mono" ]
+                    [ text (stamp ctx (Civil.shift (read.elapsed + minutes) start)) ]
+                ]
+            ]
+
+        Nothing ->
+            []
+
+
+stamp : Context msg -> Posix -> String
+stamp ctx t =
+    Civil.formatDate ctx.zone t ++ " " ++ Civil.formatTime ctx.zone t
+
+
 nextLine : Context msg -> Posix -> Clock.Reading -> Html msg
 nextLine ctx start read =
     case read.next of
         Just entry ->
-            p [ class "clock-next u" ]
+            p [ class "clock-next is-next u" ]
                 [ text "Next — "
                 , b [] [ text entry.title ]
                 , text " in "
@@ -286,7 +325,7 @@ nextLine ctx start read =
                 ]
 
         Nothing ->
-            p [ class "clock-next u" ]
+            p [ class "clock-next is-next u" ]
                 [ text "Nothing scheduled after this — the cycle is behind you" ]
 
 

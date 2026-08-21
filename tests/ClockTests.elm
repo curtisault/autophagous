@@ -41,6 +41,11 @@ standingAt target minutes =
     (Clock.reading target minutes).standing |> List.map .title
 
 
+breakAt : Target -> Int -> Maybe Int
+breakAt target minutes =
+    (Clock.reading target minutes).toBreak
+
+
 suite : Test
 suite =
     describe "Clock"
@@ -166,6 +171,36 @@ suite =
                         |> Expect.equal (Just "Break the fast")
             , test "past the whole cycle there is nothing left to announce" <|
                 \_ -> nextAt T72 (Cycle.days 40) |> Expect.equal Nothing
+            ]
+        , describe "the countdown to the break"
+            -- the number `next` cannot carry: across the fast it is
+            -- announcing stage crossings, and the reader is waiting to eat
+            [ test "runs from hour 0" <|
+                \_ -> breakAt T72 0 |> Expect.equal (Just (Cycle.hours 72))
+            , test "and counts the whole fast down" <|
+                \_ -> breakAt T72 (Cycle.hours 41) |> Expect.equal (Just (Cycle.hours 31))
+            , test "measures the target that is set, not the shortest one" <|
+                \_ ->
+                    ( breakAt T72 (Cycle.hours 50), breakAt T96 (Cycle.hours 50) )
+                        |> Expect.equal ( Just (Cycle.hours 22), Just (Cycle.hours 46) )
+            , test "is silent before hour 0 — the fast has no length yet" <|
+                \_ ->
+                    ( breakAt T72 (Cycle.days -2), breakAt T72 -1 )
+                        |> Expect.equal ( Nothing, Nothing )
+            , test "is silent at the break itself and after it" <|
+                -- not "in 0:00": at the break, `current` is the break,
+                -- with the protocol's own instructions attached
+                \_ ->
+                    ( breakAt T72 (Cycle.hours 72), breakAt T72 (Cycle.hours 80) )
+                        |> Expect.equal ( Nothing, Nothing )
+            , test "stands down for the last half hour, where `next` says it" <|
+                \_ ->
+                    ( nextAt T72 (Cycle.hours 72 - 20), breakAt T72 (Cycle.hours 72 - 20) )
+                        |> Expect.equal ( Just "Break the fast", Nothing )
+            , test "but is still speaking a minute before that" <|
+                \_ ->
+                    breakAt T72 (Cycle.hours 72 - 31)
+                        |> Expect.equal (Just 31)
             ]
         , describe "the figure"
             [ test "reads hours and minutes inside two days" <|

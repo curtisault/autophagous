@@ -61,6 +61,11 @@ type alias Reading =
     -- count: on the day before priming starts, "go low-carbohydrate"
     -- is the honest answer to what happens next, and hour 0 is not
     , next : Maybe Entry
+
+    -- minutes until the fast breaks, held from hour 0 to the break.
+    -- The one number `next` almost never carries and the reader
+    -- always wants
+    , toBreak : Maybe Int
     }
 
 
@@ -81,19 +86,26 @@ ends.
 -}
 reading : Target -> Int -> Reading
 reading target elapsed =
+    let
+        lines =
+            schedule target
+
+        next =
+            lines
+                |> List.filter (\e -> e.at > elapsed)
+                |> List.head
+    in
     { elapsed = elapsed
     , stance = stanceAt target elapsed
     , current =
-        schedule target
+        lines
             |> List.filter (\e -> isMoment e && e.at <= elapsed)
             |> last
     , standing =
-        schedule target
+        lines
             |> List.filter (holds elapsed)
-    , next =
-        schedule target
-            |> List.filter (\e -> e.at > elapsed)
-            |> List.head
+    , next = next
+    , toBreak = untilBreak target elapsed next
     }
 
 
@@ -104,6 +116,53 @@ isMoment entry =
             True
 
         Until _ ->
+            False
+
+
+{-| Minutes until the fast breaks.
+
+`next` is whatever line the schedule reaches next, and across the
+fast that is a stage crossing: at hour 25 the reader is told "Stage IV
+in 23:00". Nobody at hour 25 is waiting for Stage IV. They are waiting
+to eat, and until now the page could not say when.
+
+Three ways to be absent, all of them the same rule — a countdown to
+something you are not counting to is not a countdown:
+
+  - **Before hour 0.** There is a priming phase in the way, and the
+    fast has no length yet because the reader can still change target.
+  - **At the break and after.** Half-open, like every other window
+    here: at the break the answer is not "in 0:00", it is that
+    `current` now reads "Break the fast" with the protocol's own
+    instructions attached.
+  - **The last half hour**, where `next` *is* the break and two lines
+    would say one thing twice.
+
+-}
+untilBreak : Target -> Int -> Maybe Entry -> Maybe Int
+untilBreak target elapsed next =
+    let
+        breaksAt =
+            Cycle.hours (Cycle.targetHours target)
+    in
+    if elapsed >= 0 && elapsed < breaksAt && not (announces breaksAt next) then
+        Just (breaksAt - elapsed)
+
+    else
+        Nothing
+
+
+{-| Whether the next line is the break itself. By offset, not by title:
+the schedule is data, and matching prose would break the moment
+someone rewords it.
+-}
+announces : Int -> Maybe Entry -> Bool
+announces breaksAt next =
+    case next of
+        Just entry ->
+            isMoment entry && entry.at == breaksAt
+
+        Nothing ->
             False
 
 

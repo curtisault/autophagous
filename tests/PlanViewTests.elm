@@ -111,8 +111,29 @@ suite =
             , test "counts down to the next line, with its date" <|
                 \_ ->
                     rendered (context (Just (at (Cycle.hours 41))) T72)
-                        |> Query.find [ class "clock-next" ]
+                        |> Query.findAll [ class "clock-next" ]
+                        |> Query.index 0
                         |> Query.has [ text "Stage IV — sustained", text "7:00" ]
+            , test "and to the break, which the next line is not carrying" <|
+                -- the reader at hour 41 is waiting to eat, not waiting
+                -- for Stage IV
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 41))) T72)
+                        |> Query.find [ class "is-break" ]
+                        |> Query.has [ text "Break the fast in", text "31:00" ]
+            , test "with the break's own wall clock, not just its date" <|
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 41))) T72)
+                        |> Query.find [ class "is-break" ]
+                        |> Query.has [ text "20:00" ]
+            , test "says it once when the break is also the next line" <|
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 72 - 20))) T72)
+                        |> Query.hasNot [ class "is-break" ]
+            , test "and not at all outside the fast" <|
+                \_ ->
+                    rendered (context (Just (at (Cycle.days -2))) T72)
+                        |> Query.hasNot [ class "is-break" ]
             , test "marks itself live while the reader is in the cycle" <|
                 \_ ->
                     rendered (context (Just (at (Cycle.hours 41))) T72)

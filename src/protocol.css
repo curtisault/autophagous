@@ -1010,6 +1010,51 @@ ol.refs li {
   font-size: 0.72rem;
   letter-spacing: 0;
 }
+/* the two countdowns are one apparatus — what the schedule reaches
+   next, and what the reader is actually waiting for. Both are applied
+   blocks in the motif of DESIGN-REQUIREMENTS §2: an acid field, ink
+   text, identical in both themes, and nothing about either moves.
+
+   `fit-content`, not `inline-block`: the field has to hug its text,
+   but a pair of inline-blocks would sit side by side the moment the
+   measure allowed it. This keeps each on its own line at
+   shrink-to-fit width. */
+.clock-when {
+  margin: 0 0 1rem;
+}
+.clock-when .clock-next {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.35rem 0.55rem;
+  margin-bottom: 0.6rem;
+  color: var(--ink);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.clock-when .clock-next:last-child {
+  margin-bottom: 0;
+}
+.clock-when .clock-next b,
+.clock-when .clock-next .mono {
+  color: var(--ink);
+}
+/* what the schedule reaches next. Cyan is orange's complement — the
+   widest hue separation the palette holds — where volt, orange's
+   neighbour on the wheel, would read as the same family stacked on
+   itself. Ink at 12.76:1. */
+.clock-next.is-next {
+  background: var(--acid-cyan);
+}
+/* the number the reader is actually waiting for. Louder than its
+   neighbour by size, not by a third hue: the field is THE warning
+   acid and the figure is set larger. Ink at 7.19:1 — frost is 2.29:1
+   here and fails. */
+.clock-next.is-break {
+  background: var(--acid-orange);
+}
+.clock-next.is-break .mono {
+  font-size: 0.95rem;
+}
 
 /* the needle: where the reader has actually got to. The spent band
    sits behind every other zone, so the hatch that marks Stage I
