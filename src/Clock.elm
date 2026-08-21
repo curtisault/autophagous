@@ -48,9 +48,14 @@ type alias Reading =
     { elapsed : Int
     , stance : Stance
 
-    -- the last scheduled line at or before now: what you are in the
-    -- middle of
+    -- the last *moment* at or before now: the thing that has most
+    -- recently happened to the reader
     , current : Maybe Entry
+
+    -- every band whose window is open right now: the things that are
+    -- not happening but are in force. A schedule has both, and only
+    -- one of them can be "the last line passed"
+    , standing : List Entry
 
     -- the next line the reader has not reached, band or moment. Bands
     -- count: on the day before priming starts, "go low-carbohydrate"
@@ -59,14 +64,32 @@ type alias Reading =
     }
 
 
+{-| **Why `current` and `standing` are two questions.**
+
+They were one, and the answer was wrong for the whole fast. `current`
+took the last line at or before now, which is right for a moment and
+useless for a band: the mandatory-daily line sits at hour 0 and runs
+to the break, so a minute past hour 0 the next crossing displaces it
+and it never comes back. The one `Key` entry that is a _standing
+obligation_ — electrolytes, thiamine, water, every day — was the only
+line the live clock could not show.
+
+So a moment is something that has happened, and a band is somewhere
+you are standing. `Cycle.window` says which is which, and where a band
+ends.
+
+-}
 reading : Target -> Int -> Reading
 reading target elapsed =
     { elapsed = elapsed
     , stance = stanceAt target elapsed
     , current =
         schedule target
-            |> List.filter (\e -> e.at <= elapsed)
+            |> List.filter (\e -> isMoment e && e.at <= elapsed)
             |> last
+    , standing =
+        schedule target
+            |> List.filter (holds elapsed)
     , next =
         schedule target
             |> List.filter (\e -> e.at > elapsed)
@@ -74,11 +97,41 @@ reading target elapsed =
     }
 
 
+isMoment : Entry -> Bool
+isMoment entry =
+    case entry.span of
+        Moment ->
+            True
+
+        Until _ ->
+            False
+
+
+{-| Whether the reader is inside a band. Half-open, so the minute a
+band ends belongs to whatever comes next and no line is in force
+twice.
+-}
+holds : Int -> Entry -> Bool
+holds elapsed entry =
+    case Cycle.window entry of
+        Just ( from, to ) ->
+            from <= elapsed && elapsed < to
+
+        Nothing ->
+            False
+
+
 {-| Every line of the plan in time order.
 
-Ties are broken bands-first so that the _moment_ wins when both fall
-on the same offset: at hour 0 exactly, "the last meal ends" is what
-the reader is standing on, not the all-day band that starts beside it.
+Ties are broken **moments first**, which only `next` now reads: at
+23:59 on the last priming day, what happens next is "hour 0 — the last
+meal ends", not the electrolyte band that opens beside it. The band is
+not lost — it is in force one minute later and `standing` says so.
+
+(This ordering was bands-first, for the opposite reason: `current`
+took the last line at or before now, so the moment had to sort last to
+win the tie. `current` reads only moments now, so the tie is `next`'s
+alone and falls the other way.)
 
 -}
 schedule : Target -> List Entry
@@ -100,10 +153,10 @@ rank : Entry -> Int
 rank entry =
     case entry.span of
         Moment ->
-            1
+            0
 
         Until _ ->
-            0
+            1
 
 
 stanceAt : Target -> Int -> Stance

@@ -290,19 +290,37 @@ nextLine ctx start read =
                 [ text "Nothing scheduled after this — the cycle is behind you" ]
 
 
-{-| What the reader is in the middle of. A list, not a `Html`: before
-priming starts there is no such line, and an empty one would still
-take a `§N.M` clause mark — a number pointing at nothing.
+{-| What the reader is in the middle of: the moment last passed, then
+every band still in force underneath it. A list, not a `Html`: before
+priming starts there is neither, and an empty note would still take a
+`§N.M` clause mark — a number pointing at nothing.
+
+The bands are why this is not one lookup. The mandatory-daily line
+runs the length of the fast, and as "the last line passed" it stopped
+being current a minute after hour 0 — so the reader at hour 41 was
+told which stage they were in and never that the electrolytes were
+still compulsory. Rendered in full, never summarised
+(DESIGN-REQUIREMENTS §5).
+
 -}
 currentLine : Clock.Reading -> List (Html msg)
 currentLine read =
-    case read.current of
-        Just entry ->
-            [ div [ class "note" ]
-                [ b [] [ text entry.title ]
-                , text (" — " ++ entry.detail)
-                ]
-            ]
+    List.map noteFor (asList read.current ++ read.standing)
+
+
+noteFor : Entry -> Html msg
+noteFor entry =
+    div [ class "note" ]
+        [ b [] [ text entry.title ]
+        , text (" — " ++ entry.detail)
+        ]
+
+
+asList : Maybe a -> List a
+asList maybe =
+    case maybe of
+        Just x ->
+            [ x ]
 
         Nothing ->
             []

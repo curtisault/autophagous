@@ -14,6 +14,7 @@ two docs are the authority on how this looks and why.
 | `docs/DESIGN-PRINCIPLES.md` | Layout structure, Elm structure, the print strategy (§print) |
 | `docs/RESOURCES-POLICY.md` | The source index: link-first policy, access states, slugs |
 | `docs/DEPLOY.md` | CI (PR test workflow + the deploy pipeline), the 404/SPA-fallback contract, cache policy, one-time setup |
+| `docs/20260821-plan-page.md` | The eight planner changes (A–H) — **open**, drafted 2026-08-21; build order A→B→C→D→E→F→G, H after E |
 | `docs/20260816-theme-plan.md` | Light/dark system-theme plan (Acid Y2K dark) — **closed**, Phases 0–3 shipped 2026-08-16; only the optional volt glow (§5) is still an owner call. DESIGN-REQUIREMENTS §2 is now the palette authority |
 
 ## Commands

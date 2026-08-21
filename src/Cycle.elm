@@ -16,6 +16,7 @@ module Cycle exposing
     , targetLabel
     , targetParam
     , targets
+    , window
     )
 
 {-| The cycle as data: the stage boundaries, and the schedule the
@@ -198,6 +199,37 @@ the dated layer knows how many calendar days a 72-hour window touches
 type Span
     = Moment
     | Until Int
+
+
+{-| The minutes a band covers, half-open. `Nothing` for a moment: a
+point has no inside to stand in.
+
+**A band that ends where it starts is one day long.** That is what
+`Until` means for the priming days and the refeed days, where the
+offset names a date rather than a stretch — `Page.Plan` already reads
+them that way, rendering one date instead of a range. A band with a
+genuinely later end runs to that end and no further: the fast's daily
+minimum stops when the fast does, not a day after it.
+
+The convention lives here because `Span` does. `Clock` asks whether
+the reader is inside a band and must not re-derive the answer.
+
+-}
+window : Entry -> Maybe ( Int, Int )
+window entry =
+    case entry.span of
+        Moment ->
+            Nothing
+
+        Until end ->
+            Just
+                ( entry.at
+                , if end == entry.at then
+                    entry.at + days 1
+
+                  else
+                    end
+                )
 
 
 {-| `Key` rows are the load-bearing ones — hour 0, the switch, the
