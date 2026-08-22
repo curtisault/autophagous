@@ -23,6 +23,7 @@ import Civil
 import Clock
 import Cycle exposing (Entry, Phase, Span(..), Target, Weight(..))
 import Doc
+import Dose
 import Html exposing (Html, a, b, button, div, input, label, li, p, span, table, tbody, td, text, th, thead, tr, ul)
 import Html.Attributes exposing (attribute, class, classList, download, href, id, style, type_, value)
 import Html.Events exposing (onClick, onInput)
@@ -48,6 +49,13 @@ type alias Context msg =
     , startValue : String
     , target : Target
     , download : Maybe { href : String, name : String }
+
+    -- the dosing sheet's two preferences, so the clock can hand over
+    -- the day in the reader's own terms and send them somewhere that
+    -- has not forgotten them
+    , doseSource : Dose.Source
+    , doseServings : Int
+    , dosingHref : String
 
     -- the rail's state: where the reader is, and what they are
     -- searching for. The shell owns both
@@ -236,6 +244,7 @@ secNow ctx =
             , countdowns ctx start read
             ]
                 ++ currentLine read
+                ++ doseLine ctx read
                 ++ [ Safety.abortSignals (Just "/#sec-safety") ]
 
         ( Nothing, _ ) ->
@@ -424,6 +433,96 @@ asList maybe =
 
         Nothing ->
             []
+
+
+
+-- WHAT GOES IN THE GLASS
+
+
+{-| The standing daily line states §07's requirement in milligrams of
+an element. A kitchen has a spoon. `/dosing` already does that
+conversion and the clock already knows which day it is, and until now
+neither knew the other existed.
+
+**Nothing here is a dose this page chose.** Every figure is `Dose`
+converting §07, at the source and division the reader picked on the
+dosing sheet — carried in the shell's state and handed back in the
+link, so following it does not lose their choices.
+
+**Only while fasting.** §07's targets are the fast's. The refeed's
+requirement is real and it is *higher* — "the requirement goes up, not
+down, as insulin returns" — so printing the fast's numbers over the
+refeed would understate the one thing this is for. The refeed says so
+in the protocol's own words already: it is a standing band, and
+`currentLine` renders it.
+
+-}
+doseLine : Context msg -> Clock.Reading -> List (Html msg)
+doseLine ctx read =
+    case read.depth of
+        Just _ ->
+            let
+                each =
+                    Dose.perServing ctx.doseServings (Dose.sheet ctx.doseSource)
+            in
+            [ div [ class "plan-dose" ]
+                [ p [ class "plan-dose-head u" ]
+                    [ text
+                        ("One of "
+                            ++ String.fromInt ctx.doseServings
+                            ++ " doses today · "
+                            ++ Dose.sourceLabel ctx.doseSource
+                        )
+                    ]
+                , div [ class "plan-dose-rows" ] (doseRows ctx.doseSource each)
+                , p [ class "plan-dose-foot u" ]
+                    [ a [ href ctx.dosingHref ] [ text "The dosing sheet" ]
+                    , text " — every constant it uses, and the day undivided."
+                    ]
+                ]
+
+            -- the sheet renders this for the same reason: a surface
+            -- that converts the dose cannot be read without the
+            -- warning the dose is about
+            , Safety.potassiumDose
+            ]
+
+        Nothing ->
+            []
+
+
+{-| Sodium always; potassium in whichever salt carries it. `Excluded`
+is a real answer — a reader on ACE inhibitors is told so by the
+warning below — and it leaves one row, not a blank one.
+-}
+doseRows : Dose.Source -> Dose.Sheet -> List (Html msg)
+doseRows source each =
+    doseRow "Fine salt" each.fineSalt Dose.gramsPerTspSalt
+        :: (case source of
+                Dose.Kcl ->
+                    [ doseRow "Potassium chloride" each.kcl Dose.gramsPerTspKcl ]
+
+                Dose.Lite ->
+                    [ doseRow "Lite salt" each.liteSalt Dose.gramsPerTspLite ]
+
+                Dose.Excluded ->
+                    []
+           )
+
+
+{-| A range, in grams and in spoons. Both, because a spoon is a rough
+instrument and a scale is not — the same pairing the dosing sheet
+shows, for the same reason.
+-}
+doseRow : String -> Dose.Range -> Float -> Html msg
+doseRow label range perTsp =
+    div [ class "plan-dose-row" ]
+        [ span [ class "plan-dose-what u" ] [ text label ]
+        , span [ class "plan-dose-g mono" ]
+            [ text (Dose.grams range.low ++ "–" ++ Dose.grams range.high) ]
+        , span [ class "plan-dose-tsp mono" ]
+            [ text (Dose.teaspoons (range.high / perTsp)) ]
+        ]
 
 
 

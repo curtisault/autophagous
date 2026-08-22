@@ -53,6 +53,9 @@ pageAt path =
                     , startValue = ""
                     , target = Cycle.T72
                     , download = Nothing
+                    , doseSource = Dose.Kcl
+                    , doseServings = 4
+                    , dosingHref = "/dosing?k=kcl&per=4"
                     , chrome = chrome
                     , onStart = always ()
                     , onTarget = always ()

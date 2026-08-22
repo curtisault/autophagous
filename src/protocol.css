@@ -770,6 +770,57 @@ ul.tight li {
   font-size: 0.64rem;
 }
 
+/* ---------- the clock's dose hand-off ----------
+   §07 in milligrams is on screen already, in the standing daily line.
+   This is the same requirement in the units a kitchen has, at the
+   division the reader chose on /dosing. It wears the panel rather
+   than an acid: the countdowns above are the loud things in this
+   section, and a dose is a fact to read, not a number to watch. */
+.plan-dose {
+  background: var(--panel);
+  border-left: 4px solid var(--rule);
+  padding: 0.7rem 0.9rem;
+  margin: 0 0 1rem;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.plan-dose-head {
+  font-size: 0.64rem;
+  margin: 0 0 0.55rem;
+}
+.plan-dose-rows {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+}
+/* each row is one salt: what it is, what it weighs, what that is in
+   spoons. The spoon is dimmer because it is the rough instrument —
+   the same order and the same emphasis the dosing sheet uses. */
+.plan-dose-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.plan-dose-what {
+  font-size: 0.56rem;
+  color: var(--tx-dim);
+}
+.plan-dose-g {
+  font-size: 0.9rem;
+  color: var(--tx);
+  letter-spacing: 0;
+}
+.plan-dose-tsp {
+  font-size: 0.62rem;
+  color: var(--tx-dim);
+  letter-spacing: 0;
+}
+.plan-dose-foot {
+  font-size: 0.56rem;
+  color: var(--tx-dim);
+  margin: 0.6rem 0 0;
+}
+
 /* ---------- references ---------- */
 ol.refs {
   font-size: 0.72rem;

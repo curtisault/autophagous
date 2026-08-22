@@ -12,12 +12,20 @@ signals are on the clock in every state it can be in.**
 -}
 
 import Cycle exposing (Target(..))
+import Dose
+import Expect
+import Html.Attributes as Attr
 import Page.Plan
 import Ruler
 import Test exposing (Test, describe, test)
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (class, text)
+import Test.Html.Selector as Selector exposing (class, text)
 import Time
+
+
+expectAll : List Expect.Expectation -> Expect.Expectation
+expectAll expectations =
+    Expect.all (List.map always expectations) ()
 
 
 {-| 2026-09-01T20:00Z — the same instant the calendar tests use.
@@ -40,6 +48,9 @@ context now target =
     , startValue = "2026-09-01T20:00"
     , target = target
     , download = Just { href = "data:text/calendar,x", name = "cycle.ics" }
+    , doseSource = Dose.Kcl
+    , doseServings = 4
+    , dosingHref = "/dosing?k=kcl&per=4"
     , chrome = { active = Nothing, query = "", onQuery = always () }
     , onStart = always ()
     , onTarget = always ()
@@ -172,6 +183,65 @@ suite =
                         |> Query.hasNot [ class "clock-figure" ]
             , test "and none before a start is set" <|
                 \_ -> rendered unset |> Query.hasNot [ class "clock-figure" ]
+            ]
+        , describe "what goes in the glass"
+            [ test "converts §07 into the units a kitchen has" <|
+                -- 3,000–5,000 mg of sodium over 4 doses, as fine salt
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 41))) T72)
+                        |> Query.find [ class "plan-dose" ]
+                        |> Query.has [ text "Fine salt", text "One of 4 doses today" ]
+            , test "divides by the reader's own choice, not a default" <|
+                \_ ->
+                    let
+                        ctx =
+                            context (Just (at (Cycle.hours 41))) T72
+                    in
+                    rendered { ctx | doseServings = 6 }
+                        |> Query.find [ class "plan-dose" ]
+                        |> Query.has [ text "One of 6 doses today" ]
+            , test "names the salt the reader's source actually carries" <|
+                \_ ->
+                    let
+                        ctx =
+                            context (Just (at (Cycle.hours 41))) T72
+                    in
+                    rendered { ctx | doseSource = Dose.Lite }
+                        |> Query.find [ class "plan-dose" ]
+                        |> Query.has [ text "Lite salt" ]
+            , test "an excluded potassium leaves one row, not an empty one" <|
+                \_ ->
+                    let
+                        ctx =
+                            context (Just (at (Cycle.hours 41))) T72
+                    in
+                    rendered { ctx | doseSource = Dose.Excluded }
+                        |> Query.findAll [ class "plan-dose-row" ]
+                        |> Query.count (Expect.equal 1)
+            , test "keeps the reader's preferences in the link out" <|
+                -- arriving at /dosing with the source reset would be
+                -- this shell forgetting a choice made two minutes ago
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 41))) T72)
+                        |> Query.find [ class "plan-dose-foot" ]
+                        |> Query.has
+                            [ Selector.attribute (Attr.href "/dosing?k=kcl&per=4") ]
+            , test "carries the potassium warning, because it converts that dose" <|
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 41))) T72)
+                        |> Query.has [ text "Potassium warning." ]
+            , test "is absent outside the fast — §07's targets are the fast's" <|
+                -- the refeed requirement is real and it is higher, so
+                -- the fast's numbers would understate it. The refeed
+                -- says so itself, in the standing band
+                \_ ->
+                    [ Cycle.days -2, Cycle.hours 72 + Cycle.hours 3, Cycle.days 10 ]
+                        |> List.map
+                            (\m ->
+                                rendered (context (Just (at m)) T72)
+                                    |> Query.hasNot [ class "plan-dose" ]
+                            )
+                        |> expectAll
             ]
         , describe "the needle"
             [ test "is on the ruler during the fast" <|

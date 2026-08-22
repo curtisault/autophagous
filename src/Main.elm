@@ -524,10 +524,7 @@ syncPlanUrl model =
 syncDosingUrl : Model -> Cmd Msg
 syncDosingUrl model =
     Nav.replaceUrl model.key
-        (Route.withQuery Route.Dosing
-            [ ( "k", Dose.sourceParam model.doseSource )
-            , ( "per", String.fromInt model.doseServings )
-            ]
+        (dosingPath model
             ++ (case model.fragment of
                     Just anchor ->
                         "#" ++ anchor
@@ -658,10 +655,30 @@ planContext model =
     , startValue = model.planStart
     , target = model.planTarget
     , download = Maybe.map (calendarFile model) start
+    , doseSource = model.doseSource
+    , doseServings = model.doseServings
+    , dosingHref = dosingPath model
     , chrome = chrome model
     , onStart = PlanStartChanged
     , onTarget = PlanTargetChanged
     }
+
+
+{-| The dosing sheet's address, carrying the reader's own preferences.
+
+Both pages promise the address bar is the state, so a link between
+them has to keep it: arriving at `/dosing` from the clock with the
+source and division reset would be this shell forgetting a choice the
+reader made two minutes ago. `syncDosingUrl` writes the same string —
+one builder, so they cannot disagree about the spelling.
+
+-}
+dosingPath : Model -> String
+dosingPath model =
+    Route.withQuery Route.Dosing
+        [ ( "k", Dose.sourceParam model.doseSource )
+        , ( "per", String.fromInt model.doseServings )
+        ]
 
 
 chrome : Model -> Doc.Chrome Msg
