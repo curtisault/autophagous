@@ -12,6 +12,7 @@ citation apparatus was built to catch.
 
 -}
 
+import Clock
 import Cycle
 import Doc
 import Expect
@@ -38,10 +39,19 @@ protocol =
 -}
 planner : Query.Single ()
 planner =
+    plannerAt (Just (Cycle.hours 41))
+
+
+{-| The planner's ruler, marked where a reading at `now` would put the
+reader — `here` comes from `Clock.Reading.depth` in the page itself.
+-}
+plannerAt : Maybe Int -> Query.Single ()
+plannerAt now =
     Query.fromHtml
         (Ruler.view
             { target = Cycle.T96
-            , now = Just (Cycle.hours 41)
+            , now = now
+            , here = Maybe.andThen (\m -> (Clock.reading Cycle.T96 m).depth) now |> Maybe.map .stage
             , linkTo = \s -> "/#" ++ s.anchor
             }
         )
@@ -108,7 +118,17 @@ suite =
                     planner
                         |> Query.has
                             [ Selector.attribute
-                                (Attr.attribute "aria-label" "Stage III — Climbing, 24–48 h")
+                                (Attr.attribute "aria-label" "Stage II — The switch, 16–24 h")
+                            ]
+            , test "and the stage you are in says so in that name too" <|
+                -- the volt underline is not in the accessible tree
+                \_ ->
+                    planner
+                        |> Query.has
+                            [ Selector.attribute
+                                (Attr.attribute "aria-label"
+                                    "Stage III — Climbing, 24–48 h — where you are"
+                                )
                             ]
             , test "a segment is drawn for every stage, at both targets" <|
                 -- the 72 h ruler still draws Stage V: the scale is the
@@ -118,7 +138,62 @@ suite =
                         |> Query.findAll [ Selector.class "rlbl" ]
                         |> Query.count (Expect.equal (List.length Cycle.stages))
             ]
+        , describe "which stage is yours"
+            [ test "exactly one segment is marked, and it is the one you are in" <|
+                \_ ->
+                    plannerAt (Just (Cycle.hours 41))
+                        |> Query.find [ Selector.class "is-here" ]
+                        |> Query.has
+                            [ Selector.attribute (Attr.href "/#stage-iii")
+                            , Selector.attribute (Attr.attribute "aria-current" "true")
+                            ]
+            , test "the mark moves with the hour, not with the target" <|
+                \_ ->
+                    [ Cycle.hours 8, Cycle.hours 20, Cycle.hours 41, Cycle.hours 80 ]
+                        |> List.map
+                            (\m ->
+                                plannerAt (Just m)
+                                    |> Query.find [ Selector.class "is-here" ]
+                                    |> Query.has [ Selector.text (numeralAt m) ]
+                            )
+                        |> expectAll
+            , test "nothing is marked outside the fast" <|
+                -- priming and the rebuild are not stages; a mark there
+                -- would claim a position on a clock the reader has left
+                \_ ->
+                    [ Just (Cycle.days -2), Just (Cycle.hours 97), Nothing ]
+                        |> List.map
+                            (\m -> plannerAt m |> Query.hasNot [ Selector.class "is-here" ])
+                        |> expectAll
+            , test "and nothing is marked on the protocol's plain ruler" <|
+                \_ -> protocol |> Query.hasNot [ Selector.class "is-here" ]
+            , test "the legend names the stage as well as the hour" <|
+                \_ ->
+                    planner
+                        |> Query.find [ Selector.class "legend" ]
+                        |> Query.has [ Selector.text "Where you are — hour 41, Stage III" ]
+            ]
+        , describe "the scale"
+            [ test "draws a segment for every stage regardless of target" <|
+                -- the 72 h ruler still draws Stage V: the scale is the
+                -- protocol's whole clock, not the target
+                \_ ->
+                    planner
+                        |> Query.findAll [ Selector.class "rlbl" ]
+                        |> Query.count (Expect.equal (List.length Cycle.stages))
+            ]
         ]
+
+
+{-| The numeral of the stage an hour falls in, read off `Clock` rather
+than restated — the point of the check is that the ruler agrees with
+the clock, not that both agree with this test file.
+-}
+numeralAt : Int -> String
+numeralAt minutes =
+    (Clock.reading Cycle.T96 minutes).depth
+        |> Maybe.map (.stage >> .numeral)
+        |> Maybe.withDefault "—"
 
 
 expectAll : List Expect.Expectation -> Expect.Expectation

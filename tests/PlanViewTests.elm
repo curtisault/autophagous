@@ -81,7 +81,12 @@ is `RulerTests`.
 -}
 ruler : Maybe Int -> Query.Single ()
 ruler now =
-    Ruler.view { target = T72, now = now, linkTo = \s -> "/#" ++ s.anchor }
+    Ruler.view
+        { target = T72
+        , now = now
+        , here = Nothing
+        , linkTo = \s -> "/#" ++ s.anchor
+        }
         |> Query.fromHtml
 
 

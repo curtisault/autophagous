@@ -46,6 +46,12 @@
   --wash: #d9f7fe; /* the optional-zone fill (cyan family) */
   --volt-tx: #4a7000; /* volt-family text at AA on the current field */
   --warn-tx: #9a3412; /* warning text at AA on the current field */
+  --here: #075e75; /* the "you are here" underline — the contents rail's
+                      active section, the ruler's current stage. Volt is
+                      1.04:1 on frost, a mark nobody can see, so on light
+                      this is the dark end of the cyan family (6.44:1 on
+                      the surface, 5.39:1 on the spent band); in the dark
+                      it goes volt like every other mark. */
 
   /* ---- type voices (faces declared in fonts.css) ----
      Body stays a system serif on purpose: it is the only voice here
@@ -87,6 +93,7 @@
     --wash: #10333c;
     --volt-tx: var(--acid-volt);
     --warn-tx: var(--acid-orange);
+    --here: var(--acid-volt);
   }
 }
 
@@ -106,6 +113,7 @@
   --wash: #10333c;
   --volt-tx: var(--acid-volt);
   --warn-tx: var(--acid-orange);
+  --here: var(--acid-volt);
 }
 
 * {

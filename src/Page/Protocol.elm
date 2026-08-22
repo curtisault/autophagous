@@ -683,6 +683,10 @@ secStages =
         { target = Cycle.T72
         , now = Nothing
 
+        -- this ruler is a fact about the protocol, not about the
+        -- reader: nobody is standing anywhere on it
+        , here = Nothing
+
         -- the cards are directly below, so this is a jump within the
         -- section rather than a navigation
         , linkTo = \s -> "#" ++ s.anchor

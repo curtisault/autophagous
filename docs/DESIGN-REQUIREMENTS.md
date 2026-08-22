@@ -149,8 +149,28 @@ Primitives (never swapped): `--ink #111214`, `--frost #edf1f2`,
 | `--wash` | optional-zone fill | `#d9f7fe` | `#10333c` |
 | `--volt-tx` | volt-family text (open/free access tag) | `#4a7000` | `--acid-volt` |
 | `--warn-tx` | warning text (paywalled tag) | `#9a3412` | `--acid-orange` |
+| `--here` | the "you are here" underline — rail's active section, ruler's current stage | `#075e75` | `--acid-volt` |
 
 All pairings audited ≥ 5.1:1 (AA) in both themes, 2026-08-16.
+
+**Amended 2026-08-22 — `--here`, and why a mark is not a block.** The
+"you are here" underline was volt on both fields. On the dark field
+that is right; on frost it is **1.04:1** — a mark drawn in a colour
+the ground already is. Acid discipline says acid on light ground is
+"blocks, bars, and marks", but that holds only where the acid is a
+*field* with ink on it (`.tag-volt`, the target mark, the countdown
+blocks). A 3px acid **line** on a light field has nothing behind it to
+carry the contrast, and volt and frost are near-identical in
+luminance.
+
+So the mark takes a role token like every other acid that has to work
+on both fields: `#075e75` on light — the dark end of the cyan family,
+6.44:1 on the surface, 5.39:1 on the spent band, 6.52:1 on the wash —
+and `--acid-volt` in the dark, where volt is what every mark becomes.
+
+Both users of the mark moved together: the contents rail's active
+section and its hover, and the ruler's current stage. They say the
+same thing and must not say it two ways.
 
 **Acid discipline (theme-dependent):** on light ground, acid never
 carries small text — data is ink; acid is blocks, bars, and marks. On dark ground the acids resume as data colors —

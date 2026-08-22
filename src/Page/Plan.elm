@@ -227,6 +227,10 @@ secNow ctx =
             , Ruler.view
                 { target = ctx.target
                 , now = Just read.elapsed
+
+                -- `depth` exists exactly while the reader is fasting,
+                -- which is exactly when a stage is theirs to stand in
+                , here = Maybe.map .stage read.depth
                 , linkTo = stageLink
                 }
             , countdowns ctx start read
@@ -244,7 +248,12 @@ secNow ctx =
 idle : Context msg -> String -> List (Html msg)
 idle ctx message =
     [ p [ class "plan-state u" ] [ text message ]
-    , Ruler.view { target = ctx.target, now = Nothing, linkTo = stageLink }
+    , Ruler.view
+        { target = ctx.target
+        , now = Nothing
+        , here = Nothing
+        , linkTo = stageLink
+        }
     , Safety.abortSignals (Just "/#sec-safety")
     ]
 

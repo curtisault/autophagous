@@ -181,13 +181,17 @@
   line-height: 1.4;
 }
 .doc-toc-link:hover .doc-toc-label {
-  box-shadow: inset 0 -3px 0 var(--acid-volt);
+  box-shadow: inset 0 -3px 0 var(--here);
 }
 /* where the reader actually is: the persistent form of that hover.
    The anchor arrives from boot.js through the sectionSeen port —
-   Elm has no scroll subscription. */
+   Elm has no scroll subscription.
+
+   `--here` and not volt directly: volt is 1.04:1 on frost, so on
+   light this mark was very nearly not there. The ruler's current
+   stage draws the same underline and had the same problem. */
 .doc-toc-link.is-active .doc-toc-label {
-  box-shadow: inset 0 -3px 0 var(--acid-volt);
+  box-shadow: inset 0 -3px 0 var(--here);
 }
 .doc-toc-link.is-active .doc-toc-num {
   color: var(--data-accent);
@@ -531,6 +535,23 @@ ul.tight li {
   font-size: 0.78rem;
   background: var(--surface);
   padding: 1px 4px;
+}
+/* the stage the reader is standing in. The same mark the contents
+   rail uses for the section they are in — a volt underline, the
+   persistent form of a hover — because it means the same thing, and
+   because the countdowns directly above have already spent cyan and
+   orange. No new acid enters the ruler. */
+.rlbl.is-here b {
+  box-shadow: inset 0 -3px 0 var(--here);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+/* hovering your own stage supersedes: you know where you are, and
+   volt under an orange field is 2.21:1 — two acids arguing inside one
+   chip. */
+.rlbl.is-here:hover b,
+.rlbl.is-here:focus-visible b {
+  box-shadow: none;
 }
 /* hovering fills the chip rather than merely ringing it: orange is a
    field colour here, not a line one — a bare orange hairline is

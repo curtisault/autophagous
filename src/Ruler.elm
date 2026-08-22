@@ -22,7 +22,7 @@ else the next time the minute changes (DESIGN-REQUIREMENTS §1).
 
 import Cycle
 import Html exposing (Html, a, b, div, i, p, span, text)
-import Html.Attributes exposing (attribute, class, href, style)
+import Html.Attributes exposing (attribute, class, classList, href, style)
 
 
 {-| `now` is minutes elapsed from hour 0, or `Nothing` for the plain
@@ -38,10 +38,19 @@ navigation. The planner leaving itself is the point: it is a schedule,
 and the stage's content is the section it compressed
 (DESIGN-PRINCIPLES §3b).
 
+`here` is the stage the reader is standing in. **Handed in, not worked
+out.** Which stage contains an hour is `Clock`'s question and it has
+answered it already (`Reading.depth`); asking it again here would be
+the stage boundaries read a second way, which is the whole reason
+`Cycle` exists. `Nothing` on the protocol's plain ruler, and `Nothing`
+on the planner's whenever the reader is not fasting — outside the
+fast no stage is theirs to be in.
+
 -}
 view :
     { target : Cycle.Target
     , now : Maybe Int
+    , here : Maybe Cycle.Stage
     , linkTo : Cycle.Stage -> String
     }
     -> Html msg
@@ -74,7 +83,7 @@ view config =
                 ++ [ band "zone tint" target Cycle.scaleHours ]
                 ++ List.map (\s -> band "zone hatch" s.from s.to) (openingStage Cycle.stages)
                 ++ List.map divider (dividedAt target Cycle.stages)
-                ++ List.map (cell config.linkTo) Cycle.stages
+                ++ List.map (cell config.linkTo config.here) Cycle.stages
                 ++ [ div [ class "target", style "left" (pct target) ] [] ]
                 ++ needle needleAt
             )
@@ -84,7 +93,7 @@ view config =
             (span [] [ i [ class "swatch hatched" ] [], text "Shortened by priming" ]
                 :: span [] [ i [ class "swatch mark" ] [], text "Minimum target" ]
                 :: span [] [ i [ class "swatch tint" ] [], text "Optional 4th day" ]
-                :: legendNeedle needleAt
+                :: legendNeedle needleAt config.here
             )
         , p [ class "u", style "font-size" ".6rem", style "margin" ".5rem 0 0" ]
             [ text "Linear scale · band width is true to duration" ]
@@ -121,13 +130,23 @@ needle needleAt =
             []
 
 
-legendNeedle : Maybe Int -> List (Html msg)
-legendNeedle needleAt =
+legendNeedle : Maybe Int -> Maybe Cycle.Stage -> List (Html msg)
+legendNeedle needleAt here =
     case needleAt of
         Just minutes ->
             [ span []
                 [ i [ class "swatch needle-swatch" ] []
-                , text ("Where you are — hour " ++ String.fromInt (minutes // 60))
+                , text
+                    ("Where you are — hour "
+                        ++ String.fromInt (minutes // 60)
+                        ++ (case here of
+                                Just stage ->
+                                    ", Stage " ++ stage.numeral
+
+                                Nothing ->
+                                    ""
+                           )
+                    )
                 ]
             ]
 
@@ -200,16 +219,42 @@ It carries the numeral, the title and the hours, which is everything
 the card underneath would tell them.
 
 -}
-cell : (Cycle.Stage -> String) -> Cycle.Stage -> Html msg
-cell linkTo s =
+cell : (Cycle.Stage -> String) -> Maybe Cycle.Stage -> Cycle.Stage -> Html msg
+cell linkTo here s =
+    let
+        mine =
+            here == Just s
+    in
     a
-        [ class "rlbl"
-        , href (linkTo s)
-        , attribute "aria-label"
-            ("Stage " ++ s.numeral ++ " — " ++ s.title ++ ", " ++ Cycle.stageHours s)
-        , style "left" (pct s.from)
-        , style "width" (pct (s.to - s.from))
-        ]
+        ([ class "rlbl"
+         , classList [ ( "is-here", mine ) ]
+         , href (linkTo s)
+         , attribute "aria-label"
+            ("Stage "
+                ++ s.numeral
+                ++ " — "
+                ++ s.title
+                ++ ", "
+                ++ Cycle.stageHours s
+                ++ (if mine then
+                        " — where you are"
+
+                    else
+                        ""
+                   )
+            )
+         , style "left" (pct s.from)
+         , style "width" (pct (s.to - s.from))
+         ]
+            ++ (if mine then
+                    -- the same word the contents rail uses for the
+                    -- section you are in; it means the same thing
+                    [ attribute "aria-current" "true" ]
+
+                else
+                    []
+               )
+        )
         [ b [] [ text s.numeral ] ]
 
 
