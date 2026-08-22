@@ -123,9 +123,16 @@ targetFromParam raw =
 {-| One stage of the fast, in whole hours from hour 0. Two names: the
 `label` is the ruler's, cut to fit a band 8% of a track wide; the
 `title` is the stage card's and the planner's.
+
+`anchor` is where the stage's content lives — the protocol's §08 card.
+It is written down rather than derived from the numeral because two
+surfaces link to it (the protocol's own ruler, and the planner's), and
+a slug spelled twice is a slug that will be spelled differently.
+
 -}
 type alias Stage =
     { numeral : String
+    , anchor : String
     , from : Int
     , to : Int
     , label : String
@@ -137,11 +144,41 @@ type alias Stage =
 -}
 stages : List Stage
 stages =
-    [ Stage "I" 0 16 "Draw-down" "Glycogen draw-down"
-    , Stage "II" 16 24 "Switch" "The switch"
-    , Stage "III" 24 48 "Climbing" "Climbing"
-    , Stage "IV" 48 72 "Sustained" "Sustained"
-    , Stage "V" 72 96 "Optional extension" "Optional extension"
+    [ { numeral = "I"
+      , anchor = "stage-i"
+      , from = 0
+      , to = 16
+      , label = "Draw-down"
+      , title = "Glycogen draw-down"
+      }
+    , { numeral = "II"
+      , anchor = "stage-ii"
+      , from = 16
+      , to = 24
+      , label = "Switch"
+      , title = "The switch"
+      }
+    , { numeral = "III"
+      , anchor = "stage-iii"
+      , from = 24
+      , to = 48
+      , label = "Climbing"
+      , title = "Climbing"
+      }
+    , { numeral = "IV"
+      , anchor = "stage-iv"
+      , from = 48
+      , to = 72
+      , label = "Sustained"
+      , title = "Sustained"
+      }
+    , { numeral = "V"
+      , anchor = "stage-v"
+      , from = 72
+      , to = 96
+      , label = "Optional extension"
+      , title = "Optional extension"
+      }
     ]
 
 

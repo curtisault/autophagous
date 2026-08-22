@@ -224,7 +224,11 @@ secNow ctx =
                     Clock.reading ctx.target (Civil.minutesBetween start now)
             in
             [ clockHead ctx start read
-            , Ruler.view { target = ctx.target, now = Just read.elapsed }
+            , Ruler.view
+                { target = ctx.target
+                , now = Just read.elapsed
+                , linkTo = stageLink
+                }
             , countdowns ctx start read
             ]
                 ++ currentLine read
@@ -240,9 +244,21 @@ secNow ctx =
 idle : Context msg -> String -> List (Html msg)
 idle ctx message =
     [ p [ class "plan-state u" ] [ text message ]
-    , Ruler.view { target = ctx.target, now = Nothing }
+    , Ruler.view { target = ctx.target, now = Nothing, linkTo = stageLink }
     , Safety.abortSignals (Just "/#sec-safety")
     ]
+
+
+{-| A stage segment leaves the planner. The stage's content is the
+protocol's §08 card — this page compressed it and links back to it,
+the same as every phase table below (DESIGN-PRINCIPLES §3b). Pointing
+all five segments at this page's own `#sec-fast` would be five
+segments with one destination and nothing new at the end of any of
+them.
+-}
+stageLink : Cycle.Stage -> String
+stageLink s =
+    "/#" ++ s.anchor
 
 
 clockHead : Context msg -> Posix -> Clock.Reading -> Html msg
@@ -253,20 +269,56 @@ clockHead ctx start read =
         ]
         [ span [ class "clock-figure mono" ] [ text (Clock.elapsedFigure read.elapsed) ]
         , div [ class "clock-read" ]
-            [ span [ class "clock-stance u" ] [ text (Clock.stanceLabel read.stance) ]
-            , span [ class "clock-since u" ]
-                [ text
-                    ((if read.elapsed < 0 then
-                        "Until hour 0 · "
+            (span [ class "clock-stance u" ] [ text (Clock.stanceLabel read.stance) ]
+                :: depthLine read
+                ++ [ span [ class "clock-since u" ]
+                        [ text
+                            ((if read.elapsed < 0 then
+                                "Until hour 0 · "
 
-                      else
-                        "Since hour 0 · "
-                     )
-                        ++ stamp ctx start
-                    )
+                              else
+                                "Since hour 0 · "
+                             )
+                                ++ stamp ctx start
+                            )
+                        ]
+                   ]
+            )
+        ]
+
+
+{-| How far in, in the clock's own block rather than a clause of its
+own — it is part of the reading, not a ruling about it, and a `§N.M`
+mark on it would be numbering for its own sake.
+
+The stage is named directly above, so this does not repeat it: "17 of
+24 h into the stage" reads under "Stage III — climbing" and nowhere
+else. The hours are floored to whole hours on purpose — the exact
+minute is already the headline figure beside it, and this is the
+coarse question, whether you have just arrived or are nearly through.
+
+-}
+depthLine : Clock.Reading -> List (Html msg)
+depthLine read =
+    case read.depth of
+        Just depth ->
+            [ span [ class "clock-depth u" ]
+                [ span [ class "mono" ]
+                    [ text
+                        (String.fromInt (depth.into // 60)
+                            ++ " of "
+                            ++ String.fromInt (depth.span // 60)
+                            ++ " h"
+                        )
+                    ]
+                , text " into the stage · "
+                , span [ class "mono" ] [ text (String.fromInt depth.percent ++ "%") ]
+                , text " of the target"
                 ]
             ]
-        ]
+
+        Nothing ->
+            []
 
 
 {-| What is coming, as one clause: the line the schedule reaches next,

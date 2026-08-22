@@ -1,5 +1,6 @@
 module Clock exposing
-    ( Reading
+    ( Depth
+    , Reading
     , Stance(..)
     , countdown
     , elapsedFigure
@@ -66,6 +67,32 @@ type alias Reading =
     -- The one number `next` almost never carries and the reader
     -- always wants
     , toBreak : Maybe Int
+
+    -- how far through the stage, and through the fast. Only while
+    -- fasting: it is the one stance that does not count itself
+    , depth : Maybe Depth
+    }
+
+
+{-| How far in the reader is.
+
+**Why only the fast has this.** Every other stance counts itself out
+loud — "Priming — day 2 of 3", "Refeed — day 1 of 2", "Rebuild — day
+9". The fasting stance says "Stage III — climbing" and stops, because
+a stage is named, not numbered. So the one phase where a reader most
+wants to know whether they have just arrived or are nearly through is
+the one phase that will not tell them.
+
+`into` and `span` are minutes; `percent` is whole percent of the
+target, floored — 99% has to mean still fasting, and rounding would
+print 100% with an hour left to run.
+
+-}
+type alias Depth =
+    { stage : Cycle.Stage
+    , into : Int
+    , span : Int
+    , percent : Int
     }
 
 
@@ -94,9 +121,12 @@ reading target elapsed =
             lines
                 |> List.filter (\e -> e.at > elapsed)
                 |> List.head
+
+        stance =
+            stanceAt target elapsed
     in
     { elapsed = elapsed
-    , stance = stanceAt target elapsed
+    , stance = stance
     , current =
         lines
             |> List.filter (\e -> isMoment e && e.at <= elapsed)
@@ -106,7 +136,26 @@ reading target elapsed =
             |> List.filter (holds elapsed)
     , next = next
     , toBreak = untilBreak target elapsed next
+    , depth = depthOf target elapsed stance
     }
+
+
+{-| Read off the stance, which already carries the stage — the
+boundaries are looked up once (`stageAt`) and never a second time.
+-}
+depthOf : Target -> Int -> Stance -> Maybe Depth
+depthOf target elapsed stance =
+    case stance of
+        Fasting stage ->
+            Just
+                { stage = stage
+                , into = elapsed - Cycle.hours stage.from
+                , span = Cycle.hours (stage.to - stage.from)
+                , percent = 100 * elapsed // Cycle.hours (Cycle.targetHours target)
+                }
+
+        _ ->
+            Nothing
 
 
 isMoment : Entry -> Bool
@@ -266,7 +315,13 @@ stageAt elapsed =
 
 fallbackStage : Cycle.Stage
 fallbackStage =
-    Cycle.Stage "V" 72 96 "Optional extension" "Optional extension"
+    { numeral = "V"
+    , anchor = "stage-v"
+    , from = 72
+    , to = 96
+    , label = "Optional extension"
+    , title = "Optional extension"
+    }
 
 
 {-| What the stance says out loud, in the display voice's register.

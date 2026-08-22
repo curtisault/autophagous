@@ -513,6 +513,9 @@ ul.tight li {
   width: 1.5px;
   background: var(--rule);
 }
+/* each segment is the way into its stage card. The whole band is the
+   target, not just the numeral chip — a 2-character hit area inside a
+   40px bar is a hit area nobody can hit. */
 .rlbl {
   position: absolute;
   top: 0;
@@ -520,12 +523,43 @@ ul.tight li {
   display: flex;
   align-items: center;
   justify-content: center;
+  text-decoration: none;
+  color: inherit;
 }
 .rlbl b {
   font-family: var(--font-data);
   font-size: 0.78rem;
   background: var(--surface);
   padding: 1px 4px;
+}
+/* hovering fills the chip rather than merely ringing it: orange is a
+   field colour here, not a line one — a bare orange hairline is
+   2.29:1 on the light chip and 1.92:1 on the spent band, under the
+   3:1 floor for non-text, while ink on an orange field is 7.19:1 in
+   both themes. Same motif as the volt target mark: acid fill, ink
+   edge, theme-invariant.
+
+   An outline and not a border: a border would widen the chip and
+   nudge the numerals of a ruler drawn to scale. Nothing transitions —
+   the box is simply there while the pointer is
+   (DESIGN-REQUIREMENTS §1). */
+.rlbl:hover b,
+.rlbl:focus-visible b {
+  background: var(--acid-orange);
+  color: var(--ink);
+  outline: 1.5px solid var(--ink);
+  outline-offset: 1px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.rlbl:focus-visible {
+  outline: none;
+}
+/* the target mark and the needle paint over the segments; they are
+   drawing, not apparatus, and must never swallow a click. */
+.target,
+.needle {
+  pointer-events: none;
 }
 .target {
   position: absolute;
@@ -996,6 +1030,18 @@ ol.refs li {
 .clock-since {
   font-size: 0.55rem;
   color: var(--tx-dim);
+}
+/* how far in — the fasting stance is the one that does not count
+   itself, so this counts it. Sits between the stance and the start
+   stamp, in the same dim register: it qualifies the line above it. */
+.clock-depth {
+  font-size: 0.6rem;
+  color: var(--tx-dim);
+}
+.clock-depth .mono {
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  color: var(--tx);
 }
 .clock-next {
   font-size: 0.6rem;

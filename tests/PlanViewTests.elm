@@ -76,6 +76,15 @@ unset =
     { base | start = Nothing, startValue = "", download = Nothing }
 
 
+{-| The needle's own cases, drawn on its own. Where the segments point
+is `RulerTests`.
+-}
+ruler : Maybe Int -> Query.Single ()
+ruler now =
+    Ruler.view { target = T72, now = now, linkTo = \s -> "/#" ++ s.anchor }
+        |> Query.fromHtml
+
+
 suite : Test
 suite =
     describe "Page.Plan"
@@ -108,6 +117,15 @@ suite =
                     rendered (context (Just (at (Cycle.hours 41))) T72)
                         |> Query.find [ class "clock-stance" ]
                         |> Query.has [ text "Stage III — climbing" ]
+            , test "says how far into the stage, which the stance does not" <|
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 41))) T72)
+                        |> Query.find [ class "clock-depth" ]
+                        |> Query.has [ text "17 of 24 h", text "56%" ]
+            , test "and says nothing of the sort outside the fast" <|
+                \_ ->
+                    rendered (context (Just (at (Cycle.days 10))) T72)
+                        |> Query.hasNot [ class "clock-depth" ]
             , test "counts down to the next line, with its date" <|
                 \_ ->
                     rendered (context (Just (at (Cycle.hours 41))) T72)
@@ -153,23 +171,19 @@ suite =
         , describe "the needle"
             [ test "is on the ruler during the fast" <|
                 \_ ->
-                    Ruler.view { target = T72, now = Just (Cycle.hours 48) }
-                        |> Query.fromHtml
+                    ruler (Just (Cycle.hours 48))
                         |> Query.has [ class "needle" ]
             , test "is absent before hour 0 — it would claim a position the reader is not in" <|
                 \_ ->
-                    Ruler.view { target = T72, now = Just (Cycle.days -1) }
-                        |> Query.fromHtml
+                    ruler (Just (Cycle.days -1))
                         |> Query.hasNot [ class "needle" ]
             , test "is absent past the end of the drawn clock" <|
                 \_ ->
-                    Ruler.view { target = T72, now = Just (Cycle.hours 97) }
-                        |> Query.fromHtml
+                    ruler (Just (Cycle.hours 97))
                         |> Query.hasNot [ class "needle" ]
             , test "the protocol's ruler never has one" <|
                 \_ ->
-                    Ruler.view { target = T72, now = Nothing }
-                        |> Query.fromHtml
+                    ruler Nothing
                         |> Query.hasNot [ class "needle" ]
             ]
         ]

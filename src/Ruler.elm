@@ -21,16 +21,30 @@ else the next time the minute changes (DESIGN-REQUIREMENTS §1).
 -}
 
 import Cycle
-import Html exposing (Html, b, div, i, p, span, text)
-import Html.Attributes exposing (class, style)
+import Html exposing (Html, a, b, div, i, p, span, text)
+import Html.Attributes exposing (attribute, class, href, style)
 
 
 {-| `now` is minutes elapsed from hour 0, or `Nothing` for the plain
 ruler. Outside the drawn clock — before hour 0, or past hour 96 — there
 is no needle: a needle pinned to an end would claim a position the
 reader is not in.
+
+`linkTo` is where a segment sends the reader. Both readers link, and
+both link to the same place — the protocol's stage card — but they
+spell it differently: `#stage-iii` on the protocol, where the card is
+on the page already, and `/#stage-iii` from the planner, which is a
+navigation. The planner leaving itself is the point: it is a schedule,
+and the stage's content is the section it compressed
+(DESIGN-PRINCIPLES §3b).
+
 -}
-view : { target : Cycle.Target, now : Maybe Int } -> Html msg
+view :
+    { target : Cycle.Target
+    , now : Maybe Int
+    , linkTo : Cycle.Stage -> String
+    }
+    -> Html msg
 view config =
     let
         target =
@@ -60,7 +74,7 @@ view config =
                 ++ [ band "zone tint" target Cycle.scaleHours ]
                 ++ List.map (\s -> band "zone hatch" s.from s.to) (openingStage Cycle.stages)
                 ++ List.map divider (dividedAt target Cycle.stages)
-                ++ List.map cell Cycle.stages
+                ++ List.map (cell config.linkTo) Cycle.stages
                 ++ [ div [ class "target", style "left" (pct target) ] [] ]
                 ++ needle needleAt
             )
@@ -178,10 +192,21 @@ divider from =
     div [ class "vdiv", style "left" (pct from) ] []
 
 
-cell : Cycle.Stage -> Html msg
-cell s =
-    div
+{-| A segment, and the way into the stage it draws.
+
+The numeral alone is what the band has room for, so the name the
+reader would click on is not in the accessible tree — hence the label.
+It carries the numeral, the title and the hours, which is everything
+the card underneath would tell them.
+
+-}
+cell : (Cycle.Stage -> String) -> Cycle.Stage -> Html msg
+cell linkTo s =
+    a
         [ class "rlbl"
+        , href (linkTo s)
+        , attribute "aria-label"
+            ("Stage " ++ s.numeral ++ " — " ++ s.title ++ ", " ++ Cycle.stageHours s)
         , style "left" (pct s.from)
         , style "width" (pct (s.to - s.from))
         ]

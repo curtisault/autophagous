@@ -46,6 +46,16 @@ breakAt target minutes =
     (Clock.reading target minutes).toBreak
 
 
+{-| Depth as the page states it: hours into the stage, the stage's own
+length, and whole percent of the target.
+-}
+depthAt : Target -> Int -> Maybe ( String, Int, Int )
+depthAt target minutes =
+    (Clock.reading target minutes).depth
+        |> Maybe.map
+            (\d -> ( d.stage.numeral, d.into // 60, d.percent ))
+
+
 suite : Test
 suite =
     describe "Clock"
@@ -201,6 +211,41 @@ suite =
                 \_ ->
                     breakAt T72 (Cycle.hours 72 - 31)
                         |> Expect.equal (Just 31)
+            ]
+        , describe "how far in"
+            [ test "counts from the stage's own start, not from hour 0" <|
+                -- Stage III opens at 24 h, so hour 41 is 17 h into it
+                \_ ->
+                    depthAt T72 (Cycle.hours 41)
+                        |> Expect.equal (Just ( "III", 17, 56 ))
+            , test "a stage's first minute is zero hours in, not one" <|
+                \_ ->
+                    depthAt T72 (Cycle.hours 24)
+                        |> Expect.equal (Just ( "III", 0, 33 ))
+            , test "the stage's length is the stage's, whichever it is" <|
+                \_ ->
+                    (Clock.reading T72 (Cycle.hours 20)).depth
+                        |> Maybe.map (\d -> ( d.stage.numeral, d.span ))
+                        |> Expect.equal (Just ( "II", Cycle.hours 8 ))
+            , test "the percentage is of the target that is set" <|
+                \_ ->
+                    ( depthAt T72 (Cycle.hours 36), depthAt T96 (Cycle.hours 36) )
+                        |> Expect.equal
+                            ( Just ( "III", 12, 50 ), Just ( "III", 12, 37 ) )
+            , test "99% has to mean still fasting, so it floors" <|
+                -- rounding would print 100% with the better part of an
+                -- hour still to run
+                \_ ->
+                    depthAt T72 (Cycle.hours 72 - 1)
+                        |> Expect.equal (Just ( "IV", 23, 99 ))
+            , test "hour 0 is 0%, not blank" <|
+                \_ -> depthAt T72 0 |> Expect.equal (Just ( "I", 0, 0 ))
+            , test "the stances that count themselves do not get one" <|
+                -- priming, refeed and rebuild all say "day N of M"
+                \_ ->
+                    List.map (depthAt T72)
+                        [ Cycle.days -2, Cycle.hours 72, Cycle.days 10, Cycle.days 40 ]
+                        |> Expect.equal [ Nothing, Nothing, Nothing, Nothing ]
             ]
         , describe "the figure"
             [ test "reads hours and minutes inside two days" <|

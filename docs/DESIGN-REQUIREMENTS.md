@@ -109,9 +109,24 @@ each field already clears AA on its own.
 
 **Hierarchy is carried by size, not by adding hues.** The break block
 is louder than the next block because its figure is set larger, not
-because a third colour entered. A screen gets one orange field: the
-number you are waiting for while you are inside the cycle. Orange is
-not a general highlight.
+because a third colour entered.
+
+**One orange field at rest.** A screen shows a single standing orange
+block: the number you are waiting for while you are inside the cycle.
+Orange is not a general highlight. The one exception is **transient
+state** — the ruler segment's hover and focus chip
+(`.rlbl:hover b`) fills orange while the pointer or focus is on it and
+is gone the moment it leaves, so it never competes with the standing
+block for the same glance.
+
+**Orange fills, it does not draw lines.** At `#ff7a1a` an orange
+hairline is 2.29:1 on the light chip field and 1.92:1 on the spent
+band — under the 3:1 floor for non-text contrast (WCAG 1.4.11), which
+is what `theme.css` means by "dark-field text only". Ink on an orange
+field is 7.19:1 in both themes. Where orange has to mark something on
+light ground it takes the block motif — acid fill, `--ink` edge — or
+it uses `--warn-tx`, the role token that holds AA on whichever field
+is current.
 
 Primitives (never swapped): `--ink #111214`, `--frost #edf1f2`,
 `--ground #a6afb2` (reserved), `--acid-volt #c8ff00`,

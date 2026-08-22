@@ -15,7 +15,7 @@ import Citations
 import Cycle
 import Doc
 import Html exposing (Html, a, b, div, em, h3, h4, i, li, ol, p, span, sup, table, tbody, td, text, th, thead, tr, ul)
-import Html.Attributes exposing (class, download, href, style)
+import Html.Attributes exposing (class, download, href, id, style)
 import Ruler
 import Safety
 
@@ -679,13 +679,20 @@ what is genuinely its own: the prose.
 -}
 secStages : List (Html msg)
 secStages =
-    Ruler.view { target = Cycle.T72, now = Nothing }
+    Ruler.view
+        { target = Cycle.T72
+        , now = Nothing
+
+        -- the cards are directly below, so this is a jump within the
+        -- section rather than a navigation
+        , linkTo = \s -> "#" ++ s.anchor
+        }
         :: List.map stageCard Cycle.stages
 
 
 stageCard : Cycle.Stage -> Html msg
 stageCard s =
-    div [ class "stage" ]
+    div [ class "stage", id s.anchor ]
         [ div [ class "stage-meta" ]
             [ span [ class "no" ] [ text s.numeral ]
             , span [ class "hrs" ] [ text (Cycle.stageHours s) ]
