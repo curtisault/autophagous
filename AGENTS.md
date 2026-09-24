@@ -14,7 +14,7 @@ two docs are the authority on how this looks and why.
 | `docs/DESIGN-PRINCIPLES.md` | Layout structure, Elm structure, the print strategy (§print) |
 | `docs/RESOURCES-POLICY.md` | The source index: link-first policy, access states, slugs |
 | `docs/DEPLOY.md` | CI (PR test workflow + the deploy pipeline), the 404/SPA-fallback contract, cache policy, one-time setup |
-| `docs/20260821-plan-page.md` | The eight planner changes (A–H) — **open**, drafted 2026-08-21; build order A→B→C→D→E→F→G, H after E |
+| `docs/20260821-plan-page.md` | The eight planner changes (A–H) — **closed**, all shipped by 2026-09-24. Records where the build differed from the draft, which is most of them |
 | `docs/20260816-theme-plan.md` | Light/dark system-theme plan (Acid Y2K dark) — **closed**, Phases 0–3 shipped 2026-08-16; only the optional volt glow (§5) is still an owner call. DESIGN-REQUIREMENTS §2 is now the palette authority |
 
 ## Commands
@@ -62,7 +62,10 @@ resolve off PATH, so `mise install` is required before
   form. `UrlChanged` branches on whether the **route** changed, not
   the URL: the planner mirrors its form into `?start=&target=` with
   `replaceUrl`, and that echo must not scroll or reset the form
-  (DESIGN-PRINCIPLES §3a).
+  (DESIGN-PRINCIPLES §3a). `?start=` is always **hour 0**: the
+  planner's Start/Break mode (`Page.Plan.From`) says what the *field*
+  means, never what the URL means, and is deliberately not carried in
+  it — one link, one reading.
 - `src/Search.elm` — the site index. Hand-written, machine-checked:
   `terms` must appear in the section they claim, `aliases` must not
   (DESIGN-PRINCIPLES §5a). Citations are derived from `Citations.all`,

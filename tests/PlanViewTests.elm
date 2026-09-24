@@ -11,6 +11,7 @@ signals are on the clock in every state it can be in.**
 
 -}
 
+import Civil
 import Cycle exposing (Target(..))
 import Dose
 import Expect
@@ -26,6 +27,15 @@ import Time
 expectAll : List Expect.Expectation -> Expect.Expectation
 expectAll expectations =
     Expect.all (List.map always expectations) ()
+
+
+{-| UTC−5 that becomes UTC−4 at 2026-03-08T07:00Z — the same zone
+`CivilTests` uses, so the planner's backwards arithmetic is checked
+against a boundary rather than only in UTC.
+-}
+springForward : Time.Zone
+springForward =
+    Time.customZone -300 [ { start = 29549220, offset = -240 } ]
 
 
 {-| 2026-09-01T20:00Z — the same instant the calendar tests use.
@@ -45,14 +55,16 @@ context now target =
     { zone = Time.utc
     , start = Just start
     , now = now
-    , startValue = "2026-09-01T20:00"
+    , anchorValue = "2026-09-01T20:00"
+    , from = Page.Plan.FromStart
     , target = target
     , download = Just { href = "data:text/calendar,x", name = "cycle.ics" }
     , doseSource = Dose.Kcl
     , doseServings = 4
     , dosingHref = "/dosing?k=kcl&per=4"
     , chrome = { active = Nothing, query = "", onQuery = always () }
-    , onStart = always ()
+    , onAnchor = always ()
+    , onFrom = always ()
     , onTarget = always ()
     }
 
@@ -84,7 +96,7 @@ unset =
         base =
             context (Just (at 0)) T72
     in
-    { base | start = Nothing, startValue = "", download = Nothing }
+    { base | start = Nothing, anchorValue = "", download = Nothing }
 
 
 {-| The needle's own cases, drawn on its own. Where the segments point
@@ -183,6 +195,147 @@ suite =
                         |> Query.hasNot [ class "clock-figure" ]
             , test "and none before a start is set" <|
                 \_ -> rendered unset |> Query.hasNot [ class "clock-figure" ]
+            ]
+        , describe "counting backwards from the break"
+            -- nobody decides to stop eating at 20:00 on Thursday; they
+            -- decide to eat lunch on Sunday. `?start=` still carries
+            -- hour 0 either way, so a link has one reading
+            [ test "the field read as a break gives hour 0 a target earlier" <|
+                \_ ->
+                    Page.Plan.resolveStart
+                        { zone = Time.utc
+                        , target = T72
+                        , from = Page.Plan.FromBreak
+                        , value = "2026-09-04T20:00"
+                        }
+                        |> Expect.equal (Just start)
+            , test "and the same field read as a start is itself" <|
+                \_ ->
+                    Page.Plan.resolveStart
+                        { zone = Time.utc
+                        , target = T72
+                        , from = Page.Plan.FromStart
+                        , value = "2026-09-01T20:00"
+                        }
+                        |> Expect.equal (Just start)
+            , test "the target decides how far back, so 96 h reaches further" <|
+                \_ ->
+                    Page.Plan.resolveStart
+                        { zone = Time.utc
+                        , target = T96
+                        , from = Page.Plan.FromBreak
+                        , value = "2026-09-04T20:00"
+                        }
+                        |> Expect.equal (Just (at (Cycle.hours -24)))
+            , test "a half-typed date is no instant in either direction" <|
+                \_ ->
+                    [ Page.Plan.FromStart, Page.Plan.FromBreak ]
+                        |> List.map
+                            (\from ->
+                                Page.Plan.resolveStart
+                                    { zone = Time.utc
+                                    , target = T72
+                                    , from = from
+                                    , value = "2026-09-0"
+                                    }
+                                    |> Expect.equal Nothing
+                            )
+                        |> expectAll
+            , test "switching the mode keeps the schedule where it was" <|
+                -- the reader changed how they are describing the plan,
+                -- not the plan: the break they had implies the same
+                -- hour 0 once the field is recast to name it
+                \_ ->
+                    let
+                        asBreak =
+                            Page.Plan.recast
+                                { zone = Time.utc
+                                , target = T72
+                                , to = Page.Plan.FromBreak
+                                , value = "2026-09-01T20:00"
+                                }
+                    in
+                    ( asBreak
+                    , Page.Plan.resolveStart
+                        { zone = Time.utc
+                        , target = T72
+                        , from = Page.Plan.FromBreak
+                        , value = asBreak
+                        }
+                    )
+                        |> Expect.equal ( "2026-09-04T20:00", Just start )
+            , test "and switching back returns the string it started from" <|
+                \_ ->
+                    "2026-09-01T20:00"
+                        |> (\v ->
+                                Page.Plan.recast
+                                    { zone = Time.utc, target = T72, to = Page.Plan.FromBreak, value = v }
+                           )
+                        |> (\v ->
+                                Page.Plan.recast
+                                    { zone = Time.utc, target = T72, to = Page.Plan.FromStart, value = v }
+                           )
+                        |> Expect.equal "2026-09-01T20:00"
+            , test "a value it cannot read is handed back untouched" <|
+                -- eating what someone is halfway through typing is
+                -- worse than leaving it alone
+                \_ ->
+                    Page.Plan.recast
+                        { zone = Time.utc
+                        , target = T72
+                        , to = Page.Plan.FromBreak
+                        , value = "2026-09-0"
+                        }
+                        |> Expect.equal "2026-09-0"
+            , test "across a spring-forward, the wall clock is what gives" <|
+                -- §01 promises this in as many words. UTC−5 becomes
+                -- UTC−4 at 2026-03-08T07:00Z, so holding a Tuesday
+                -- 12:00 break puts hour 0 at 11:00 on the Saturday,
+                -- not 12:00: 72 elapsed hours is 72 elapsed hours, and
+                -- an hour of the reader's Sunday did not happen
+                \_ ->
+                    Page.Plan.recast
+                        { zone = springForward
+                        , target = T72
+                        , to = Page.Plan.FromStart
+                        , value = "2026-03-10T12:00"
+                        }
+                        |> Expect.equal "2026-03-07T11:00"
+            , test "and the schedule still lands on the break that was asked for" <|
+                \_ ->
+                    let
+                        break =
+                            Civil.fromIso "2026-03-10T12:00"
+                                |> Maybe.map (Civil.toPosix springForward)
+                    in
+                    Page.Plan.resolveStart
+                        { zone = springForward
+                        , target = T72
+                        , from = Page.Plan.FromBreak
+                        , value = "2026-03-10T12:00"
+                        }
+                        |> Maybe.map (Civil.shift (Cycle.hours 72))
+                        |> Expect.equal break
+            , test "the field says which end of the fast it is naming" <|
+                \_ ->
+                    let
+                        ctx =
+                            context (Just (at (Cycle.hours 41))) T72
+                    in
+                    ( rendered ctx |> Query.has [ text "Hour 0 — when the last meal ends" ]
+                    , rendered { ctx | from = Page.Plan.FromBreak }
+                        |> Query.has [ text "The break — when you want to eat" ]
+                    )
+                        |> (\( a, b ) -> expectAll [ a, b ])
+            , test "and states hour 0 back, since counting backwards nobody typed it" <|
+                \_ ->
+                    let
+                        ctx =
+                            context (Just (at (Cycle.hours 41))) T72
+                    in
+                    rendered { ctx | from = Page.Plan.FromBreak }
+                        |> Query.find [ class "plan-state" ]
+                        |> Query.has [ text "Hour 0", text "stop eating then" ]
             ]
         , describe "where you are, in the sheet"
             [ test "the phase you are in says so, and only that one" <|

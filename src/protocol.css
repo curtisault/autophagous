@@ -1007,6 +1007,14 @@ ol.refs li {
   letter-spacing: 0;
   color: var(--tx);
 }
+/* counting backwards, hour 0 is the one moment the reader did not
+   type — so it is stated back, and said to be a consequence rather
+   than an instruction. */
+.plan-state-derived {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--tx-dim);
+}
 .plan-state.is-bad {
   color: var(--warn-tx);
 }

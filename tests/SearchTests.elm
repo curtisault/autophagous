@@ -50,14 +50,16 @@ pageAt path =
                     { zone = Time.utc
                     , start = Nothing
                     , now = Nothing
-                    , startValue = ""
+                    , anchorValue = ""
+                    , from = Page.Plan.FromStart
                     , target = Cycle.T72
                     , download = Nothing
                     , doseSource = Dose.Kcl
                     , doseServings = 4
                     , dosingHref = "/dosing?k=kcl&per=4"
                     , chrome = chrome
-                    , onStart = always ()
+                    , onAnchor = always ()
+                    , onFrom = always ()
                     , onTarget = always ()
                     }
 

@@ -1,4 +1,4 @@
-module Page.Plan exposing (Context, view)
+module Page.Plan exposing (Context, From(..), recast, resolveStart, view)
 
 {-| The cycle planner, worn as a house document (`Doc.elm`).
 
@@ -32,6 +32,88 @@ import Safety
 import Time exposing (Posix, Zone)
 
 
+{-| Which end of the fast the reader is naming.
+
+Nobody decides to stop eating at 20:00 on Thursday. They decide they
+want to eat lunch on Sunday and work backwards, and until now this
+page made them do that arithmetic themselves — across a daylight-saving
+boundary, in their head.
+
+**The field holds one string either way.** The mode says what that
+string *means*; it is not a second value, because two values that must
+agree are two values that will not. Hour 0 is derived when the reader
+is naming the break, and the break is derived when they are naming
+hour 0.
+
+-}
+type From
+    = FromStart
+    | FromBreak
+
+
+{-| The field, read as hour 0.
+
+Unparseable is `Nothing` in both modes — a half-typed date is not an
+instant, and the planner says so rather than guessing at one.
+
+-}
+resolveStart :
+    { zone : Zone, target : Target, from : From, value : String }
+    -> Maybe Posix
+resolveStart cfg =
+    Civil.fromIso cfg.value
+        |> Maybe.map (Civil.toPosix cfg.zone)
+        |> Maybe.map
+            (\t ->
+                case cfg.from of
+                    FromStart ->
+                        t
+
+                    FromBreak ->
+                        Civil.shift (negate (fastMinutes cfg.target)) t
+            )
+
+
+{-| The same moment, rewritten for the mode being switched **to**.
+
+Toggling the control must not move the schedule: a reader who has set
+hour 0 and then asks to work backwards should see the break they have
+already chosen, not a blank field or a different plan. So the value is
+converted once, here, at the moment the meaning changes — and never
+again, which is what keeps the reader's typing out of the arithmetic.
+
+An unparseable value is handed back untouched. There is nothing to
+convert, and eating what someone is halfway through typing is worse
+than leaving it.
+
+-}
+recast : { zone : Zone, target : Target, to : From, value : String } -> String
+recast cfg =
+    case Civil.fromIso cfg.value of
+        Just civil ->
+            let
+                offset =
+                    case cfg.to of
+                        FromBreak ->
+                            fastMinutes cfg.target
+
+                        FromStart ->
+                            negate (fastMinutes cfg.target)
+            in
+            Civil.toPosix cfg.zone civil
+                |> Civil.shift offset
+                |> Civil.fromPosix cfg.zone
+                |> Civil.toIso
+
+        Nothing ->
+            cfg.value
+
+
+fastMinutes : Target -> Int
+fastMinutes target =
+    Cycle.hours (Cycle.targetHours target)
+
+
 {-| What the shell hands over. `start` is `Nothing` until the field
 holds a real instant — the page renders its whole schedule either
 way, in relative offsets, because a planner that shows nothing until
@@ -46,7 +128,10 @@ type alias Context msg =
     -- and a frame is long enough to show a reading of "−20682 d",
     -- so §02 waits rather than counting from the epoch
     , now : Maybe Posix
-    , startValue : String
+    -- the field verbatim, and what it currently means. Verbatim so
+    -- that typing is never rewritten underneath the reader
+    , anchorValue : String
+    , from : From
     , target : Target
     , download : Maybe { href : String, name : String }
 
@@ -60,7 +145,8 @@ type alias Context msg =
     -- the rail's state: where the reader is, and what they are
     -- searching for. The shell owns both
     , chrome : Doc.Chrome msg
-    , onStart : String -> msg
+    , onAnchor : String -> msg
+    , onFrom : From -> msg
     , onTarget : Target -> msg
     }
 
@@ -185,15 +271,26 @@ secStart ctx =
     [ div [ class "plan-set" ]
         [ div [ class "plan-field" ]
             [ label [ class "u", Html.Attributes.for "plan-start" ]
-                [ text "Hour 0 — when the last meal ends" ]
+                [ text (anchorLabel ctx.from) ]
             , input
                 [ id "plan-start"
                 , type_ "datetime-local"
                 , class "mono"
-                , value ctx.startValue
-                , onInput ctx.onStart
+                , value ctx.anchorValue
+                , onInput ctx.onAnchor
                 ]
                 []
+            ]
+        , div [ class "plan-field" ]
+            [ span [ class "u" ] [ text "Count from" ]
+            , div
+                [ class "plan-seg"
+                , attribute "role" "group"
+                , attribute "aria-label" "Which end of the fast you are setting"
+                ]
+                [ fromButton ctx FromStart "Hour 0"
+                , fromButton ctx FromBreak "The break"
+                ]
             ]
         , div [ class "plan-field" ]
             [ span [ class "u" ] [ text "Target" ]
@@ -224,18 +321,44 @@ secStart ctx =
         , text " the same clock time two days on. The single case this cannot resolve is a start inside the repeated hour of an autumn fall-back, where the earlier of the two readings is taken."
         ]
     , div [ class "note" ]
+        [ b [] [ text "Counting backwards." ]
+        , text " Setting the break instead runs the same arithmetic the other way, with one consequence worth expecting: if the fast crosses a daylight-saving change, holding the meal you have chosen moves hour 0 to a clock time you did not pick. The elapsed hours are what the protocol counts, so the wall clock is what gives."
+        ]
+    , div [ class "note" ]
         [ b [] [ text "The address bar is the plan." ]
-        , text " Your start and target ride in the URL, so copying it keeps or shares this exact schedule. Nothing is stored, on this device or anywhere else."
+        , text " Your start and target ride in the URL, so copying it keeps or shares this exact schedule. A link always names hour 0, whichever end you set it from — the schedule is built from that one moment, and a second way to say it is a second thing that can disagree. Nothing is stored, on this device or anywhere else."
         ]
     ]
 
 
+{-| The field names a different moment in each mode, so it says which.
+-}
+anchorLabel : From -> String
+anchorLabel from =
+    case from of
+        FromStart ->
+            "Hour 0 — when the last meal ends"
+
+        FromBreak ->
+            "The break — when you want to eat"
+
+
+fromButton : Context msg -> From -> String -> Html msg
+fromButton ctx from label_ =
+    segButton (from == ctx.from) (ctx.onFrom from) label_
+
+
 targetButton : Context msg -> Target -> Html msg
 targetButton ctx target =
-    let
-        selected =
-            target == ctx.target
-    in
+    segButton (target == ctx.target) (ctx.onTarget target) (Cycle.targetLabel target)
+
+
+{-| One button of a segmented control. Two controls wear this now, and
+a second hand-rolled copy is how `aria-pressed` gets forgotten on one
+of them.
+-}
+segButton : Bool -> msg -> String -> Html msg
+segButton selected msg label_ =
     button
         [ type_ "button"
         , class "plan-btn u"
@@ -247,28 +370,40 @@ targetButton ctx target =
              else
                 "false"
             )
-        , onClick (ctx.onTarget target)
+        , onClick msg
         ]
-        [ text (Cycle.targetLabel target) ]
+        [ text label_ ]
 
 
-{-| What the field is currently worth. An unparsed value is called out
-rather than silently ignored — the schedule below would otherwise go
-back to relative offsets with no stated reason.
+{-| What the field is currently worth, always as hour 0 — that is the
+moment the whole schedule hangs off, and in break mode it is the one
+the reader has *not* typed, so it is the one worth stating back.
+
+An unparsed value is called out rather than silently ignored: the
+schedule below would otherwise go back to relative offsets with no
+stated reason.
+
 -}
 startState : Context msg -> Html msg
 startState ctx =
-    case ( ctx.start, String.trim ctx.startValue ) of
+    case ( ctx.start, String.trim ctx.anchorValue ) of
         ( Just t, _ ) ->
             p [ class "plan-state u" ]
                 [ text "Hour 0 · "
                 , span [ class "mono" ]
                     [ text (Civil.formatDateYear ctx.zone t ++ " · " ++ Civil.formatTime ctx.zone t) ]
+                , case ctx.from of
+                    FromBreak ->
+                        span [ class "plan-state-derived" ]
+                            [ text " — stop eating then to break when you asked" ]
+
+                    FromStart ->
+                        text ""
                 ]
 
         ( Nothing, "" ) ->
             p [ class "plan-state u" ]
-                [ text "No start set — the schedule below is in elapsed hours" ]
+                [ text "Nothing set — the schedule below is in elapsed hours" ]
 
         ( Nothing, _ ) ->
             p [ class "plan-state u is-bad" ]

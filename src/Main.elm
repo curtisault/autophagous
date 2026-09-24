@@ -14,11 +14,17 @@ persisting the choice is boot.js's job, reached through the
 `saveTheme` port; "system" clears both, which hands control back to
 the media query and live OS changes.
 
-The planner (`Page.Plan`) adds the shell's other two pieces of state:
-the reader's time zone, and the start instant they typed. **The URL is
-where the plan lives** — `Nav.replaceUrl` mirrors the form into
-`?start=&target=` on every change, so the address bar is a shareable
-plan and nothing has to be stored. That mirroring is why `UrlChanged`
+The planner (`Page.Plan`) adds the shell's other state: the reader's
+time zone, the string they typed, and which end of the fast that
+string names (`Page.Plan.From`). **The URL is where the plan lives** —
+`Nav.replaceUrl` mirrors the form into `?start=&target=` on every
+change, so the address bar is a shareable plan and nothing has to be
+stored.
+
+`?start=` is always **hour 0**, never the break, and the mode is not
+in the URL at all. A reader who works backwards from the meal they
+want is describing the same plan a different way; the schedule hangs
+off one moment, and one link should have one reading. That mirroring is why `UrlChanged`
 now asks whether the _route_ changed rather than treating every URL
 change as a navigation: a replaced query is the shell hearing its own
 echo, and must not scroll the page to the top or re-read the form out
@@ -144,7 +150,12 @@ type alias Model =
     -- not at all, so nothing false is ever on screen.
     , zone : Time.Zone
     , now : Maybe Time.Posix
-    , planStart : String
+    -- the field verbatim, and which end of the fast it names. The
+    -- mode is deliberately NOT in the URL: `?start=` always means hour
+    -- 0, whichever end the reader set it from, so a shared link has
+    -- one reading (Page.Plan.From)
+    , planAnchor : String
+    , planFrom : Page.Plan.From
     , planTarget : Target
 
     -- whether the narrow layout's menu panel is open. Closed by any
@@ -192,7 +203,8 @@ init flags url key =
       , theme = themeFromFlag flags.theme
       , zone = Time.utc
       , now = Nothing
-      , planStart = Maybe.withDefault "" (Route.queryParam "start" url)
+      , planAnchor = Maybe.withDefault "" (Route.queryParam "start" url)
+      , planFrom = Page.Plan.FromStart
       , planTarget = Cycle.targetFromParam (Route.queryParam "target" url)
       , doseSource = Dose.sourceFromParam (Route.queryParam "k" url)
       , doseServings = Dose.servingsFromParam (Route.queryParam "per" url)
@@ -232,7 +244,8 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | SetTheme Theme
     | GotContext Time.Zone Time.Posix
-    | PlanStartChanged String
+    | PlanAnchorChanged String
+    | PlanFromChanged Page.Plan.From
     | PlanTargetChanged Target
     | DoseSourceChanged Source
     | DoseServingsChanged Int
@@ -355,8 +368,8 @@ update msg model =
                     { model
                         | zone = zone
                         , now = Just now
-                        , planStart =
-                            if model.planStart == "" then
+                        , planAnchor =
+                            if model.planAnchor == "" then
                                 -- an empty planner is a worse teacher than a
                                 -- populated one, so it proposes the next whole
                                 -- hour. It is a proposal: the reader's real
@@ -364,7 +377,7 @@ update msg model =
                                 nextWholeHour zone now
 
                             else
-                                model.planStart
+                                model.planAnchor
                     }
             in
             ( { updated | mirroring = model.route == Route.Plan }
@@ -375,10 +388,30 @@ update msg model =
                 Cmd.none
             )
 
-        PlanStartChanged raw ->
+        PlanAnchorChanged raw ->
             let
                 updated =
-                    { model | planStart = raw, mirroring = True }
+                    { model | planAnchor = raw, mirroring = True }
+            in
+            ( updated, syncPlanUrl updated )
+
+        PlanFromChanged from ->
+            let
+                updated =
+                    { model
+                        | planFrom = from
+                        , planAnchor =
+                            -- the field is converted once, here, so the
+                            -- schedule does not move under a reader who
+                            -- only changed how they are describing it
+                            Page.Plan.recast
+                                { zone = model.zone
+                                , target = model.planTarget
+                                , to = from
+                                , value = model.planAnchor
+                                }
+                        , mirroring = True
+                    }
             in
             ( updated, syncPlanUrl updated )
 
@@ -387,6 +420,10 @@ update msg model =
                 updated =
                     { model | planTarget = target, mirroring = True }
             in
+            -- the anchor is untouched either way, and that is the whole
+            -- behaviour: setting hour 0 and lengthening the fast moves
+            -- the meal, while setting the meal and lengthening the fast
+            -- moves hour 0. Each mode holds the end the reader named
             ( updated, syncPlanUrl updated )
 
         DoseSourceChanged source ->
@@ -468,6 +505,33 @@ arrivalMirrors route =
     route == Route.Plan || route == Route.Dosing
 
 
+{-| Hour 0 as the URL should carry it.
+
+In the default mode the anchor **is** hour 0 and goes out verbatim,
+which keeps a half-typed date in the address bar exactly as typed and
+keeps the one instant `Civil` cannot round-trip — a wall clock inside
+an autumn fall-back's repeated hour — spelled the way the reader
+spelled it.
+
+Counting backwards there is nothing to preserve: the reader never
+typed hour 0, so it is computed. An unparseable field yields no start
+at all and the parameter drops out (`Route.withQuery` discards
+empties), which is the honest URL for a plan that does not have a
+start yet.
+
+-}
+startParam : Model -> String
+startParam model =
+    case model.planFrom of
+        Page.Plan.FromStart ->
+            model.planAnchor
+
+        Page.Plan.FromBreak ->
+            planStart model
+                |> Maybe.map (Civil.toIso << Civil.fromPosix model.zone)
+                |> Maybe.withDefault ""
+
+
 {-| Read the planner's state off a URL, keeping what the URL does not
 mention. A nav click carries no query and must not wipe a form the
 reader has already filled in; a shared link carries both and must win.
@@ -489,7 +553,7 @@ applyQuery url model =
 
                 Nothing ->
                     model.doseServings
-        , planStart = Maybe.withDefault model.planStart (Route.queryParam "start" url)
+        , planAnchor = Maybe.withDefault model.planAnchor (Route.queryParam "start" url)
         , planTarget =
             case Route.queryParam "target" url of
                 Just raw ->
@@ -503,12 +567,17 @@ applyQuery url model =
 {-| Mirror the form into the address bar, keeping whichever section
 the reader is parked on — `replaceUrl`, not `pushUrl`, so typing a
 date does not fill the back button with keystrokes.
+
+`?start=` is **always hour 0**, never the break. The mode is how the
+reader is talking to this form; the plan is the moment the schedule
+hangs off, and one link should have one reading.
+
 -}
 syncPlanUrl : Model -> Cmd Msg
 syncPlanUrl model =
     Nav.replaceUrl model.key
         (Route.withQuery Route.Plan
-            [ ( "start", model.planStart )
+            [ ( "start", startParam model )
             , ( "target", Cycle.targetParam model.planTarget )
             ]
             ++ (case model.fragment of
@@ -646,22 +715,36 @@ planContext : Model -> Page.Plan.Context Msg
 planContext model =
     let
         start =
-            Civil.fromIso model.planStart
-                |> Maybe.map (Civil.toPosix model.zone)
+            planStart model
     in
     { zone = model.zone
     , start = start
     , now = model.now
-    , startValue = model.planStart
+    , anchorValue = model.planAnchor
+    , from = model.planFrom
     , target = model.planTarget
     , download = Maybe.map (calendarFile model) start
     , doseSource = model.doseSource
     , doseServings = model.doseServings
     , dosingHref = dosingPath model
     , chrome = chrome model
-    , onStart = PlanStartChanged
+    , onAnchor = PlanAnchorChanged
+    , onFrom = PlanFromChanged
     , onTarget = PlanTargetChanged
     }
+
+
+{-| Hour 0, whichever end of the fast the reader named it from. The
+page owns what its own field means; this shell only holds the string.
+-}
+planStart : Model -> Maybe Time.Posix
+planStart model =
+    Page.Plan.resolveStart
+        { zone = model.zone
+        , target = model.planTarget
+        , from = model.planFrom
+        , value = model.planAnchor
+        }
 
 
 {-| The dosing sheet's address, carrying the reader's own preferences.
