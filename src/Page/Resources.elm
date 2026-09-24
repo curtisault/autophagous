@@ -82,6 +82,7 @@ view chrome =
               }
             ]
         , chrome = chrome
+        , marked = Nothing
         , footNote =
             -- the medical disclaimer ships on every content page
             -- (DESIGN-REQUIREMENTS §5), the index note after it

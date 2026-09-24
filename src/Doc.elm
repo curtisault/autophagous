@@ -40,6 +40,10 @@ type alias Config msg =
     , sections : List (Section msg)
     , footNote : List (Html msg) -- the footer (the disclaimer, on content pages)
     , chrome : Chrome msg
+
+    -- the anchor of the section the reader is standing in, if the page
+    -- has any notion of standing somewhere. See `marked`
+    , marked : Maybe String
     }
 
 
@@ -104,7 +108,7 @@ view config =
                         [ viewResults hits ]
 
                     else
-                        List.indexedMap viewSection config.sections
+                        List.indexedMap (viewSection config.marked) config.sections
                    )
                 ++ [ footer [] config.footNote ]
             )
@@ -188,14 +192,37 @@ sectionNum i =
     String.padLeft 2 '0' (String.fromInt (i + 1))
 
 
-viewSection : Int -> Section msg -> Html msg
-viewSection i s =
+{-| **Why an anchor on the config and not a flag on each section.**
+
+`Section` is constructed thirty-four times across five pages. A field
+there would be thirty-four `Nothing`s written out forever so that one
+page could say one thing. An anchor on the `Config` is five call
+sites, and it is the same shape as `Chrome.active` — which is also an
+anchor the page is handed and a mark derived from it, just sourced
+from scrolling rather than from the clock.
+
+Doc owns the words, the way it owns "Results" and "Contents": the
+page says *where*, the format says *how it reads*. It still learns
+nothing about cycles, stages or phases.
+
+-}
+viewSection : Maybe String -> Int -> Section msg -> Html msg
+viewSection marked i s =
     section [ id s.anchor ]
         (div [ class "sec-head" ]
-            [ span [ class "sec-num u" ] [ text (sectionNum i) ]
-            , h2 [] [ text s.title ]
-            , span [ class "sec-intent u" ] [ text s.intent ]
-            ]
+            (span [ class "sec-num u" ] [ text (sectionNum i) ]
+                :: h2 [] [ text s.title ]
+                :: (if marked == Just s.anchor then
+                        -- real text, not an ARIA attribute: it is the
+                        -- one thing in this header a reader might be
+                        -- looking for
+                        [ span [ class "sec-here u" ] [ text "You are here" ] ]
+
+                    else
+                        []
+                   )
+                ++ [ span [ class "sec-intent u" ] [ text s.intent ] ]
+            )
             :: viewBody s.anchor (i + 1) s.body
         )
 

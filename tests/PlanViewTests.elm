@@ -184,6 +184,54 @@ suite =
             , test "and none before a start is set" <|
                 \_ -> rendered unset |> Query.hasNot [ class "clock-figure" ]
             ]
+        , describe "where you are, in the sheet"
+            [ test "the phase you are in says so, and only that one" <|
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 41))) T72)
+                        |> Query.findAll [ text "You are here" ]
+                        |> Query.count (Expect.equal 1)
+            , test "and it is the section the stance names" <|
+                \_ ->
+                    [ ( Cycle.days -2, "sec-prime" )
+                    , ( Cycle.hours 41, "sec-fast" )
+                    , ( Cycle.hours 72 + Cycle.hours 3, "sec-refeed" )
+                    , ( Cycle.days 10, "sec-rebuild" )
+                    ]
+                        |> List.map
+                            (\( m, anchor ) ->
+                                rendered (context (Just (at m)) T72)
+                                    |> Query.find [ Selector.id anchor ]
+                                    |> Query.has [ text "You are here" ]
+                            )
+                        |> expectAll
+            , test "nothing is marked outside the cycle, or before the clock lands" <|
+                \_ ->
+                    [ context (Just (at (Cycle.days -5))) T72
+                    , context (Just (at (Cycle.days 40))) T72
+                    , context Nothing T72
+                    , unset
+                    ]
+                        |> List.map (rendered >> Query.hasNot [ text "You are here" ])
+                        |> expectAll
+            , test "the row in force is marked, not only the moment passed" <|
+                -- at hour 41 the moment is the Stage III crossing and
+                -- the band is the mandatory daily line; §02 calls both
+                -- current, so the table has to agree
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 41))) T72)
+                        |> Query.findAll [ Selector.class "is-now" ]
+                        |> Query.count (Expect.equal 2)
+            , test "a row can be load-bearing and current at once" <|
+                -- hour 0 is a Key row and the line you are standing on
+                \_ ->
+                    rendered (context (Just (at 5)) T72)
+                        |> Query.findAll [ Selector.class "is-now", Selector.class "hero" ]
+                        |> Query.count (Expect.equal 2)
+            , test "no row is marked before there is a clock to mark it from" <|
+                \_ ->
+                    rendered (context Nothing T72)
+                        |> Query.hasNot [ Selector.class "is-now" ]
+            ]
         , describe "what goes in the glass"
             [ test "converts §07 into the units a kitchen has" <|
                 -- 3,000–5,000 mg of sodium over 4 doses, as fine salt

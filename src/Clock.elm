@@ -6,6 +6,7 @@ module Clock exposing
     , elapsedFigure
     , inFlight
     , reading
+    , stanceKind
     , stanceLabel
     )
 
@@ -346,6 +347,39 @@ stanceLabel stance =
 
         Complete ->
             "Cycle complete"
+
+
+{-| Which phase of the plan the reader is standing in.
+
+Not derivable from `current` or `standing`: on rebuild day 5 the last
+*moment* passed is the refeed's first protein, three days back, while
+the band in force is the rebuild window. Two entries, two phases, and
+only the stance knows which one the reader is actually in.
+
+`Nothing` before the cycle and after it — those are not phases, and a
+plan cannot mark a section for a reader who is not in one.
+
+-}
+stanceKind : Stance -> Maybe Cycle.Kind
+stanceKind stance =
+    case stance of
+        Waiting ->
+            Nothing
+
+        Priming _ ->
+            Just Cycle.Prime
+
+        Fasting _ ->
+            Just Cycle.Fast
+
+        Refeeding _ ->
+            Just Cycle.Refeed
+
+        Rebuilding _ ->
+            Just Cycle.Rebuild
+
+        Complete ->
+            Nothing
 
 
 {-| Whether the reader is inside the cycle rather than reading about

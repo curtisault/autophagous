@@ -128,6 +128,7 @@ view chrome =
               }
             ]
         , chrome = chrome
+        , marked = Nothing
         , footNote =
             [ p [ style "margin" "0" ]
                 [ bT "This is general information, not medical advice, and I'm not a doctor."

@@ -1,5 +1,6 @@
 module Cycle exposing
     ( Entry
+    , Kind(..)
     , Phase
     , Span(..)
     , Stage
@@ -201,10 +202,27 @@ stageHours s =
 -- THE SCHEDULE
 
 
+{-| Which of the four a phase is, as something other code can name.
+
+`Clock` knows the reader is refeeding; the planner needs the anchor of
+the section that says so. Without this the mapping would be a second
+spelling of the four slugs — the mistake `Stage.anchor` exists to
+avoid — so the stance names a `Kind` and the anchor stays `Phase`'s
+alone.
+
+-}
+type Kind
+    = Prime
+    | Fast
+    | Refeed
+    | Rebuild
+
+
 {-| A phase of the cycle, with the protocol section it is drawn from.
 -}
 type alias Phase =
     { num : String
+    , kind : Kind
     , anchor : String -- this page's section anchor
     , source : String -- the protocol section it compresses
     , title : String
@@ -292,6 +310,7 @@ plan target =
 priming : Phase
 priming =
     { num = "Phase 1"
+    , kind = Prime
     , anchor = "sec-prime"
     , source = "/#sec-prime"
     , title = "Priming"
@@ -331,6 +350,7 @@ priming =
 fast : Target -> Phase
 fast target =
     { num = "Phase 2"
+    , kind = Fast
     , anchor = "sec-fast"
     , source = "/#sec-fast"
     , title = "The fast"
@@ -420,6 +440,7 @@ refeed target =
             hours (targetHours target)
     in
     { num = "Phase 3"
+    , kind = Refeed
     , anchor = "sec-refeed"
     , source = "/#sec-refeed"
     , title = "The refeed"
@@ -477,6 +498,7 @@ rebuild target =
             hours (targetHours target)
     in
     { num = "Phase 4"
+    , kind = Rebuild
     , anchor = "sec-rebuild"
     , source = "/#sec-rebuild"
     , title = "The rebuild"

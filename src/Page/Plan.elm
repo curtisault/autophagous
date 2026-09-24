@@ -67,6 +67,10 @@ type alias Context msg =
 
 view : Context msg -> Html msg
 view ctx =
+    let
+        read =
+            reading ctx
+    in
     Doc.view
         { tag = "Cycle Planner"
         , kicker = Cycle.targetLabel ctx.target ++ " cycle · local time"
@@ -85,9 +89,9 @@ view ctx =
                    , tocLabel = "Now"
                    , title = "Where you are now"
                    , intent = "Live · your device clock"
-                   , body = Doc.Clauses (secNow ctx)
+                   , body = Doc.Clauses (secNow ctx read)
                    }
-                :: List.map (phaseSection ctx) (Cycle.plan ctx.target)
+                :: List.map (phaseSection ctx read) (Cycle.plan ctx.target)
                 ++ [ { anchor = "sec-carry"
                      , tocLabel = "Carry it"
                      , title = "Take it with you"
@@ -96,6 +100,7 @@ view ctx =
                      }
                    ]
         , chrome = ctx.chrome
+        , marked = markedPhase ctx read
         , footNote =
             -- the medical disclaimer ships on every content page
             -- (DESIGN-REQUIREMENTS §5)
@@ -112,6 +117,63 @@ view ctx =
                 ]
             ]
         }
+
+
+
+{-| The reading, taken once for the whole page.
+
+§02 renders it, the phase tables mark themselves against it, and the
+section header takes its "you are here" from it. Three readers of one
+answer: computing it three times would be three chances for the clock
+at the top of the page to disagree with the table halfway down it.
+
+-}
+reading : Context msg -> Maybe Clock.Reading
+reading ctx =
+    Maybe.map2
+        (\start now -> Clock.reading ctx.target (Civil.minutesBetween start now))
+        ctx.start
+        ctx.now
+
+
+{-| The phase section the reader is standing in, by anchor.
+
+The stance names a `Cycle.Kind` and the plan is searched for it, so
+the four slugs are spelled once — in `Cycle`, beside the sections they
+name.
+
+-}
+markedPhase : Context msg -> Maybe Clock.Reading -> Maybe String
+markedPhase ctx read =
+    read
+        |> Maybe.andThen (.stance >> Clock.stanceKind)
+        |> Maybe.andThen
+            (\kind ->
+                Cycle.plan ctx.target
+                    |> List.filter (\phase -> phase.kind == kind)
+                    |> List.head
+            )
+        |> Maybe.map .anchor
+
+
+{-| Whether a row is a line the reader is standing on right now —
+either the moment last passed or a band still in force.
+
+**Both, not just the moment.** At hour 41 the moment is the Stage III
+crossing and the band is the mandatory daily line; §02 says both are
+in force, and a table that marked only the first would have the
+compulsory row sitting unmarked two inches under the section that
+calls it compulsory.
+
+-}
+isNow : Maybe Clock.Reading -> Entry -> Bool
+isNow read entry =
+    case read of
+        Just r ->
+            r.current == Just entry || List.member entry r.standing
+
+        Nothing ->
+            False
 
 
 
@@ -223,14 +285,10 @@ and the abort signals are the protocol's own values (`Safety`) rather
 than a summary of them — the one reader who needs them most is at
 hour 41 and will not follow a link.
 -}
-secNow : Context msg -> List (Html msg)
-secNow ctx =
-    case ( ctx.start, ctx.now ) of
-        ( Just start, Just now ) ->
-            let
-                read =
-                    Clock.reading ctx.target (Civil.minutesBetween start now)
-            in
+secNow : Context msg -> Maybe Clock.Reading -> List (Html msg)
+secNow ctx taken =
+    case ( ctx.start, taken ) of
+        ( Just start, Just read ) ->
             [ clockHead ctx start read
             , Ruler.view
                 { target = ctx.target
@@ -251,6 +309,8 @@ secNow ctx =
             idle ctx "Set hour 0 above and this becomes a clock — hours elapsed, the stage you are standing in, and what is next"
 
         ( Just _, Nothing ) ->
+            -- a start is set but `Time.now` has not landed; one frame,
+            -- and long enough to show a reading counted from the epoch
             idle ctx "Reading your device clock"
 
 
@@ -529,8 +589,8 @@ doseRow label range perTsp =
 -- THE PHASE SECTIONS
 
 
-phaseSection : Context msg -> Phase -> Doc.Section msg
-phaseSection ctx phase =
+phaseSection : Context msg -> Maybe Clock.Reading -> Phase -> Doc.Section msg
+phaseSection ctx read phase =
     { anchor = phase.anchor
     , tocLabel = phase.tocLabel
     , title = phase.num ++ " — " ++ String.toLower phase.title
@@ -545,7 +605,7 @@ phaseSection ctx phase =
                         , th [] [ text "What" ]
                         ]
                     ]
-                , tbody [] (List.map (entryRow ctx) phase.entries)
+                , tbody [] (List.map (entryRow ctx read) phase.entries)
                 ]
             , p [ class "plan-source u" ]
                 [ a [ href phase.source ] [ text "Read the full section" ] ]
@@ -553,10 +613,14 @@ phaseSection ctx phase =
     }
 
 
-entryRow : Context msg -> Entry -> Html msg
-entryRow ctx entry =
+entryRow : Context msg -> Maybe Clock.Reading -> Entry -> Html msg
+entryRow ctx read entry =
     tr
-        [ Html.Attributes.classList [ ( "hero", entry.weight == Key ) ] ]
+        [ Html.Attributes.classList
+            [ ( "hero", entry.weight == Key )
+            , ( "is-now", isNow read entry )
+            ]
+        ]
         [ td [ class "mono" ] [ text entry.mark ]
         , td [ class "mono plan-when" ] (whenCell ctx entry)
         , td []
