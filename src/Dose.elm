@@ -31,6 +31,7 @@ module Dose exposing
     , stickSugar
     , sticks
     , sticksFor
+    , teaspoonRange
     , teaspoons
     , thiamine
     , water
@@ -460,6 +461,25 @@ teaspoons value =
 
     else
         "≈ " ++ spoonLabel value ++ " tsp"
+
+
+{-| Both ends of a range, in spoons: `≈ ½–¾ tsp`. A single figure
+beside a range of grams reads as the range's answer, and the reader
+cannot tell which end it is — so a derived surface that prints one
+is quietly tightening §07 to a bound of its own choosing
+(DESIGN-REQUIREMENTS §5). When the two ends round to the same spoon,
+one is printed, because `≈ ½–½ tsp` is not a range.
+-}
+teaspoonRange : Float -> Float -> String
+teaspoonRange low high =
+    if high <= 0 then
+        "—"
+
+    else if low <= 0 || spoonLabel low == spoonLabel high then
+        teaspoons high
+
+    else
+        "≈ " ++ spoonLabel low ++ "–" ++ spoonLabel high ++ " tsp"
 
 
 spoonLabel : Float -> String

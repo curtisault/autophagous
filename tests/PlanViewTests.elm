@@ -412,6 +412,15 @@ suite =
                     rendered (context (Just (at (Cycle.hours 41))) T72)
                         |> Query.find [ class "plan-dose" ]
                         |> Query.has [ text "Fine salt", text "One of 4 doses today" ]
+            , test "prints a spoon for each end of the range, like the sheet" <|
+                -- 3,000–5,000 mg of sodium as fine salt over 4 doses is
+                -- 1.9–3.2 g, and one unlabelled spoon beside that was
+                -- the ceiling passing itself off as the answer
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 41))) T72)
+                        |> Query.findAll [ class "plan-dose-tsp" ]
+                        |> Query.first
+                        |> Query.has [ text "≈ ⅓–½ tsp" ]
             , test "divides by the reader's own choice, not a default" <|
                 \_ ->
                     let

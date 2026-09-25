@@ -183,5 +183,11 @@ suite =
                 \_ -> Dose.teaspoons 0 |> Expect.equal "—"
             , test "a trace still shows as a trace" <|
                 \_ -> Dose.teaspoons 0.01 |> Expect.equal "≈ ⅛ tsp"
+            , test "a range prints both ends, not the ceiling alone" <|
+                \_ -> Dose.teaspoonRange 0.5 0.8 |> Expect.equal "≈ ½–¾ tsp"
+            , test "a range whose ends round to one spoon prints once" <|
+                \_ -> Dose.teaspoonRange 0.48 0.52 |> Expect.equal "≈ ½ tsp"
+            , test "a range with nothing at the top is an em dash" <|
+                \_ -> Dose.teaspoonRange 0 0 |> Expect.equal "—"
             ]
         ]

@@ -713,7 +713,9 @@ doseRows source each =
 
 {-| A range, in grams and in spoons. Both, because a spoon is a rough
 instrument and a scale is not — the same pairing the dosing sheet
-shows, for the same reason.
+shows, for the same reason. And a range in both: the sheet prints a
+spoon figure for each end, and one spoon beside two gram figures was
+the upper bound wearing no label.
 -}
 doseRow : String -> Dose.Range -> Float -> Html msg
 doseRow label range perTsp =
@@ -722,7 +724,7 @@ doseRow label range perTsp =
         , span [ class "plan-dose-g mono" ]
             [ text (Dose.grams range.low ++ "–" ++ Dose.grams range.high) ]
         , span [ class "plan-dose-tsp mono" ]
-            [ text (Dose.teaspoons (range.high / perTsp)) ]
+            [ text (Dose.teaspoonRange (range.low / perTsp) (range.high / perTsp)) ]
         ]
 
 
