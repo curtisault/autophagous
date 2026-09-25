@@ -529,8 +529,12 @@ rebuild target =
           , detail = "Start within 2–3 days of refeeding, then 2–3 sessions weekly. Without a mechanical stimulus the returning anabolic signal is untargeted — nothing sends it into muscle rather than fat."
           , weight = Normal
           }
-        , { at = days 28
-          , span = Until (days 28)
+        , -- a moment, not a day: it is hour 0 of the next cycle, and the
+          -- stance reads Complete from this minute (`Clock.stanceAt`).
+          -- As a day-long band it was still "in force" for twenty-four
+          -- hours after the clock had declared the cycle behind you
+          { at = days 28
+          , span = Moment
           , mark = "Next"
           , title = "Earliest next hour 0"
           , detail = "Monthly cadence: this is hour 0 of the next cycle, so its priming starts three days before this date. Cycles are never stacked back to back — more cumulative cycles beats one heroic effort."

@@ -158,6 +158,16 @@ suite =
                 \_ -> standingAt T72 (Cycle.days -5) |> Expect.equal []
             , test "and nothing is, once the cycle is behind you" <|
                 \_ -> standingAt T72 (Cycle.days 40) |> Expect.equal []
+            , test "nothing is in force the minute the cycle completes, either" <|
+                -- the earliest next hour 0 is a moment that has passed,
+                -- not a day still running under a stance that says the
+                -- cycle is over
+                \_ ->
+                    ( stanceAt T72 (Cycle.days 28 + Cycle.hours 1)
+                    , standingAt T72 (Cycle.days 28 + Cycle.hours 1)
+                    , titleAt T72 (Cycle.days 28 + Cycle.hours 1)
+                    )
+                        |> Expect.equal ( Complete, [], Just "Earliest next hour 0" )
             ]
         , describe "what is next"
             [ test "waiting, it is the first priming day" <|
