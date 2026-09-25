@@ -1,4 +1,4 @@
-module Doc exposing (Body(..), Chrome, Config, Section, view)
+module Doc exposing (Body(..), Chrome, Config, Marking(..), Section, view)
 
 {-| The document format (DESIGN-PRINCIPLES §2a): the shared chrome
 every broadsheet page wears — the
@@ -41,10 +41,32 @@ type alias Config msg =
     , footNote : List (Html msg) -- the footer (the disclaimer, on content pages)
     , chrome : Chrome msg
 
-    -- the anchor of the section the reader is standing in, if the page
-    -- has any notion of standing somewhere. See `marked`
-    , marked : Maybe String
+    -- whether the page has any notion of standing somewhere, and if
+    -- so the anchor of the section the reader is in. See `Marking`
+    , marked : Marking
     }
+
+
+{-| Whether this document knows where the reader is.
+
+`Static` is a page with no clock. `Live` is a page with one, naming
+the section the reader is standing in — or none, outside the cycle.
+
+**Why a live page with nobody in it is not `Static`.** The mark is a
+real flex item in the section header, and a header that gains or
+loses an item can wrap its intent label and move everything below.
+On a live page that would happen on the minute tick that crosses a
+phase boundary, under a reader mid-sentence. So a live page reserves
+the slot in **every** header — invisible, but measured — and lights
+the one the reader is in: moving the mark changes nothing but which
+slot is visible. The active style must never affect layout
+(DESIGN-PRINCIPLES); the table's `is-now` rule keeps the same promise
+with an inset shadow.
+
+-}
+type Marking
+    = Static
+    | Live (Maybe String)
 
 
 {-| The state the shell owns and every page wears: which section the
@@ -206,25 +228,40 @@ page says *where*, the format says *how it reads*. It still learns
 nothing about cycles, stages or phases.
 
 -}
-viewSection : Maybe String -> Int -> Section msg -> Html msg
-viewSection marked i s =
+viewSection : Marking -> Int -> Section msg -> Html msg
+viewSection marking i s =
     section [ id s.anchor ]
         (div [ class "sec-head" ]
             (span [ class "sec-num u" ] [ text (sectionNum i) ]
                 :: h2 [] [ text s.title ]
-                :: (if marked == Just s.anchor then
-                        -- real text, not an ARIA attribute: it is the
-                        -- one thing in this header a reader might be
-                        -- looking for
-                        [ span [ class "sec-here u" ] [ text "You are here" ] ]
-
-                    else
-                        []
-                   )
+                :: hereSlot marking s.anchor
                 ++ [ span [ class "sec-intent u" ] [ text s.intent ] ]
             )
             :: viewBody s.anchor (i + 1) s.body
         )
+
+
+{-| The "you are here" slot: absent on a static page, reserved on a
+live one, and lit (`is-here`) in the section the reader is in. Real
+text, not an ARIA attribute, because it is the one thing in this
+header a reader might be looking for; the unlit slots carry the same
+text so that they measure the same, and CSS hides them.
+-}
+hereSlot : Marking -> String -> List (Html msg)
+hereSlot marking anchor =
+    case marking of
+        Static ->
+            []
+
+        Live marked ->
+            [ span
+                [ classList
+                    [ ( "sec-here u", True )
+                    , ( "is-here", marked == Just anchor )
+                    ]
+                ]
+                [ text "You are here" ]
+            ]
 
 
 viewBody : String -> Int -> Body msg -> List (Html msg)

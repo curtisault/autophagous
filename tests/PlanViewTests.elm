@@ -361,8 +361,21 @@ suite =
             [ test "the phase you are in says so, and only that one" <|
                 \_ ->
                     rendered (context (Just (at (Cycle.hours 41))) T72)
-                        |> Query.findAll [ text "You are here" ]
+                        |> Query.findAll [ class "is-here", text "You are here" ]
                         |> Query.count (Expect.equal 1)
+            , test "every header on a live page reserves the slot, so the mark moving moves nothing" <|
+                -- seven sections, seven slots; one lit. A slot that
+                -- appeared only in the marked header would re-flow the
+                -- header on the tick that crosses a phase boundary
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 41))) T72)
+                        |> Query.findAll [ class "sec-here" ]
+                        |> Query.count (Expect.equal 7)
+            , test "a page with no clock has no slots at all" <|
+                \_ ->
+                    [ context Nothing T72, unset ]
+                        |> List.map (rendered >> Query.hasNot [ class "sec-here" ])
+                        |> expectAll
             , test "and it is the section the stance names" <|
                 \_ ->
                     [ ( Cycle.days -2, "sec-prime" )
@@ -374,7 +387,7 @@ suite =
                             (\( m, anchor ) ->
                                 rendered (context (Just (at m)) T72)
                                     |> Query.find [ Selector.id anchor ]
-                                    |> Query.has [ text "You are here" ]
+                                    |> Query.has [ class "is-here" ]
                             )
                         |> expectAll
             , test "nothing is marked outside the cycle, or before the clock lands" <|
@@ -384,7 +397,7 @@ suite =
                     , context Nothing T72
                     , unset
                     ]
-                        |> List.map (rendered >> Query.hasNot [ text "You are here" ])
+                        |> List.map (rendered >> Query.hasNot [ class "is-here" ])
                         |> expectAll
             , test "a band's dates are the dates it is in force, as the clock counts them" <|
                 -- the break is Fri 04 Sep 20:00, so refeed day 1 runs to

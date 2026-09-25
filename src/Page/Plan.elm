@@ -192,7 +192,15 @@ view ctx =
                      }
                    ]
         , chrome = ctx.chrome
-        , marked = markedPhase ctx read
+        , marked =
+            case read of
+                Just _ ->
+                    Doc.Live (markedPhase ctx read)
+
+                Nothing ->
+                    -- no clock, no slot: the page is static until the
+                    -- reading lands, and lands in the same frame §02 does
+                    Doc.Static
         , footNote =
             -- the medical disclaimer ships on every content page
             -- (DESIGN-REQUIREMENTS §5)

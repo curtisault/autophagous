@@ -81,7 +81,7 @@ view ctx =
         , chrome = ctx.chrome
 
         -- a conversion sheet is not somewhere you stand
-        , marked = Nothing
+        , marked = Doc.Static
         , footNote =
             -- the medical disclaimer ships on every content page
             -- (DESIGN-REQUIREMENTS §5)

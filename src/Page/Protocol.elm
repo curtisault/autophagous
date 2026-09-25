@@ -163,7 +163,7 @@ view chrome =
 
         -- the protocol describes the cycle; it does not date one,
         -- so no section of it is where the reader currently is
-        , marked = Nothing
+        , marked = Doc.Static
         , footNote =
             [ p [ style "margin" "0" ]
                 [ bT "This is general information, not medical advice, and I'm not a doctor."

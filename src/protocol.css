@@ -319,17 +319,28 @@ section {
   padding: 0.12rem 0.4rem;
   flex: none;
 }
-/* the phase the reader is standing in. Third and last user of the
+/* the phase the reader is standing in. One of four users of the
    "you are here" underline — the contents rail, the ruler's current
-   stage, and now the section itself. One mark, one meaning, and it is
-   real text rather than an ARIA attribute because it is the one thing
-   in this header a reader might actually be looking for. */
+   stage, the plan row in force (.is-now, below), and the section
+   itself. One mark, one meaning, and it is real text rather than an
+   ARIA attribute because it is the one thing in this header a reader
+   might actually be looking for.
+
+   A live page renders this slot in EVERY header and lights one
+   (Doc.Marking). Hidden, not absent: visibility keeps the width, so
+   the minute tick that moves the mark from one phase to the next
+   changes nothing a flex-wrap header could re-flow on — the active
+   style must never affect layout (DESIGN-PRINCIPLES). */
 .sec-here {
   font-size: 0.5rem;
   letter-spacing: 0.1em;
   color: var(--tx);
-  box-shadow: inset 0 -3px 0 var(--here);
   flex: none;
+  visibility: hidden;
+}
+.sec-here.is-here {
+  visibility: visible;
+  box-shadow: inset 0 -3px 0 var(--here);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
