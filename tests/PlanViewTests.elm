@@ -251,6 +251,7 @@ suite =
                             Page.Plan.recast
                                 { zone = Time.utc
                                 , target = T72
+                                , from = Page.Plan.FromStart
                                 , to = Page.Plan.FromBreak
                                 , value = "2026-09-01T20:00"
                                 }
@@ -269,11 +270,11 @@ suite =
                     "2026-09-01T20:00"
                         |> (\v ->
                                 Page.Plan.recast
-                                    { zone = Time.utc, target = T72, to = Page.Plan.FromBreak, value = v }
+                                    { zone = Time.utc, target = T72, from = Page.Plan.FromStart, to = Page.Plan.FromBreak, value = v }
                            )
                         |> (\v ->
                                 Page.Plan.recast
-                                    { zone = Time.utc, target = T72, to = Page.Plan.FromStart, value = v }
+                                    { zone = Time.utc, target = T72, from = Page.Plan.FromBreak, to = Page.Plan.FromStart, value = v }
                            )
                         |> Expect.equal "2026-09-01T20:00"
             , test "a value it cannot read is handed back untouched" <|
@@ -283,10 +284,28 @@ suite =
                     Page.Plan.recast
                         { zone = Time.utc
                         , target = T72
+                        , from = Page.Plan.FromStart
                         , to = Page.Plan.FromBreak
                         , value = "2026-09-0"
                         }
                         |> Expect.equal "2026-09-0"
+            , test "the mode already selected is a no-op, not a shift" <|
+                -- the button stays clickable once it is pressed, and
+                -- a click on it must not move the plan by a whole fast
+                \_ ->
+                    [ Page.Plan.FromStart, Page.Plan.FromBreak ]
+                        |> List.map
+                            (\mode ->
+                                Page.Plan.recast
+                                    { zone = Time.utc
+                                    , target = T72
+                                    , from = mode
+                                    , to = mode
+                                    , value = "2026-09-01T20:00"
+                                    }
+                                    |> Expect.equal "2026-09-01T20:00"
+                            )
+                        |> expectAll
             , test "across a spring-forward, the wall clock is what gives" <|
                 -- §01 promises this in as many words. UTC−5 becomes
                 -- UTC−4 at 2026-03-08T07:00Z, so holding a Tuesday
@@ -297,6 +316,7 @@ suite =
                     Page.Plan.recast
                         { zone = springForward
                         , target = T72
+                        , from = Page.Plan.FromBreak
                         , to = Page.Plan.FromStart
                         , value = "2026-03-10T12:00"
                         }

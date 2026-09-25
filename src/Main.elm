@@ -407,6 +407,7 @@ update msg model =
                             Page.Plan.recast
                                 { zone = model.zone
                                 , target = model.planTarget
+                                , from = model.planFrom
                                 , to = from
                                 , value = model.planAnchor
                                 }

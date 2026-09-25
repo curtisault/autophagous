@@ -86,11 +86,17 @@ An unparseable value is handed back untouched. There is nothing to
 convert, and eating what someone is halfway through typing is worse
 than leaving it.
 
+**So is a value whose meaning has not changed.** The control takes
+`from` as well as `to` because the button for the mode already
+selected is still a button: clicking it must be a no-op, and a shift
+applied to a field that was never on the other side is a plan moved
+by a whole fast for nothing.
+
 -}
-recast : { zone : Zone, target : Target, to : From, value : String } -> String
+recast : { zone : Zone, target : Target, from : From, to : From, value : String } -> String
 recast cfg =
-    case Civil.fromIso cfg.value of
-        Just civil ->
+    case ( cfg.from == cfg.to, Civil.fromIso cfg.value ) of
+        ( False, Just civil ) ->
             let
                 offset =
                     case cfg.to of
@@ -105,7 +111,7 @@ recast cfg =
                 |> Civil.fromPosix cfg.zone
                 |> Civil.toIso
 
-        Nothing ->
+        _ ->
             cfg.value
 
 
