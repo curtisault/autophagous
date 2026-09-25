@@ -536,9 +536,29 @@ startParam model =
 {-| Read the planner's state off a URL, keeping what the URL does not
 mention. A nav click carries no query and must not wipe a form the
 reader has already filled in; a shared link carries both and must win.
+
+`?start=` is hour 0, always (`syncPlanUrl`). The field is not: in
+break mode it holds the meal, and writing hour 0 into it unconverted
+re-reads that hour as the break and moves the whole plan by a fast.
+That is what happened on the way back from the dosing sheet — the
+route changed, the query was re-read, and a reader who had set the
+break found it renamed. So the incoming hour 0 is recast into the
+mode the field is in, against the target the same link carries — the
+reader keeps how they were talking to the form, and the plan stays
+where the link put it.
+
 -}
 applyQuery : Url -> Model -> Model
 applyQuery url model =
+    let
+        planTarget =
+            case Route.queryParam "target" url of
+                Just raw ->
+                    Cycle.targetFromParam (Just raw)
+
+                Nothing ->
+                    model.planTarget
+    in
     { model
         | doseSource =
             case Route.queryParam "k" url of
@@ -554,14 +574,20 @@ applyQuery url model =
 
                 Nothing ->
                     model.doseServings
-        , planAnchor = Maybe.withDefault model.planAnchor (Route.queryParam "start" url)
-        , planTarget =
-            case Route.queryParam "target" url of
-                Just raw ->
-                    Cycle.targetFromParam (Just raw)
+        , planAnchor =
+            case Route.queryParam "start" url of
+                Just hourZero ->
+                    Page.Plan.recast
+                        { zone = model.zone
+                        , target = planTarget
+                        , from = Page.Plan.FromStart
+                        , to = model.planFrom
+                        , value = hourZero
+                        }
 
                 Nothing ->
-                    model.planTarget
+                    model.planAnchor
+        , planTarget = planTarget
     }
 
 
