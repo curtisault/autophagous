@@ -15,6 +15,7 @@ import Civil
 import Cycle exposing (Target(..))
 import Dose
 import Expect
+import Expectations exposing (expectAll)
 import Html.Attributes as Attr
 import Page.Plan
 import Ruler
@@ -22,11 +23,6 @@ import Test exposing (Test, describe, test)
 import Test.Html.Query as Query
 import Test.Html.Selector as Selector exposing (class, text)
 import Time
-
-
-expectAll : List Expect.Expectation -> Expect.Expectation
-expectAll expectations =
-    Expect.all (List.map always expectations) ()
 
 
 {-| UTC−5 that becomes UTC−4 at 2026-03-08T07:00Z — the same zone

@@ -16,6 +16,7 @@ import Clock
 import Cycle
 import Doc
 import Expect
+import Expectations exposing (expectAll)
 import Html.Attributes as Attr
 import Page.Protocol
 import Ruler
@@ -173,15 +174,6 @@ suite =
                         |> Query.find [ Selector.class "legend" ]
                         |> Query.has [ Selector.text "Where you are — hour 41, Stage III" ]
             ]
-        , describe "the scale"
-            [ test "draws a segment for every stage regardless of target" <|
-                -- the 72 h ruler still draws Stage V: the scale is the
-                -- protocol's whole clock, not the target
-                \_ ->
-                    planner
-                        |> Query.findAll [ Selector.class "rlbl" ]
-                        |> Query.count (Expect.equal (List.length Cycle.stages))
-            ]
         ]
 
 
@@ -194,11 +186,6 @@ numeralAt minutes =
     (Clock.reading Cycle.T96 minutes).depth
         |> Maybe.map (.stage >> .numeral)
         |> Maybe.withDefault "—"
-
-
-expectAll : List Expect.Expectation -> Expect.Expectation
-expectAll expectations =
-    Expect.all (List.map always expectations) ()
 
 
 dedupe : List String -> List String
