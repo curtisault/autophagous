@@ -300,29 +300,17 @@ stanceAt target elapsed =
 `stanceAt` only asks inside the fast, and the stage boundaries are
 contiguous from 0 to 96 h (`CycleTests` holds them that way), so the
 fallback is unreachable — it exists because the compiler cannot know
-`Cycle.stages` is non-empty, and it falls back to the last stage
-rather than to a blank.
+the filter keeps anything, and it falls back to `Cycle.lastStage`
+rather than to a blank. Cycle's, not a copy: this module once spelled
+Stage V out a second time, anchor and all, which is the drift
+`Stage.anchor` is documented as existing to prevent.
 
 -}
 stageAt : Int -> Cycle.Stage
 stageAt elapsed =
-    case List.filter (\s -> elapsed < Cycle.hours s.to) Cycle.stages of
-        stage :: _ ->
-            stage
-
-        [] ->
-            Maybe.withDefault fallbackStage (last Cycle.stages)
-
-
-fallbackStage : Cycle.Stage
-fallbackStage =
-    { numeral = "V"
-    , anchor = "stage-v"
-    , from = 72
-    , to = 96
-    , label = "Optional extension"
-    , title = "Optional extension"
-    }
+    List.filter (\s -> elapsed < Cycle.hours s.to) Cycle.stages
+        |> List.head
+        |> Maybe.withDefault Cycle.lastStage
 
 
 {-| What the stance says out loud, in the display voice's register.

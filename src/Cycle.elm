@@ -8,6 +8,7 @@ module Cycle exposing
     , Weight(..)
     , days
     , hours
+    , lastStage
     , plan
     , scaleHours
     , stageHours
@@ -142,17 +143,16 @@ type alias Stage =
 
 
 {-| Rev. 3, §08 "Stages, by the clock".
+
+The first stage is named on its own so the list is provably
+non-empty: `lastStage` folds from it, and the clock's fallback reads
+that rather than a second spelling of Stage V.
+
 -}
 stages : List Stage
 stages =
-    [ { numeral = "I"
-      , anchor = "stage-i"
-      , from = 0
-      , to = 16
-      , label = "Draw-down"
-      , title = "Glycogen draw-down"
-      }
-    , { numeral = "II"
+    stageI
+        :: [ { numeral = "II"
       , anchor = "stage-ii"
       , from = 16
       , to = 24
@@ -173,14 +173,34 @@ stages =
       , label = "Sustained"
       , title = "Sustained"
       }
-    , { numeral = "V"
-      , anchor = "stage-v"
-      , from = 72
-      , to = 96
-      , label = "Optional extension"
-      , title = "Optional extension"
-      }
-    ]
+           , { numeral = "V"
+             , anchor = "stage-v"
+             , from = 72
+             , to = 96
+             , label = "Optional extension"
+             , title = "Optional extension"
+             }
+           ]
+
+
+stageI : Stage
+stageI =
+    { numeral = "I"
+    , anchor = "stage-i"
+    , from = 0
+    , to = 16
+    , label = "Draw-down"
+    , title = "Glycogen draw-down"
+    }
+
+
+{-| The stage the clock runs out in. Derived, so it cannot be a copy
+that stops matching `stages` — which is what `Clock` carried until
+it was one.
+-}
+lastStage : Stage
+lastStage =
+    List.foldl (\s _ -> s) stageI stages
 
 
 {-| The full width of the clock the stages are drawn on — the ruler's

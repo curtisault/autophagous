@@ -31,6 +31,10 @@ suite =
                         |> Expect.equal [ ( 0, 16 ), ( 16, 24 ), ( 24, 48 ), ( 48, 72 ), ( 72, 96 ) ]
             , test "the scale is the last boundary, not a second copy of it" <|
                 \_ -> Cycle.scaleHours |> Expect.equal 96
+            , test "the last stage is the list's own tail, not a copy of it" <|
+                \_ ->
+                    Just Cycle.lastStage
+                        |> Expect.equal (List.head (List.reverse Cycle.stages))
             , test "hours read in the protocol's own notation" <|
                 \_ ->
                     List.map Cycle.stageHours Cycle.stages
