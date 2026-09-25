@@ -149,7 +149,7 @@ Primitives (never swapped): `--ink #111214`, `--frost #edf1f2`,
 | `--wash` | optional-zone fill | `#d9f7fe` | `#10333c` |
 | `--volt-tx` | volt-family text (open/free access tag) | `#4a7000` | `--acid-volt` |
 | `--warn-tx` | warning text (paywalled tag) | `#9a3412` | `--acid-orange` |
-| `--here` | the "you are here" underline — rail's active section, ruler's current stage | `#075e75` | `--acid-volt` |
+| `--here` | the "you are here" mark — rail's active section, ruler's current stage, the planner's section header and its row in force | `#075e75` | `--acid-volt` |
 
 All pairings audited ≥ 5.1:1 (AA) in both themes, 2026-08-16.
 
@@ -171,6 +171,16 @@ and `--acid-volt` in the dark, where volt is what every mark becomes.
 Both users of the mark moved together: the contents rail's active
 section and its hover, and the ruler's current stage. They say the
 same thing and must not say it two ways.
+
+**Amended 2026-09-25 — the mark has four users, not two.** The
+planner's clock added two more: the section header of the phase the
+reader is standing in (`.sec-here`, real text underlined in `--here`)
+and the plan row in force (`.is-now`, a rule down the row's left edge
+in the same colour). Same token, same meaning — *this is where you
+are* — and the same constraint on all four: marking a thing must not
+move it. The rail, ruler and row draw the mark as an inset shadow; the
+header reserves its slot in every section of a live page and lights
+one. Any fifth user takes the token and the constraint together.
 
 **Acid discipline (theme-dependent):** on light ground, acid never
 carries small text — data is ink; acid is blocks, bars, and marks. On dark ground the acids resume as data colors —
