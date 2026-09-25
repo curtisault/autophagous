@@ -21,7 +21,7 @@ be mistaken for the contraindications (DESIGN-REQUIREMENTS §5).
 
 import Civil
 import Clock
-import Cycle exposing (Entry, Phase, Span(..), Target, Weight(..))
+import Cycle exposing (Entry, Phase, Target, Weight(..))
 import Doc
 import Dose
 import Html exposing (Html, a, b, button, div, input, label, li, p, span, table, tbody, td, text, th, thead, tr, ul)
@@ -775,6 +775,12 @@ entryRow ctx read entry =
 
 {-| The dated cell: two lines for a moment (date over time), one range
 for a band, and an em dash until there is a start to count from.
+
+A band's dates are the dates it is in force, read off `Cycle.window`
+— the same half-open window the clock stands in — so a day that
+begins at 20:00 shows both dates it touches, and the row `isNow`
+marks at 10:00 the next morning is a row that says so.
+
 -}
 whenCell : Context msg -> Entry -> List (Html msg)
 whenCell ctx entry =
@@ -803,19 +809,21 @@ whenCell ctx entry =
                 day =
                     dayText ctx.zone start
             in
-            case entry.span of
-                Moment ->
+            case Cycle.window entry of
+                Nothing ->
                     [ span [ class "plan-d" ] [ text (day (at entry.at)) ]
                     , span [ class "plan-h" ] [ text (Civil.formatTime ctx.zone (at entry.at)) ]
                     ]
 
-                Until end ->
+                Just ( opens, closes ) ->
                     let
                         from =
-                            day (at entry.at)
+                            day (at opens)
 
                         to =
-                            day (at end)
+                            -- the window is half-open: the last minute
+                            -- in force is the one before it closes
+                            day (at (closes - 1))
                     in
                     if from == to then
                         [ span [ class "plan-d" ] [ text from ] ]

@@ -386,6 +386,20 @@ suite =
                     ]
                         |> List.map (rendered >> Query.hasNot [ text "You are here" ])
                         |> expectAll
+            , test "a band's dates are the dates it is in force, as the clock counts them" <|
+                -- the break is Fri 04 Sep 20:00, so refeed day 1 runs to
+                -- 20:00 on the Saturday. At 10:00 that morning the clock
+                -- has the liquid-texture line in force, and the row it
+                -- marks has to carry Saturday's date, not only Friday's
+                \_ ->
+                    rendered (context (Just (at (Cycle.hours 72 + Cycle.hours 14))) T72)
+                        |> Query.findAll [ Selector.class "is-now" ]
+                        |> Query.index -1
+                        |> Query.has
+                            [ text "Liquid and pureed textures only"
+                            , text "Fri 04 Sep"
+                            , text "→ Sat 05 Sep"
+                            ]
             , test "the row in force is marked, not only the moment passed" <|
                 -- at hour 41 the moment is the Stage III crossing and
                 -- the band is the mandatory daily line; §02 calls both

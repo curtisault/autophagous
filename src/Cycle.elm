@@ -267,7 +267,16 @@ genuinely later end runs to that end and no further: the fast's daily
 minimum stops when the fast does, not a day after it.
 
 The convention lives here because `Span` does. `Clock` asks whether
-the reader is inside a band and must not re-derive the answer.
+the reader is inside a band and must not re-derive the answer — and
+neither must the dated surfaces. The planner's table and the calendar
+export both print the dates a band is in force, which are the dates
+of `from` through `to - 1`: they read this window and nothing else.
+They once read the calendar date of `at` instead, so a refeed day
+that began at 20:00 was in force until 20:00 the next day by the
+clock and over by midnight by the table, and for those twenty hours
+the row marked as now carried yesterday's date. §04 of the protocol
+counts the refeed in hours from the break ("the first 24 hours"), so
+the clock had it right.
 
 -}
 window : Entry -> Maybe ( Int, Int )

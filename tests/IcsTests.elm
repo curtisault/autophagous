@@ -140,6 +140,15 @@ suite =
                 \_ ->
                     String.contains "DTSTART:20260904T200000Z" (export T72)
                         |> Expect.equal True
+            , test "an all-day event covers every date its band is in force" <|
+                -- refeed day 1 opens at the break, Fri 04 Sep 20:00, and
+                -- runs 24 hours — into Saturday. DTEND is exclusive, so
+                -- the event that covers Friday and Saturday ends Sunday
+                \_ ->
+                    String.contains
+                        "DTSTART;VALUE=DATE:20260904\u{000D}\nDTEND;VALUE=DATE:20260906"
+                        (export T72)
+                        |> Expect.equal True
             , test "sends the reader back to the protocol, not just to a summary" <|
                 \_ ->
                     String.contains "https://autophagous.test/#sec-refeed" (export T72)

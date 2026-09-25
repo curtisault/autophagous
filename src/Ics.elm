@@ -24,7 +24,7 @@ Three decisions worth stating:
 -}
 
 import Civil
-import Cycle exposing (Entry, Phase, Span(..), Target)
+import Cycle exposing (Entry, Phase, Target)
 import Time exposing (Posix, Zone)
 import Url
 
@@ -80,18 +80,20 @@ event ctx stamp index ( phase, entry ) =
                 ++ "@autophagous"
 
         when =
-            case entry.span of
-                Moment ->
+            case Cycle.window entry of
+                Nothing ->
                     [ "DTSTART:" ++ Civil.icsStamp (at entry.at)
                     , "DTEND:" ++ Civil.icsStamp (at (entry.at + 30))
                     ]
 
-                Until end ->
-                    -- VALUE=DATE ranges are half-open: DTEND is the first
-                    -- day NOT covered, so a single-day band still needs
-                    -- the following date
-                    [ "DTSTART;VALUE=DATE:" ++ Civil.icsDate ctx.zone (at entry.at)
-                    , "DTEND;VALUE=DATE:" ++ Civil.icsDate ctx.zone (at (end + Cycle.days 1))
+                Just ( opens, closes ) ->
+                    -- an all-day event on every date the band is in
+                    -- force — the window's, so the calendar and the
+                    -- clock agree on which day is which. VALUE=DATE
+                    -- ranges are half-open: DTEND is the first day NOT
+                    -- covered, so it is the day after the last minute
+                    [ "DTSTART;VALUE=DATE:" ++ Civil.icsDate ctx.zone (at opens)
+                    , "DTEND;VALUE=DATE:" ++ Civil.icsDate ctx.zone (dayAfter ctx.zone (at (closes - 1)))
                     ]
     in
     [ "BEGIN:VEVENT"
@@ -207,3 +209,20 @@ utf8Width ch =
 
     else
         4
+
+
+{-| The following calendar date, as an instant somewhere inside it.
+
+Not `shift (days 1)`: twenty-four elapsed hours from 23:59 across a
+spring-forward is 00:59 two dates on. From noon it is 11:00 or 13:00
+the next day whatever the clocks did, and only the date is read.
+
+-}
+dayAfter : Zone -> Posix -> Posix
+dayAfter zone t =
+    let
+        c =
+            Civil.fromPosix zone t
+    in
+    Civil.toPosix zone { c | hour = 12, minute = 0, second = 0 }
+        |> Civil.shift (Cycle.days 1)
